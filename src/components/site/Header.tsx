@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Menu, X, ShoppingBag } from "lucide-react";
 
 const nav = [
@@ -12,30 +12,16 @@ const nav = [
 ] as const;
 
 export function Header() {
-  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-6 sm:pt-5">
-      <div
-        className={`mx-auto flex max-w-7xl items-center justify-between rounded-full border transition-all duration-500 ${
-          scrolled
-            ? "glass border-transparent px-4 py-2 shadow-glass"
-            : "border-transparent bg-transparent px-4 py-3"
-        }`}
-      >
+      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-gold-soft/55 bg-cream/82 px-5 py-3.5 shadow-glass backdrop-blur-sm transition-shadow duration-200 sm:px-6">
         <Link to="/" className="flex items-center gap-2 group">
-          <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-gold text-primary-foreground font-display text-lg font-semibold shadow-glow transition-transform group-hover:rotate-12">
+          <span className="grid h-11 w-11 place-items-center rounded-full bg-gradient-gold text-primary-foreground font-display text-xl font-extrabold shadow-glow transition-transform group-hover:rotate-12">
             Z
           </span>
-          <span className="font-display text-lg tracking-tight text-foreground">
+          <span className="font-display text-xl font-extrabold text-foreground sm:text-2xl">
             Zekra <span className="text-gradient-gold">Sweets</span>
           </span>
         </Link>
@@ -47,7 +33,7 @@ export function Header() {
               to={n.to}
               activeOptions={{ exact: n.to === "/" }}
               activeProps={{ className: "text-primary" }}
-              className="rounded-full px-4 py-2 text-sm font-medium text-foreground/80 transition-colors hover:text-primary story-link"
+              className="rounded-full px-4 py-2.5 text-[15px] font-medium text-foreground/80 transition-colors hover:text-primary story-link"
             >
               {n.label}
             </Link>
@@ -57,14 +43,14 @@ export function Header() {
         <div className="flex items-center gap-2">
           <Link
             to="/products"
-            className="hidden items-center gap-2 rounded-full bg-gradient-gold px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-glow transition-transform hover:scale-105 sm:inline-flex"
+            className="hidden items-center gap-2 rounded-full bg-gradient-gold px-6 py-3 text-[15px] font-semibold text-primary-foreground shadow-glow transition-transform hover:scale-105 sm:inline-flex"
           >
             <ShoppingBag className="h-4 w-4" />
             Order now
           </Link>
           <button
             aria-label="Toggle navigation"
-            className="grid h-10 w-10 place-items-center rounded-full glass md:hidden"
+            className="grid h-11 w-11 place-items-center rounded-full border border-gold-soft/45 bg-cream/70 backdrop-blur-md md:hidden"
             onClick={() => setOpen((v) => !v)}
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -74,7 +60,7 @@ export function Header() {
 
       {open && (
         <div className="mx-auto mt-2 max-w-7xl md:hidden">
-          <div className="glass rounded-3xl p-3">
+          <div className="rounded-3xl border border-gold-soft/45 bg-cream/90 p-3 shadow-elegant backdrop-blur-md">
             {nav.map((n) => (
               <Link
                 key={n.to}

@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Sparkles, Flame, Leaf, Star, Quote } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import heroImg from "@/assets/hero-cookies.jpg";
+import heroVideo from "@/assets/bg-hero.mp4";
+import heroPoster from "@/assets/bg-hero-poster.jpg";
 import baklawaImg from "@/assets/baklawa.jpg";
 import almondImg from "@/assets/almond-cookies.jpg";
 import ruskImg from "@/assets/rusk.jpg";
@@ -16,21 +17,34 @@ function Home() {
   return (
     <SiteLayout>
       {/* HERO */}
-      <section className="relative mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-hero">
-          <div className="grid gap-6 p-6 lg:grid-cols-12 lg:p-10">
+      <section className="relative mx-auto max-w-[1600px] px-3 sm:px-5">
+        <div className="relative flex min-h-[clamp(570px,calc(100svh-8rem),820px)] flex-col overflow-hidden rounded-[2rem] bg-cocoa shadow-elegant sm:rounded-[2.5rem]">
+          <video
+            className="absolute inset-0 h-full w-full object-cover object-center"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster={heroPoster}
+            aria-hidden="true"
+          >
+            <source src={heroVideo} type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,oklch(0.16_0.018_70_/_0.9)_0%,oklch(0.16_0.018_70_/_0.62)_45%,oklch(0.16_0.018_70_/_0.12)_78%)]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-cocoa/85 via-transparent to-cocoa/20" />
+
+          <div className="relative z-10 flex flex-1 items-end p-6 pb-8 sm:p-10 sm:pb-10 lg:p-14 lg:pb-12">
             {/* Left: copy */}
-            <div className="relative z-10 flex flex-col justify-center lg:col-span-6 lg:pr-6">
-              <span className="inline-flex w-fit items-center gap-2 rounded-full glass px-4 py-1.5 text-xs font-medium text-caramel">
-                <Sparkles className="h-3.5 w-3.5" /> Artisan bakery · Ajman, UAE
+            <div className="flex w-full max-w-3xl flex-col justify-end text-cream">
+              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-cream/20 bg-cocoa/35 px-4 py-2 text-xs font-medium text-gold-soft backdrop-blur-sm">
+                <Sparkles className="h-3.5 w-3.5" /> Artisan bakery in Ajman, UAE
               </span>
-              <h1 className="mt-5 font-display text-5xl leading-[0.95] tracking-tight sm:text-6xl lg:text-7xl">
-                Fresh &amp; Tasty <br />
-                <span className="text-gradient-gold">Cookies, Daily.</span>
+              <h1 className="mt-5 font-display text-6xl font-extrabold leading-[0.88] tracking-normal sm:text-7xl lg:text-8xl">
+                Zekra <span className="text-gradient-gold">Sweets</span>
               </h1>
-              <p className="mt-5 max-w-lg text-base text-foreground/75 sm:text-lg">
-                Small batches, baked from dawn — buttery, golden, and made from
-                scratch with recipes perfected over years. Available until sold out.
+              <p className="mt-5 max-w-xl text-base leading-relaxed text-cream/82 sm:text-lg">
+                Fresh cookies, rusks and pastries made in small batches, baked from scratch every morning and available until sold out.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
@@ -42,56 +56,31 @@ function Home() {
                 </Link>
                 <Link
                   to="/products"
-                  className="inline-flex items-center gap-2 rounded-full glass px-6 py-3.5 text-sm font-medium text-foreground hover-lift"
+                  className="inline-flex items-center gap-2 rounded-full border border-cream/25 bg-cream/10 px-6 py-3.5 text-sm font-medium text-cream backdrop-blur-sm transition-colors hover:bg-cream/20"
                 >
                   Explore availability
                 </Link>
               </div>
 
-              <div className="mt-10 grid grid-cols-3 gap-3">
+              <div className="mt-10 grid max-w-2xl grid-cols-3 border-t border-cream/20 pt-5">
                 {[
                   { k: "9+", v: "Signature recipes" },
                   { k: "100%", v: "Handmade" },
-                  { k: "5★", v: "Loved locally" },
+                  { k: "5/5", v: "Loved locally" },
                 ].map((s) => (
-                  <div key={s.v} className="glass rounded-2xl p-4 text-center">
-                    <div className="font-display text-2xl text-gradient-gold">{s.k}</div>
-                    <div className="mt-1 text-[11px] uppercase tracking-widest text-muted-foreground">{s.v}</div>
+                  <div key={s.v} className="border-l border-cream/20 px-3 first:border-l-0 first:pl-0 sm:px-6">
+                    <div className="font-display text-2xl text-gold-soft sm:text-3xl">{s.k}</div>
+                    <div className="mt-1 text-[10px] uppercase tracking-widest text-cream/60 sm:text-[11px]">{s.v}</div>
                   </div>
                 ))}
-              </div>
-            </div>
-
-            {/* Right: image collage */}
-            <div className="relative lg:col-span-6">
-              <div className="relative aspect-[4/5] w-full">
-                <div className="absolute inset-0 overflow-hidden rounded-[2rem] shadow-elegant">
-                  <img
-                    src={heroImg}
-                    alt="Assorted golden cookies, baklava and pastries on marble"
-                    className="h-full w-full object-cover"
-                    width={1600}
-                    height={1200}
-                  />
-                </div>
-                <div className="absolute -left-4 bottom-8 hidden w-56 rotate-[-6deg] overflow-hidden rounded-2xl shadow-elegant animate-float sm:block">
-                  <img src={baklawaImg} alt="Peanut cashew baklawa" loading="lazy" className="h-40 w-full object-cover" width={1200} height={1400} />
-                </div>
-                <div className="absolute -right-2 -top-4 hidden glass rounded-2xl px-4 py-3 sm:flex items-center gap-3 animate-float" style={{ animationDelay: "-3s" }}>
-                  <Flame className="h-5 w-5 text-primary" />
-                  <div>
-                    <div className="text-xs uppercase tracking-widest text-muted-foreground">Fresh from oven</div>
-                    <div className="font-display text-sm">Baked at dawn today</div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
 
           {/* Marquee */}
-          <div className="border-t border-border/50 bg-cream/40 py-4">
+          <div className="relative z-10 border-t border-cream/15 bg-cocoa/55 py-3.5 backdrop-blur-sm">
             <div className="flex overflow-hidden">
-              <div className="flex shrink-0 animate-marquee gap-12 whitespace-nowrap px-6 font-display text-lg text-caramel/70">
+              <div className="flex shrink-0 animate-marquee gap-12 whitespace-nowrap px-6 font-display text-base text-gold-soft/80 sm:text-lg">
                 {Array.from({ length: 2 }).map((_, i) => (
                   <span key={i} className="flex items-center gap-12">
                     <span>Almond Cookies</span><span>·</span>
