@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { ShoppingBag, Search } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { apiFetch, assetUrl, type Product } from "@/lib/api";
 
 import tuti from "@/assets/tuti-fruity.jpg";
 import choc from "@/assets/chocolate.jpg";
@@ -25,25 +26,16 @@ export const Route = createFileRoute("/products")({
   component: Products,
 });
 
-type Product = {
-  name: string;
-  img: string;
-  price: number;
-  original?: number;
-  tag?: "Offer" | "Fresh" | "New";
-  category: "Cookies" | "Sweets" | "Rusk" | "Puff";
-};
-
-const products: Product[] = [
-  { name: "Premium Tuti Fruity Butter Cookies", img: tuti, price: 6.5, original: 8.5, category: "Cookies" },
-  { name: "Premium Chocolate Cookies", img: choc, price: 5.0, original: 7.0, category: "Cookies" },
-  { name: "Premium Almond Cookies", img: almond, price: 6.5, original: 8.5, category: "Cookies" },
-  { name: "Peanut Baklawa | Middle Eastern Delight", img: baklawa, price: 6.5, original: 8.5, category: "Sweets" },
-  { name: "Premium Banana Butter Cookies", img: banana, price: 5.0, original: 7.0, category: "Cookies" },
-  { name: "Premium Jeera Cookies | Crispy Cumin", img: jeera, price: 5.0, original: 7.0, category: "Cookies" },
-  { name: "Khaari Puff Packet | Crispy Butter Puff", img: khaari, price: 6.5, original: 8.5, tag: "Offer", category: "Puff" },
-  { name: "Plain Butter Cookies | Classic Crispy", img: butter, price: 5.0, original: 7.0, tag: "Offer", category: "Cookies" },
-  { name: "Fresh Rusk Packet | Tea Time Toast", img: rusk, price: 6.5, original: 8.5, tag: "Fresh", category: "Rusk" },
+const fallbackProducts: Product[] = [
+  { id: "tuti-fruity", name: "Premium Tuti Fruity Butter Cookies", imageUrl: tuti, price: 6.5, originalPrice: 8.5, category: "Cookies" },
+  { id: "chocolate", name: "Premium Chocolate Cookies", imageUrl: choc, price: 5.0, originalPrice: 7.0, category: "Cookies" },
+  { id: "almond", name: "Premium Almond Cookies", imageUrl: almond, price: 6.5, originalPrice: 8.5, category: "Cookies" },
+  { id: "baklawa", name: "Peanut Baklawa | Middle Eastern Delight", imageUrl: baklawa, price: 6.5, originalPrice: 8.5, category: "Sweets" },
+  { id: "banana", name: "Premium Banana Butter Cookies", imageUrl: banana, price: 5.0, originalPrice: 7.0, category: "Cookies" },
+  { id: "jeera", name: "Premium Jeera Cookies | Crispy Cumin", imageUrl: jeera, price: 5.0, originalPrice: 7.0, category: "Cookies" },
+  { id: "khaari", name: "Khaari Puff Packet | Crispy Butter Puff", imageUrl: khaari, price: 6.5, originalPrice: 8.5, tag: "Offer", category: "Puff" },
+  { id: "butter", name: "Plain Butter Cookies | Classic Crispy", imageUrl: butter, price: 5.0, originalPrice: 7.0, tag: "Offer", category: "Cookies" },
+  { id: "rusk", name: "Fresh Rusk Packet | Tea Time Toast", imageUrl: rusk, price: 6.5, originalPrice: 8.5, tag: "Fresh", category: "Rusk" },
 ];
 
 const categories = ["All products", "Cookies", "Sweets", "Rusk", "Puff"] as const;
@@ -51,6 +43,15 @@ const categories = ["All products", "Cookies", "Sweets", "Rusk", "Puff"] as cons
 function Products() {
   const [cat, setCat] = useState<(typeof categories)[number]>("All products");
   const [q, setQ] = useState("");
+  const [products, setProducts] = useState<Product[]>(fallbackProducts);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    apiFetch<Product[]>("/api/products")
+      .then(setProducts)
+      .catch(() => setProducts(fallbackProducts))
+      .finally(() => setLoading(false));
+  }, []);
 
   const filtered = products.filter(
     (p) =>
@@ -64,7 +65,9 @@ function Products() {
         <div className="glass rounded-[2.5rem] p-8 md:p-12" data-reveal>
           <span className="text-xs uppercase tracking-[0.3em] text-caramel">Browse by</span>
           <h1 className="mt-3 font-display text-5xl sm:text-6xl">All <span className="text-gradient-gold">products.</span></h1>
-          <p className="mt-3 text-foreground/75">{filtered.length} handcrafted treats — baked fresh, delivered warm.</p>
+          <p className="mt-3 text-foreground/75">
+            {loading ? "Loading fresh availability..." : `${filtered.length} handcrafted treats - baked fresh, delivered warm.`}
+          </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <div className="relative flex-1 min-w-[220px]">
@@ -99,13 +102,13 @@ function Products() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p, i) => (
             <article
-              key={p.name}
+              key={p.id}
               data-reveal
               style={{ transitionDelay: `${(i % 6) * 70}ms` }}
               className="group glass overflow-hidden rounded-3xl hover-lift"
             >
               <div className="relative aspect-square overflow-hidden">
-                <img src={p.img} alt={p.name} loading="lazy" className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-110" />
+                <img src={assetUrl(p.imageUrl)} alt={p.name} loading="lazy" className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-110" />
                 {p.tag && (
                   <span className="absolute left-4 top-4 rounded-full bg-gradient-gold px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary-foreground shadow-glow">
                     {p.tag}
@@ -117,8 +120,8 @@ function Products() {
                 <h3 className="mt-2 font-display text-lg leading-tight text-foreground">{p.name}</h3>
                 <div className="mt-4 flex items-end justify-between">
                   <div>
-                    {p.original && (
-                      <div className="text-xs text-muted-foreground line-through">AED {p.original.toFixed(2)}</div>
+                    {p.originalPrice && (
+                      <div className="text-xs text-muted-foreground line-through">AED {p.originalPrice.toFixed(2)}</div>
                     )}
                     <div className="font-display text-2xl text-gradient-gold">AED {p.price.toFixed(2)}</div>
                   </div>
