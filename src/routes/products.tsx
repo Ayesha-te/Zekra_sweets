@@ -59,33 +59,33 @@ function Products() {
   return (
     <SiteLayout>
       <section className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="glass rounded-[2.5rem] p-8 md:p-12" data-reveal>
-          <span className="text-xs uppercase tracking-[0.3em] text-caramel">Browse by</span>
-          <h1 className="mt-3 font-display text-5xl sm:text-6xl">
+        <div className="glass rounded-[1.75rem] p-5 sm:p-6 md:p-7" data-reveal>
+          <span className="text-[11px] uppercase tracking-[0.24em] text-caramel">Browse by</span>
+          <h1 className="mt-2 font-display text-4xl sm:text-5xl">
             All <span className="text-gradient-gold">products.</span>
           </h1>
-          <p className="mt-3 text-foreground/75">
+          <p className="mt-2 text-sm text-foreground/75 sm:text-base">
             {loading
               ? "Loading fresh availability..."
               : `${filtered.length} handcrafted treats - baked fresh, delivered warm.`}
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center gap-3">
+          <div className="mt-5 flex flex-wrap items-center gap-2.5">
             <div className="relative min-w-[220px] flex-1">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 value={q}
                 onChange={(event) => setQ(event.target.value)}
                 placeholder="Search products..."
-                className="w-full rounded-full border border-border bg-cream/60 px-11 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className="w-full rounded-full border border-border bg-cream/60 px-11 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
               {productCategories.map((category) => (
                 <button
                   key={category}
                   onClick={() => setCat(category)}
-                  className={`rounded-full px-4 py-2 text-xs font-medium transition-all ${
+                  className={`rounded-full px-3.5 py-2 text-xs font-medium transition-all ${
                     cat === category
                       ? "bg-gradient-gold text-primary-foreground shadow-glow"
                       : "glass text-foreground/80 hover:text-primary"
@@ -98,13 +98,13 @@ function Products() {
           </div>
 
           {cart.count > 0 && (
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-gold-soft/50 bg-cream/60 px-5 py-4 text-sm">
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-2.5 rounded-2xl border border-gold-soft/50 bg-cream/60 px-4 py-3 text-sm">
               <span className="text-foreground/75">
                 {cart.count} {cart.count === 1 ? "item" : "items"} in your bag
               </span>
               <Link
                 to="/cart"
-                className="inline-flex items-center gap-2 rounded-full bg-cocoa px-4 py-2 text-xs font-semibold text-cream transition-transform hover:scale-[1.03]"
+                className="inline-flex items-center gap-2 rounded-full bg-cocoa px-3.5 py-2 text-xs font-semibold text-cream transition-transform hover:scale-[1.03]"
               >
                 Review bag
                 <ShoppingBag className="h-3.5 w-3.5" />
@@ -114,7 +114,7 @@ function Products() {
         </div>
       </section>
 
-      <section className="mx-auto mt-12 max-w-7xl px-4 sm:px-6">
+      <section className="mx-auto mt-8 max-w-7xl px-4 sm:px-6">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((product, index) => {
             const quantityInBag = cart.getItemQuantity(product.id);
