@@ -3,7 +3,7 @@ import type { Product } from "@/lib/api";
 
 export type CartProduct = Pick<
   Product,
-  "id" | "name" | "imageUrl" | "imageAlt" | "price" | "originalPrice" | "tag" | "category"
+  "id" | "name" | "imageUrl" | "imageAlt" | "price" | "originalPrice" | "tag" | "category" | "urlSlug"
 >;
 
 export type CartItem = {
@@ -46,6 +46,7 @@ function normalizeProduct(product: Product): CartProduct {
     name: product.name,
     imageUrl: product.imageUrl,
     imageAlt: product.imageAlt,
+    urlSlug: product.urlSlug,
     price: Number(product.price) || 0,
     originalPrice: product.originalPrice,
     tag: product.tag,
@@ -70,6 +71,7 @@ function normalizeItems(value: unknown): CartItem[] {
           name: String(product.name),
           imageUrl: String(product.imageUrl || ""),
           imageAlt: typeof product.imageAlt === "string" ? product.imageAlt : undefined,
+          urlSlug: typeof product.urlSlug === "string" ? product.urlSlug : undefined,
           price: Number(product.price) || 0,
           originalPrice:
             product.originalPrice === null || product.originalPrice === undefined
