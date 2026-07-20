@@ -1,11 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu, X, ShoppingBag } from "lucide-react";
+import { useCart } from "@/lib/cart";
 
 const nav = [
   { to: "/", label: "Home" },
   { to: "/about", label: "About" },
   { to: "/products", label: "Products" },
+  { to: "/order", label: "Order" },
   { to: "/gallery", label: "Gallery" },
   { to: "/careers", label: "Careers" },
   { to: "/contact", label: "Contact" },
@@ -13,6 +15,8 @@ const nav = [
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const cart = useCart();
+  const cartLabel = cart.count > 99 ? "99+" : String(cart.count);
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-6 sm:pt-5">
@@ -42,7 +46,19 @@ export function Header() {
 
         <div className="flex items-center gap-2">
           <Link
-            to="/products"
+            to="/cart"
+            aria-label={`Open bag with ${cart.count} ${cart.count === 1 ? "item" : "items"}`}
+            className="relative grid h-11 w-11 place-items-center rounded-full border border-gold-soft/45 bg-cream/70 text-foreground backdrop-blur-md transition-colors hover:bg-secondary hover:text-primary"
+          >
+            <ShoppingBag className="h-4 w-4" />
+            {cart.count > 0 && (
+              <span className="absolute -right-1 -top-1 grid min-h-5 min-w-5 place-items-center rounded-full bg-cocoa px-1.5 text-[10px] font-bold text-cream shadow-glass">
+                {cartLabel}
+              </span>
+            )}
+          </Link>
+          <Link
+            to="/order"
             className="hidden items-center gap-2 rounded-full bg-gradient-gold px-6 py-3 text-[15px] font-semibold text-primary-foreground shadow-glow transition-transform hover:scale-105 sm:inline-flex"
           >
             <ShoppingBag className="h-4 w-4" />
@@ -72,7 +88,14 @@ export function Header() {
               </Link>
             ))}
             <Link
-              to="/products"
+              to="/cart"
+              onClick={() => setOpen(false)}
+              className="mt-2 flex items-center justify-center gap-2 rounded-2xl border border-gold-soft/50 bg-cream/70 px-4 py-3 text-sm font-semibold text-foreground"
+            >
+              <ShoppingBag className="h-4 w-4" /> Bag ({cart.count})
+            </Link>
+            <Link
+              to="/order"
               onClick={() => setOpen(false)}
               className="mt-2 flex items-center justify-center gap-2 rounded-2xl bg-gradient-gold px-4 py-3 text-sm font-semibold text-primary-foreground"
             >

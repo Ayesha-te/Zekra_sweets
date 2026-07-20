@@ -14,6 +14,8 @@ const sitemapLinks = [
   ["About", "/about"],
   ["Gallery", "/gallery"],
   ["Products", "/products"],
+  ["Order", "/order"],
+  ["Cart", "/cart"],
   ["Careers", "/careers"],
   ["Contact", "/contact"],
 ] as const;
@@ -57,7 +59,8 @@ export function Footer() {
               </span>
             </div>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-cream/65">
-              Artisan bakery in the heart of the UAE. Handmade cookies, rusks and sweets, baked with patience and care.
+              Artisan bakery in the heart of the UAE. Handmade cookies, rusks and sweets, baked with
+              patience and care.
             </p>
             <div className="mt-5 flex gap-2">
               {socialLinks.map(({ label, href, icon: Icon }) => (
