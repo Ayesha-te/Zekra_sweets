@@ -3,8 +3,6 @@ import {
   AlertCircle,
   ArrowLeft,
   CheckCircle2,
-  Clock,
-  Mail,
   MapPin,
   Phone,
   ShoppingBag,
@@ -12,7 +10,7 @@ import {
   Truck,
   User,
 } from "lucide-react";
-import { useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
 import {
@@ -40,11 +38,8 @@ export const Route = createFileRoute("/checkout")({
 type CheckoutForm = {
   name: string;
   phone: string;
-  email: string;
   mode: FulfillmentMode;
   address: string;
-  preferredDate: string;
-  preferredTime: string;
   notes: string;
 };
 
@@ -57,11 +52,8 @@ type Confirmation = {
 const initialForm: CheckoutForm = {
   name: "",
   phone: "",
-  email: "",
   mode: "delivery",
   address: "",
-  preferredDate: "",
-  preferredTime: "",
   notes: "",
 };
 
@@ -74,7 +66,6 @@ function Checkout() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
-  const minDate = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
   const totals = getCartTotals(cart.items, form.mode === "delivery");
 
@@ -109,13 +100,10 @@ function Checkout() {
       customer: {
         name: form.name.trim(),
         phone: form.phone.trim(),
-        ...(form.email.trim() ? { email: form.email.trim() } : {}),
       },
       fulfillment: {
         mode: form.mode,
         ...(form.mode === "delivery" ? { address: form.address.trim() } : {}),
-        ...(form.preferredDate ? { preferredDate: form.preferredDate } : {}),
-        ...(form.preferredTime ? { preferredTime: form.preferredTime } : {}),
       },
       ...(form.notes.trim() ? { notes: form.notes.trim() } : {}),
       items: cart.items.map((item) => ({
@@ -218,25 +206,6 @@ function Checkout() {
                     placeholder="+971 55 000 0000"
                   />
                 </Field>
-                <Field label="Email optional" icon={Mail}>
-                  <input
-                    value={form.email}
-                    onChange={(event) => updateField("email", event.target.value)}
-                    className={fieldClass}
-                    autoComplete="email"
-                    type="email"
-                    placeholder="you@example.com"
-                  />
-                </Field>
-                <Field label="Preferred date" icon={Clock}>
-                  <input
-                    value={form.preferredDate}
-                    onChange={(event) => updateField("preferredDate", event.target.value)}
-                    className={fieldClass}
-                    min={minDate}
-                    type="date"
-                  />
-                </Field>
               </div>
 
               <div className="mt-7">
@@ -271,14 +240,6 @@ function Checkout() {
                     />
                   </Field>
                 )}
-                <Field label="Preferred time" icon={Clock}>
-                  <input
-                    value={form.preferredTime}
-                    onChange={(event) => updateField("preferredTime", event.target.value)}
-                    className={fieldClass}
-                    type="time"
-                  />
-                </Field>
                 <Field label="Notes" icon={ShoppingBag} wide>
                   <textarea
                     value={form.notes}

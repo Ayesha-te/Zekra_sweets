@@ -44,13 +44,10 @@ export type CreateOrderPayload = {
   customer: {
     name: string;
     phone: string;
-    email?: string;
   };
   fulfillment: {
     mode: FulfillmentMode;
     address?: string;
-    preferredDate?: string;
-    preferredTime?: string;
   };
   notes?: string;
   items: Array<{
