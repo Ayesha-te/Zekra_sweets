@@ -10,14 +10,16 @@ import {
   Truck,
   User,
 } from "lucide-react";
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
 import {
   assetUrl,
   createOrder,
+  loadDeliveryLocations,
   type CreateOrderPayload,
   type CreateOrderResponse,
+  type DeliveryLocation,
   type FulfillmentMode,
 } from "@/lib/api";
 import { formatMoney, getCartTotals, useCart } from "@/lib/cart";
@@ -28,7 +30,7 @@ export const Route = createFileRoute("/checkout")({
       { title: "Checkout - Zekra Sweets" },
       {
         name: "description",
-        content: "Send your Zekra Sweets order details for delivery or pickup in Ajman.",
+        content: "Send your Zekra Sweets order details for delivery or pickup.",
       },
     ],
   }),
@@ -39,6 +41,7 @@ type CheckoutForm = {
   name: string;
   phone: string;
   mode: FulfillmentMode;
+  locationId: string;
   address: string;
   notes: string;
 };
@@ -53,6 +56,7 @@ const initialForm: CheckoutForm = {
   name: "",
   phone: "",
   mode: "delivery",
+  locationId: "",
   address: "",
   notes: "",
 };
@@ -63,11 +67,40 @@ const fieldClass =
 function Checkout() {
   const cart = useCart();
   const [form, setForm] = useState<CheckoutForm>(initialForm);
+  const [deliveryLocations, setDeliveryLocations] = useState<DeliveryLocation[]>([]);
+  const [locationsLoading, setLocationsLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
 
-  const totals = getCartTotals(cart.items, form.mode === "delivery");
+  useEffect(() => {
+    let mounted = true;
+
+    loadDeliveryLocations()
+      .then((locations) => {
+        if (mounted) setDeliveryLocations(locations);
+      })
+      .finally(() => {
+        if (mounted) setLocationsLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const selectedLocation = deliveryLocations.find(
+    (location) => location.id === form.locationId,
+  );
+  const deliveryCharge = form.mode === "delivery" && selectedLocation ? selectedLocation.charge : 0;
+  const totals = getCartTotals(cart.items, deliveryCharge);
+  const submitText = submitting
+    ? "Sending order..."
+    : form.mode === "delivery" && locationsLoading
+      ? "Loading delivery locations..."
+      : form.mode === "delivery" && !selectedLocation
+        ? "Select delivery location"
+        : `Submit order - ${formatMoney(totals.total)}`;
 
   const updateField = (field: keyof CheckoutForm, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -91,10 +124,24 @@ function Checkout() {
       return;
     }
 
+    const deliveryLocation = form.mode === "delivery" ? selectedLocation : undefined;
+
+    if (form.mode === "delivery" && deliveryLocations.length === 0) {
+      setError("No active delivery locations are available. Please switch to pickup.");
+      return;
+    }
+
+    if (form.mode === "delivery" && !deliveryLocation) {
+      setError("Please choose a delivery location.");
+      return;
+    }
+
     if (form.mode === "delivery" && !form.address.trim()) {
       setError("Please add a delivery address or switch to pickup.");
       return;
     }
+
+    const orderTotals = getCartTotals(cart.items, deliveryLocation ? deliveryLocation.charge : 0);
 
     const payload: CreateOrderPayload = {
       customer: {
@@ -103,7 +150,9 @@ function Checkout() {
       },
       fulfillment: {
         mode: form.mode,
-        ...(form.mode === "delivery" ? { address: form.address.trim() } : {}),
+        ...(deliveryLocation
+          ? { address: form.address.trim(), locationId: deliveryLocation.id }
+          : {}),
       },
       ...(form.notes.trim() ? { notes: form.notes.trim() } : {}),
       items: cart.items.map((item) => ({
@@ -115,9 +164,9 @@ function Checkout() {
       })),
       totals: {
         currency: "AED",
-        subtotal: roundMoney(totals.subtotal),
-        delivery: roundMoney(totals.deliveryEstimate),
-        total: roundMoney(totals.total),
+        subtotal: roundMoney(orderTotals.subtotal),
+        delivery: roundMoney(orderTotals.deliveryEstimate),
+        total: roundMoney(orderTotals.total),
       },
     };
 
@@ -126,7 +175,7 @@ function Checkout() {
       const response = await createOrder(payload);
       setConfirmation({
         reference: orderReference(response),
-        total: totals.total,
+        total: orderTotals.total,
         mode: form.mode,
       });
       cart.clear();
@@ -215,7 +264,7 @@ function Checkout() {
                     active={form.mode === "delivery"}
                     icon={Truck}
                     title="Delivery"
-                    detail="Ajman delivery estimate included"
+                    detail="Included delivery charges"
                     onClick={() => updateMode("delivery")}
                   />
                   <ModeButton
@@ -227,6 +276,41 @@ function Checkout() {
                   />
                 </div>
               </div>
+
+              {form.mode === "delivery" && (
+                <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                  <Field label="Delivery location" icon={MapPin}>
+                    <select
+                      value={form.locationId}
+                      onChange={(event) => updateField("locationId", event.target.value)}
+                      className={fieldClass}
+                      required
+                      disabled={locationsLoading || deliveryLocations.length === 0}
+                    >
+                      <option value="">
+                        {locationsLoading ? "Loading locations..." : "Select delivery location"}
+                      </option>
+                      {deliveryLocations.map((location) => (
+                        <option key={location.id} value={location.id}>
+                          {location.name} - {formatMoney(location.charge)}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                  <div className="rounded-2xl border border-gold-soft/55 bg-cream/60 px-4 py-3 text-sm">
+                    <div className="text-xs font-bold uppercase tracking-[0.18em] text-caramel">
+                      Delivery charge
+                    </div>
+                    <div className="mt-2 font-display text-xl text-foreground">
+                      {selectedLocation
+                        ? formatMoney(selectedLocation.charge)
+                        : locationsLoading
+                          ? "Loading..."
+                          : "Select location"}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 {form.mode === "delivery" && (
@@ -259,14 +343,14 @@ function Checkout() {
 
               <button
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || (form.mode === "delivery" && locationsLoading)}
                 className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-gold px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 disabled:pointer-events-none disabled:opacity-60"
               >
-                {submitting ? "Sending order..." : `Submit order - ${formatMoney(totals.total)}`}
+                {submitText}
               </button>
             </form>
 
-            <CheckoutSummary mode={form.mode} />
+            <CheckoutSummary mode={form.mode} selectedLocation={selectedLocation} />
           </div>
         )}
       </section>
@@ -334,9 +418,16 @@ function ModeButton({
   );
 }
 
-function CheckoutSummary({ mode }: { mode: FulfillmentMode }) {
+function CheckoutSummary({
+  mode,
+  selectedLocation,
+}: {
+  mode: FulfillmentMode;
+  selectedLocation?: DeliveryLocation;
+}) {
   const cart = useCart();
-  const totals = getCartTotals(cart.items, mode === "delivery");
+  const deliveryCharge = mode === "delivery" && selectedLocation ? selectedLocation.charge : 0;
+  const totals = getCartTotals(cart.items, deliveryCharge);
 
   return (
     <aside className="glass h-fit rounded-[2rem] p-5 lg:sticky lg:top-28" data-reveal>
@@ -357,7 +448,7 @@ function CheckoutSummary({ mode }: { mode: FulfillmentMode }) {
           <div key={item.product.id} className="grid grid-cols-[52px_minmax(0,1fr)_auto] gap-3">
             <img
               src={assetUrl(item.product.imageUrl)}
-              alt=""
+              alt={item.product.imageAlt || item.product.name}
               className="h-12 w-12 rounded-2xl object-cover"
             />
             <div className="min-w-0">
@@ -376,8 +467,20 @@ function CheckoutSummary({ mode }: { mode: FulfillmentMode }) {
       <div className="mt-6 space-y-3 border-t border-gold-soft/45 pt-5 text-sm">
         <SummaryRow label="Subtotal" value={formatMoney(totals.subtotal)} />
         <SummaryRow
-          label={mode === "delivery" ? "Delivery estimate" : "Pickup"}
-          value={mode === "delivery" ? formatMoney(totals.deliveryEstimate) : "AED 0.00"}
+          label={
+            mode === "delivery" && selectedLocation
+              ? `Delivery (${selectedLocation.name})`
+              : mode === "delivery"
+                ? "Delivery"
+                : "Pickup"
+          }
+          value={
+            mode === "delivery"
+              ? selectedLocation
+                ? formatMoney(totals.deliveryEstimate)
+                : "Select location"
+              : "AED 0.00"
+          }
         />
         <SummaryRow label="Total" value={formatMoney(totals.total)} strong />
       </div>

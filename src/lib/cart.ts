@@ -3,7 +3,7 @@ import type { Product } from "@/lib/api";
 
 export type CartProduct = Pick<
   Product,
-  "id" | "name" | "imageUrl" | "price" | "originalPrice" | "tag" | "category"
+  "id" | "name" | "imageUrl" | "imageAlt" | "price" | "originalPrice" | "tag" | "category"
 >;
 
 export type CartItem = {
@@ -25,8 +25,6 @@ export type CartTotals = {
 const STORAGE_KEY = "zekra-sweets-cart-v1";
 const serverSnapshot: CartSnapshot = { items: [] };
 
-export const DELIVERY_ESTIMATE_AED = 10;
-
 let cartState: CartSnapshot = { items: [] };
 let loadedFromStorage = false;
 let storageListenerAttached = false;
@@ -47,6 +45,7 @@ function normalizeProduct(product: Product): CartProduct {
     id: product.id,
     name: product.name,
     imageUrl: product.imageUrl,
+    imageAlt: product.imageAlt,
     price: Number(product.price) || 0,
     originalPrice: product.originalPrice,
     tag: product.tag,
@@ -58,7 +57,7 @@ function normalizeItems(value: unknown): CartItem[] {
   if (!Array.isArray(value)) return [];
 
   return value
-    .map((item) => {
+    .map((item): CartItem | null => {
       if (!item || typeof item !== "object") return null;
       const candidate = item as Partial<CartItem>;
       const product = candidate.product;
@@ -70,6 +69,7 @@ function normalizeItems(value: unknown): CartItem[] {
           id: String(product.id),
           name: String(product.name),
           imageUrl: String(product.imageUrl || ""),
+          imageAlt: typeof product.imageAlt === "string" ? product.imageAlt : undefined,
           price: Number(product.price) || 0,
           originalPrice:
             product.originalPrice === null || product.originalPrice === undefined
@@ -204,10 +204,10 @@ export function clearCart() {
   commit([]);
 }
 
-export function getCartTotals(items: CartItem[], includeDelivery = true): CartTotals {
+export function getCartTotals(items: CartItem[], deliveryCharge = 0): CartTotals {
   const count = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-  const deliveryEstimate = includeDelivery && count > 0 ? DELIVERY_ESTIMATE_AED : 0;
+  const deliveryEstimate = count > 0 ? Math.max(0, deliveryCharge) : 0;
 
   return {
     count,

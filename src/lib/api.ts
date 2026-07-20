@@ -6,8 +6,18 @@ export type Product = {
   originalPrice?: number | null;
   tag?: string;
   description?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  imageAlt?: string;
   isActive?: boolean;
   category: "Cookies" | "Sweets" | "Rusk" | "Puff" | string;
+};
+
+export type DeliveryLocation = {
+  id: string;
+  name: string;
+  charge: number;
+  isActive?: boolean;
 };
 
 export const API_BASE = import.meta.env.VITE_API_URL || "https://api.zekrasweets.com";
@@ -48,6 +58,7 @@ export type CreateOrderPayload = {
   fulfillment: {
     mode: FulfillmentMode;
     address?: string;
+    locationId?: string;
   };
   notes?: string;
   items: Array<{
@@ -64,6 +75,26 @@ export type CreateOrderPayload = {
     total: number;
   };
 };
+
+export const fallbackDeliveryLocations: DeliveryLocation[] = [
+  { id: "ajman", name: "Ajman", charge: 10, isActive: true },
+  { id: "sharjah", name: "Sharjah", charge: 15, isActive: true },
+  { id: "dubai", name: "Dubai", charge: 25, isActive: true },
+];
+
+export async function loadDeliveryLocations() {
+  try {
+    const locations = await apiFetch<DeliveryLocation[]>("/api/delivery-locations");
+    return locations
+      .filter((location) => location.isActive !== false)
+      .map((location) => ({
+        ...location,
+        charge: Number(location.charge) || 0,
+      }));
+  } catch {
+    return fallbackDeliveryLocations;
+  }
+}
 
 export type CreateOrderResponse = {
   id?: string;

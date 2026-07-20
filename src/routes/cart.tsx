@@ -113,7 +113,7 @@ function CartItemRow({ item }: { item: CartItem }) {
     <article className="grid gap-4 p-5 sm:grid-cols-[104px_minmax(0,1fr)_auto] sm:p-6">
       <img
         src={assetUrl(item.product.imageUrl)}
-        alt={item.product.name}
+        alt={item.product.imageAlt || item.product.name}
         className="h-28 w-full rounded-3xl object-cover sm:h-28 sm:w-[104px]"
       />
 
@@ -180,13 +180,12 @@ function CartTotals() {
 
       <div className="mt-6 space-y-3 text-sm">
         <SummaryRow label="Subtotal" value={formatMoney(cart.subtotal)} />
-        <SummaryRow label="Ajman delivery estimate" value={formatMoney(cart.deliveryEstimate)} />
-        <SummaryRow label="Total" value={formatMoney(cart.total)} strong />
+        <SummaryRow label="Delivery" value="Calculated at checkout" />
+        <SummaryRow label="Items total" value={formatMoney(cart.subtotal)} strong />
       </div>
 
       <p className="mt-4 rounded-2xl bg-secondary px-4 py-3 text-xs leading-relaxed text-secondary-foreground">
-        Pickup removes the delivery estimate at checkout. Delivery address is confirmed on the next
-        step.
+        Choose delivery or pickup at checkout. Delivery charges are based on the selected location.
       </p>
 
       <div className="mt-6 grid gap-2">

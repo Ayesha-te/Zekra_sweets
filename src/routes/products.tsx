@@ -130,7 +130,7 @@ function Products() {
                 <div className="relative aspect-square overflow-hidden">
                   <img
                     src={assetUrl(product.imageUrl)}
-                    alt={product.name}
+                    alt={product.imageAlt || product.name}
                     loading="lazy"
                     className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-110"
                   />

@@ -19,7 +19,7 @@ export const Route = createFileRoute("/order")({
       {
         name: "description",
         content:
-          "Order Zekra Sweets cookies, baklawa, rusk and khaari puffs online for delivery or pickup in Ajman.",
+          "Order Zekra Sweets cookies, baklawa, rusk and khaari puffs online for delivery or pickup.",
       },
     ],
   }),
@@ -175,7 +175,7 @@ function OrderProductCard({
       <div className="relative h-full min-h-44 overflow-hidden">
         <img
           src={assetUrl(product.imageUrl)}
-          alt={product.name}
+          alt={product.imageAlt || product.name}
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-[1000ms] group-hover:scale-110"
         />
@@ -268,7 +268,7 @@ function CartSummaryPanel() {
             <div key={item.product.id} className="grid grid-cols-[48px_minmax(0,1fr)_auto] gap-3">
               <img
                 src={assetUrl(item.product.imageUrl)}
-                alt=""
+                alt={item.product.imageAlt || item.product.name}
                 className="h-12 w-12 rounded-2xl object-cover"
               />
               <div className="min-w-0">
@@ -292,8 +292,8 @@ function CartSummaryPanel() {
 
       <div className="mt-6 space-y-3 border-t border-gold-soft/50 pt-5 text-sm">
         <SummaryRow label="Subtotal" value={formatMoney(cart.subtotal)} />
-        <SummaryRow label="Delivery estimate" value={formatMoney(cart.deliveryEstimate)} />
-        <SummaryRow label="Total" value={formatMoney(cart.total)} strong />
+        <SummaryRow label="Delivery" value="Calculated at checkout" />
+        <SummaryRow label="Items total" value={formatMoney(cart.subtotal)} strong />
       </div>
 
       <div className="mt-6 grid gap-2">
