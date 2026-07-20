@@ -5,24 +5,22 @@
 The Node.js backend is in:
 
 ```text
-backend/server.js
-backend/data/products.json
-backend/uploads/
+../sweets-backend/server.js
+../sweets-backend/data/products.json
+../sweets-backend/uploads/
 ```
 
-The admin panel is part of the frontend at:
+The admin panel has been split into its own React app at:
 
 ```text
-/admin
-src/routes/admin.tsx
+../zekra-admin-panel
 ```
 
 ## Local run
 
 ```bash
+cd ../sweets-backend
 npm install
-cp .env.example .env
-npm run build
 npm start
 ```
 
@@ -30,7 +28,15 @@ Then open:
 
 ```text
 http://localhost:4000
-http://localhost:4000/admin
+```
+
+Run the admin app separately:
+
+```bash
+cd ../zekra-admin-panel
+npm install
+cp .env.example .env
+npm run dev
 ```
 
 Default development login:
@@ -60,16 +66,16 @@ For same-domain deployment, keep `VITE_API_URL` empty so the frontend calls `/ap
 ## Production commands
 
 ```bash
+cd ../sweets-backend
 npm ci
-npm run build
 npm start
 ```
 
 For PM2:
 
 ```bash
-pm2 start backend/server.js --name zekra-sweets
+pm2 start ../sweets-backend/server.js --name zekra-sweets
 pm2 save
 ```
 
-Keep `backend/data/products.json` and `backend/uploads/` backed up. Those are the product database and uploaded product images.
+Keep `../sweets-backend/data/products.json` and `../sweets-backend/uploads/` backed up. Those are the product database and uploaded product images.
