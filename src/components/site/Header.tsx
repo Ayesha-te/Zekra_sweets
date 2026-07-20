@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu, X, ShoppingBag } from "lucide-react";
 import { useCart } from "@/lib/cart";
+import logo from "@/assets/log.png";
 
 const nav = [
   { to: "/", label: "Home" },
@@ -22,9 +23,11 @@ export function Header() {
     <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-6 sm:pt-5">
       <div className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-gold-soft/55 bg-cream/82 px-5 py-3.5 shadow-glass backdrop-blur-sm transition-shadow duration-200 sm:px-6">
         <Link to="/" className="flex items-center gap-2 group">
-          <span className="grid h-11 w-11 place-items-center rounded-full bg-gradient-gold text-primary-foreground font-display text-xl font-extrabold shadow-glow transition-transform group-hover:rotate-12">
-            Z
-          </span>
+          <img
+            src={logo}
+            alt="Zekra Sweets Logo"
+            className="h-11 w-11 rounded-full object-cover border border-gold-soft/50 shadow-glow transition-transform group-hover:rotate-12"
+          />
           <span className="font-display text-xl font-extrabold text-foreground sm:text-2xl">
             Zekra <span className="text-gradient-gold">Sweets</span>
           </span>

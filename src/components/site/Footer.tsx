@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, Facebook, Instagram, Mail, MapPin, Phone, Send } from "lucide-react";
+import logo from "@/assets/log.png";
 
 const bannerWords = [
   "ZEKRA SWEETS",
@@ -51,9 +52,11 @@ export function Footer() {
         <div className="grid gap-10 border-b border-cream/10 pb-10 md:grid-cols-2 lg:grid-cols-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="grid h-11 w-11 place-items-center rounded-full bg-gradient-gold font-display text-lg font-extrabold text-primary-foreground shadow-glow">
-                Z
-              </span>
+              <img
+                src={logo}
+                alt="Zekra Sweets Logo"
+                className="h-11 w-11 rounded-full object-cover border border-gold-soft/50 shadow-glow"
+              />
               <span className="font-display text-2xl font-extrabold text-cream">
                 Zekra <span className="text-gradient-gold">Sweets</span>
               </span>
