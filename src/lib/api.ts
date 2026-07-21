@@ -117,10 +117,42 @@ export type CreateOrderResponse = {
   message?: string;
 };
 
+export type CreateStripeCheckoutSessionResponse = {
+  url?: string;
+  sessionId: string;
+  orderId?: string;
+  paymentStatus?: string;
+};
+
+export type StripeCheckoutSessionStatus = {
+  sessionId: string;
+  orderId?: string;
+  orderNumber?: string;
+  status?: string | null;
+  paymentStatus?: string | null;
+  total?: number;
+  currency?: string;
+  mode?: FulfillmentMode | string;
+};
+
 export function createOrder(payload: CreateOrderPayload) {
   return apiFetch<CreateOrderResponse>("/api/orders", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
+}
+
+export function createStripeCheckoutSession(payload: CreateOrderPayload) {
+  return apiFetch<CreateStripeCheckoutSessionResponse>("/api/stripe/checkout-session", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
+export function loadStripeCheckoutSession(sessionId: string) {
+  return apiFetch<StripeCheckoutSessionStatus>(
+    `/api/stripe/checkout-session/${encodeURIComponent(sessionId)}`,
+  );
 }

@@ -3,6 +3,7 @@ import {
   AlertCircle,
   ArrowLeft,
   CheckCircle2,
+  CreditCard,
   MapPin,
   Phone,
   ShoppingBag,
@@ -15,14 +16,15 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import {
   assetUrl,
-  createOrder,
+  createStripeCheckoutSession,
   loadDeliveryLocations,
+  loadStripeCheckoutSession,
   type CreateOrderPayload,
-  type CreateOrderResponse,
   type DeliveryLocation,
   type FulfillmentMode,
+  type StripeCheckoutSessionStatus,
 } from "@/lib/api";
-import { formatMoney, getCartTotals, useCart } from "@/lib/cart";
+import { clearCart, formatMoney, getCartTotals, useCart } from "@/lib/cart";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -63,6 +65,7 @@ type Confirmation = {
   reference: string;
   total: number;
   mode: FulfillmentMode;
+  paymentStatus?: string | null;
 };
 
 const initialForm: CheckoutForm = {
@@ -77,12 +80,15 @@ const initialForm: CheckoutForm = {
 const fieldClass =
   "w-full rounded-2xl border border-border bg-cream/70 px-4 py-3 text-sm outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20";
 
+const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "";
+
 function Checkout() {
   const cart = useCart();
   const [form, setForm] = useState<CheckoutForm>(initialForm);
   const [deliveryLocations, setDeliveryLocations] = useState<DeliveryLocation[]>([]);
   const [locationsLoading, setLocationsLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [checkingPayment, setCheckingPayment] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
 
@@ -102,16 +108,64 @@ function Checkout() {
     };
   }, []);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const stripeResult = params.get("stripe");
+    if (!stripeResult) return;
+
+    const clearStripeParams = () => {
+      window.history.replaceState({}, "", window.location.pathname);
+    };
+
+    if (stripeResult === "cancelled") {
+      setError("Payment was cancelled. Your bag is still here when you are ready.");
+      clearStripeParams();
+      return;
+    }
+
+    const sessionId = params.get("session_id");
+    if (stripeResult !== "success" || !sessionId) return;
+
+    setCheckingPayment(true);
+    loadStripeCheckoutSession(sessionId)
+      .then((session) => {
+        if (session.paymentStatus !== "paid") {
+          setError("Stripe returned without a completed payment. Please try again.");
+          return;
+        }
+
+        setConfirmation({
+          reference: orderReference(session),
+          total: Number(session.total || 0),
+          mode: normalizeFulfillmentMode(session.mode),
+          paymentStatus: session.paymentStatus,
+        });
+        clearCart();
+        setForm(initialForm);
+      })
+      .catch((caught) => {
+        setError(
+          caught instanceof Error
+            ? caught.message
+            : "We could not verify the Stripe payment. Please contact Zekra Sweets.",
+        );
+      })
+      .finally(() => {
+        setCheckingPayment(false);
+        clearStripeParams();
+      });
+  }, []);
+
   const selectedLocation = deliveryLocations.find((location) => location.id === form.locationId);
   const deliveryCharge = form.mode === "delivery" && selectedLocation ? selectedLocation.charge : 0;
   const totals = getCartTotals(cart.items, deliveryCharge);
   const submitText = submitting
-    ? "Sending order..."
+    ? "Opening secure payment..."
     : form.mode === "delivery" && locationsLoading
       ? "Loading delivery locations..."
       : form.mode === "delivery" && !selectedLocation
         ? "Select delivery location"
-        : `Submit order - ${formatMoney(totals.total)}`;
+        : `Pay with card - ${formatMoney(totals.total)}`;
 
   const updateField = (field: keyof CheckoutForm, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -183,14 +237,8 @@ function Checkout() {
 
     setSubmitting(true);
     try {
-      const response = await createOrder(payload);
-      setConfirmation({
-        reference: orderReference(response),
-        total: orderTotals.total,
-        mode: form.mode,
-      });
-      cart.clear();
-      setForm(initialForm);
+      const response = await createStripeCheckoutSession(payload);
+      await redirectToStripeCheckout(response.sessionId);
     } catch (caught) {
       setError(
         caught instanceof Error
@@ -201,6 +249,10 @@ function Checkout() {
       setSubmitting(false);
     }
   };
+
+  if (checkingPayment) {
+    return <CheckoutPaymentLoading />;
+  }
 
   if (confirmation) {
     return <CheckoutConfirmation confirmation={confirmation} />;
@@ -240,7 +292,7 @@ function Checkout() {
               <div>
                 <h2 className="font-display text-2xl">Customer details</h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Name and phone are required so the bakery can confirm your order.
+                  Name and phone are required. Payment opens securely through Stripe.
                 </p>
               </div>
 
@@ -357,6 +409,7 @@ function Checkout() {
                 disabled={submitting || (form.mode === "delivery" && locationsLoading)}
                 className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-gold px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 disabled:pointer-events-none disabled:opacity-60"
               >
+                <CreditCard className="h-4 w-4" />
                 {submitText}
               </button>
             </form>
@@ -367,6 +420,21 @@ function Checkout() {
       </section>
     </SiteLayout>
   );
+}
+
+async function redirectToStripeCheckout(sessionId: string) {
+  if (!stripePublishableKey) {
+    throw new Error("Stripe publishable key is not configured.");
+  }
+
+  const { loadStripe } = await import("@stripe/stripe-js");
+  const stripe = await loadStripe(stripePublishableKey);
+  if (!stripe) throw new Error("Could not initialize Stripe Checkout.");
+
+  const result = await stripe.redirectToCheckout({ sessionId });
+  if (result.error) {
+    throw new Error(result.error.message || "Could not open Stripe Checkout.");
+  }
 }
 
 function Field({
@@ -519,6 +587,29 @@ function EmptyCheckout() {
   );
 }
 
+function CheckoutPaymentLoading() {
+  return (
+    <SiteLayout>
+      <section className="mx-auto max-w-3xl px-4 sm:px-6">
+        <div className="glass rounded-[2rem] p-8 text-center sm:p-12" data-reveal>
+          <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-secondary text-secondary-foreground shadow-glass">
+            <CreditCard className="h-9 w-9 text-primary" />
+          </div>
+          <span className="mt-6 inline-flex rounded-full bg-cream/70 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-caramel">
+            Stripe payment
+          </span>
+          <h1 className="mt-4 font-display text-4xl leading-tight sm:text-5xl">
+            Verifying your payment.
+          </h1>
+          <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
+            Please hold on while we confirm your secure payment and prepare your order reference.
+          </p>
+        </div>
+      </section>
+    </SiteLayout>
+  );
+}
+
 function CheckoutConfirmation({ confirmation }: { confirmation: Confirmation }) {
   return (
     <SiteLayout>
@@ -528,7 +619,7 @@ function CheckoutConfirmation({ confirmation }: { confirmation: Confirmation }) 
             <CheckCircle2 className="h-9 w-9 text-primary" />
           </div>
           <span className="mt-6 inline-flex rounded-full bg-cream/70 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-caramel">
-            Order received
+            {confirmation.paymentStatus === "paid" ? "Payment received" : "Order received"}
           </span>
           <h1 className="mt-4 font-display text-4xl leading-tight sm:text-5xl">
             Thank you for ordering.
@@ -585,15 +676,12 @@ function SummaryRow({
   );
 }
 
-function orderReference(response: CreateOrderResponse) {
-  return (
-    response.orderNumber ||
-    response.orderId ||
-    response.id ||
-    response._id ||
-    response.number ||
-    "Pending confirmation"
-  );
+function orderReference(response: StripeCheckoutSessionStatus) {
+  return response.orderNumber || response.orderId || "Pending confirmation";
+}
+
+function normalizeFulfillmentMode(value: string | null | undefined): FulfillmentMode {
+  return value === "pickup" ? "pickup" : "delivery";
 }
 
 function roundMoney(value: number) {
