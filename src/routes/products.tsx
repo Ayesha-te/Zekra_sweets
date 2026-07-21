@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Search, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { StructuredData } from "@/components/seo/StructuredData";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { assetUrl, type Product } from "@/lib/api";
 import { formatMoney, useCart } from "@/lib/cart";
@@ -11,28 +12,26 @@ import {
   productCategories,
   type ProductCategoryFilter,
 } from "@/lib/products";
+import { buildSeoHead, effectiveProductSeo, itemListJsonLd, productSlug } from "@/lib/seo";
 
 export const Route = createFileRoute("/products")({
-  head: () => ({
-    meta: [
-      { title: "Products - Zekra Sweets | Cookies, Baklawa, Rusk & Puffs" },
-      {
-        name: "description",
-        content:
-          "Browse our handcrafted cookies, rusks, baklawa and khaari puffs. Small-batch bakery treats from Ajman, UAE.",
-      },
-      { property: "og:title", content: "Products - Zekra Sweets" },
-      { property: "og:description", content: "Handcrafted cookies, rusks, baklawa and puffs." },
-    ],
-  }),
+  loader: () => loadProducts(),
+  head: () =>
+    buildSeoHead({
+      title: "Shop Cookies, Baklawa, Rusk and Puffs | Zekra Sweets",
+      description:
+        "Browse Zekra Sweets cookies, rusks, baklawa and khaari puffs. Explore handmade bakery treats and order online.",
+      path: "/products",
+    }),
   component: Products,
 });
 
 function Products() {
+  const initialProducts = Route.useLoaderData();
   const [cat, setCat] = useState<ProductCategoryFilter>("All products");
   const [q, setQ] = useState("");
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [loading, setLoading] = useState(false);
   const [addedId, setAddedId] = useState<string | null>(null);
   const cart = useCart();
 
@@ -58,6 +57,7 @@ function Products() {
 
   return (
     <SiteLayout>
+      <StructuredData data={itemListJsonLd(products)} />
       <section className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="glass rounded-[1.75rem] p-5 sm:p-6 md:p-7" data-reveal>
           <span className="text-[11px] uppercase tracking-[0.24em] text-caramel">Browse by</span>
@@ -119,6 +119,7 @@ function Products() {
           {filtered.map((product, index) => {
             const quantityInBag = cart.getItemQuantity(product.id);
             const recentlyAdded = addedId === product.id;
+            const seo = effectiveProductSeo(product);
 
             return (
               <article
@@ -127,11 +128,17 @@ function Products() {
                 style={{ transitionDelay: `${(index % 6) * 70}ms` }}
                 className="group glass overflow-hidden rounded-3xl hover-lift"
               >
-                <div className="relative aspect-square overflow-hidden">
+                <Link
+                  to="/products/$slug"
+                  params={{ slug: productSlug(product) }}
+                  className="relative block aspect-square overflow-hidden"
+                >
                   <img
                     src={assetUrl(product.imageUrl)}
-                    alt={product.imageAlt || product.name}
+                    alt={seo.imageAlt}
                     loading="lazy"
+                    width={640}
+                    height={640}
                     className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-110"
                   />
                   {product.tag && (
@@ -139,14 +146,20 @@ function Products() {
                       {product.tag}
                     </span>
                   )}
-                </div>
+                </Link>
                 <div className="p-5">
                   <div className="text-[10px] uppercase tracking-widest text-caramel">
                     {product.category}
                   </div>
-                  <h3 className="mt-2 font-display text-lg leading-tight text-foreground">
-                    {product.name}
-                  </h3>
+                  <Link
+                    to="/products/$slug"
+                    params={{ slug: productSlug(product) }}
+                    className="story-link mt-2 block"
+                  >
+                    <h3 className="font-display text-lg leading-tight text-foreground">
+                      {product.name}
+                    </h3>
+                  </Link>
                   <div className="mt-4 flex items-end justify-between gap-4">
                     <div>
                       {product.originalPrice && (

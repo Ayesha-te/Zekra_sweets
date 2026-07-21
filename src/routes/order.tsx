@@ -15,6 +15,18 @@ import {
 export const Route = createFileRoute("/order")({
   head: () => ({
     meta: [
+      { name: "robots", content: "index, follow" },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://zekrasweets.com/order" },
+      { property: "og:image", content: "https://zekrasweets.com/favicon.png" },
+      { property: "og:site_name", content: "Zekra Sweets" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Order Online - Zekra Sweets" },
+      {
+        name: "twitter:description",
+        content: "Order Zekra Sweets cookies, baklawa, rusk and khaari puffs online.",
+      },
+      { name: "twitter:image", content: "https://zekrasweets.com/favicon.png" },
       { title: "Order Online - Zekra Sweets" },
       {
         name: "description",
@@ -22,6 +34,7 @@ export const Route = createFileRoute("/order")({
           "Order Zekra Sweets cookies, baklawa, rusk and khaari puffs online for delivery or pickup.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://zekrasweets.com/order" }],
   }),
   component: Order,
 });

@@ -27,12 +27,25 @@ import { formatMoney, getCartTotals, useCart } from "@/lib/cart";
 export const Route = createFileRoute("/checkout")({
   head: () => ({
     meta: [
+      { name: "robots", content: "noindex, follow" },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://zekrasweets.com/checkout" },
+      { property: "og:image", content: "https://zekrasweets.com/favicon.png" },
+      { property: "og:site_name", content: "Zekra Sweets" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Checkout - Zekra Sweets" },
+      {
+        name: "twitter:description",
+        content: "Send your Zekra Sweets order details for delivery or pickup.",
+      },
+      { name: "twitter:image", content: "https://zekrasweets.com/favicon.png" },
       { title: "Checkout - Zekra Sweets" },
       {
         name: "description",
         content: "Send your Zekra Sweets order details for delivery or pickup.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://zekrasweets.com/checkout" }],
   }),
   component: Checkout,
 });
@@ -89,9 +102,7 @@ function Checkout() {
     };
   }, []);
 
-  const selectedLocation = deliveryLocations.find(
-    (location) => location.id === form.locationId,
-  );
+  const selectedLocation = deliveryLocations.find((location) => location.id === form.locationId);
   const deliveryCharge = form.mode === "delivery" && selectedLocation ? selectedLocation.charge : 0;
   const totals = getCartTotals(cart.items, deliveryCharge);
   const submitText = submitting

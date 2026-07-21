@@ -10,7 +10,17 @@ export type Product = {
   metaTitle?: string;
   metaDescription?: string;
   imageAlt?: string;
+  primaryKeyword?: string;
+  secondaryKeywords?: string[];
+  canonicalUrl?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  robotsIndex?: boolean;
+  robotsFollow?: boolean;
+  redirectSlugs?: string[];
   isActive?: boolean;
+  updatedAt?: string;
   category: "Cookies" | "Sweets" | "Rusk" | "Puff" | string;
 };
 

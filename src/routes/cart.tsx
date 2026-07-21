@@ -8,12 +8,22 @@ import { formatMoney, useCart, type CartItem } from "@/lib/cart";
 export const Route = createFileRoute("/cart")({
   head: () => ({
     meta: [
+      { name: "robots", content: "noindex, follow" },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://zekrasweets.com/cart" },
+      { property: "og:image", content: "https://zekrasweets.com/favicon.png" },
+      { property: "og:site_name", content: "Zekra Sweets" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Your Cart - Zekra Sweets" },
+      { name: "twitter:description", content: "Review your Zekra Sweets cart before checkout." },
+      { name: "twitter:image", content: "https://zekrasweets.com/favicon.png" },
       { title: "Your Cart - Zekra Sweets" },
       {
         name: "description",
         content: "Review your Zekra Sweets cart, update quantities, and continue to checkout.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://zekrasweets.com/cart" }],
   }),
   component: Cart,
 });

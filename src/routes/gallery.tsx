@@ -17,11 +17,31 @@ import interior from "@/assets/bakery-interior.jpg";
 export const Route = createFileRoute("/gallery")({
   head: () => ({
     meta: [
+      { name: "robots", content: "index, follow" },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://zekrasweets.com/gallery" },
+      { property: "og:image", content: "https://zekrasweets.com/favicon.png" },
+      { property: "og:site_name", content: "Zekra Sweets" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Gallery - Zekra Sweets" },
+      {
+        name: "twitter:description",
+        content: "View Zekra Sweets products and behind-the-scenes bakery moments.",
+      },
+      { name: "twitter:image", content: "https://zekrasweets.com/favicon.png" },
       { title: "Gallery — Zekra Sweets | Behind the Scenes" },
-      { name: "description", content: "Discover our products and what goes on behind the scenes at Zekra Sweets. Updated monthly." },
+      {
+        name: "description",
+        content:
+          "Discover our products and what goes on behind the scenes at Zekra Sweets. Updated monthly.",
+      },
       { property: "og:title", content: "Gallery — Zekra Sweets" },
-      { property: "og:description", content: "Handmade cookies, sweets and behind-the-scenes moments." },
+      {
+        property: "og:description",
+        content: "Handmade cookies, sweets and behind-the-scenes moments.",
+      },
     ],
+    links: [{ rel: "canonical", href: "https://zekrasweets.com/gallery" }],
   }),
   component: Gallery,
 });
@@ -47,10 +67,12 @@ function Gallery() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="glass rounded-[2.5rem] p-8 md:p-14 text-center" data-reveal>
           <span className="text-xs uppercase tracking-[0.3em] text-caramel">Gallery</span>
-          <h1 className="mt-3 font-display text-5xl sm:text-6xl">Behind the <span className="text-gradient-gold">scenes.</span></h1>
+          <h1 className="mt-3 font-display text-5xl sm:text-6xl">
+            Behind the <span className="text-gradient-gold">scenes.</span>
+          </h1>
           <p className="mx-auto mt-4 max-w-xl text-foreground/75">
-            Discover our products and the moments that shape them. The gallery is
-            updated monthly — check back often.
+            Discover our products and the moments that shape them. The gallery is updated monthly —
+            check back often.
           </p>
         </div>
       </section>
@@ -64,7 +86,12 @@ function Gallery() {
               style={{ transitionDelay: `${(i % 6) * 60}ms` }}
               className={`group relative overflow-hidden rounded-3xl shadow-elegant ${img.span}`}
             >
-              <img src={img.src} alt="Zekra bakery" loading="lazy" className="h-full w-full object-cover transition-transform duration-[1400ms] group-hover:scale-110" />
+              <img
+                src={img.src}
+                alt="Zekra bakery"
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-[1400ms] group-hover:scale-110"
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-cocoa/60 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
             </div>
           ))}

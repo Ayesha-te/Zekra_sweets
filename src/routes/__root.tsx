@@ -1,16 +1,18 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
-  Outlet,
+  HeadContent,
   Link,
+  Outlet,
+  Scripts,
   createRootRouteWithContext,
   useRouter,
-  HeadContent,
-  Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
-import appCss from "../styles.css?url";
+import { StructuredData } from "../components/seo/StructuredData";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { organizationJsonLd } from "../lib/seo";
+import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
   return (
@@ -77,13 +79,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Zekra Sweets — Artisan Bakery in Ajman, UAE" },
-      { name: "description", content: "Freshly baked cookies, rusks, khaari puffs and baklawa. Handmade small-batch sweets from the heart of the UAE." },
       { name: "author", content: "Zekra Sweets" },
-      { property: "og:title", content: "Zekra Sweets — Artisan Bakery in Ajman, UAE" },
-      { property: "og:description", content: "Freshly baked cookies, rusks, khaari puffs and baklawa. Handmade with love." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       { rel: "icon", type: "image/png", href: "/favicon.png" },
@@ -124,6 +120,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <StructuredData data={organizationJsonLd()} />
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
     </QueryClientProvider>
