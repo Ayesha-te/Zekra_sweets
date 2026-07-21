@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Menu, X, ShoppingBag } from "lucide-react";
+import { Menu, X, ShoppingBag, Truck } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import logo from "@/assets/log.png";
 
@@ -20,7 +20,12 @@ export function Header() {
   const cartLabel = cart.count > 99 ? "99+" : String(cart.count);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-6 sm:pt-5">
+    <header className="fixed inset-x-0 top-0 z-50 px-3 pt-2 sm:px-6 sm:pt-3">
+      <div className="mx-auto mb-2 flex min-h-8 max-w-7xl items-center justify-center gap-2 rounded-full border border-gold-soft/45 bg-cocoa px-4 py-1.5 text-center text-xs font-semibold leading-tight text-cream shadow-glass backdrop-blur-sm sm:text-sm">
+        <Truck className="h-3.5 w-3.5 shrink-0 text-gold-soft" />
+        <span>Free delivery on orders above AED 50 across the UAE</span>
+      </div>
+
       <div className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-gold-soft/55 bg-cream/82 px-5 py-3.5 shadow-glass backdrop-blur-sm transition-shadow duration-200 sm:px-6">
         <Link to="/" className="flex items-center gap-2 group">
           <img

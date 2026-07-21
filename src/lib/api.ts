@@ -120,6 +120,7 @@ export type CreateOrderResponse = {
 export type CreateStripeCheckoutSessionResponse = {
   url?: string;
   sessionId: string;
+  publishableKey: string;
   orderId?: string;
   paymentStatus?: string;
 };

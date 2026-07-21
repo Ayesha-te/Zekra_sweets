@@ -3,7 +3,7 @@ import { ArrowLeft, ArrowRight, Minus, Plus, ShoppingBag, Trash2, X } from "luci
 
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { assetUrl } from "@/lib/api";
-import { formatMoney, useCart, type CartItem } from "@/lib/cart";
+import { FREE_DELIVERY_MINIMUM, formatMoney, useCart, type CartItem } from "@/lib/cart";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -195,7 +195,8 @@ function CartTotals() {
       </div>
 
       <p className="mt-4 rounded-2xl bg-secondary px-4 py-3 text-xs leading-relaxed text-secondary-foreground">
-        Choose delivery or pickup at checkout. Delivery charges are based on the selected location.
+        Free delivery across the UAE on orders above {formatMoney(FREE_DELIVERY_MINIMUM)}. Smaller
+        delivery orders are calculated at checkout by location.
       </p>
 
       <div className="mt-6 grid gap-2">

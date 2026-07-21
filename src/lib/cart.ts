@@ -3,7 +3,15 @@ import type { Product } from "@/lib/api";
 
 export type CartProduct = Pick<
   Product,
-  "id" | "name" | "imageUrl" | "imageAlt" | "price" | "originalPrice" | "tag" | "category" | "urlSlug"
+  | "id"
+  | "name"
+  | "imageUrl"
+  | "imageAlt"
+  | "price"
+  | "originalPrice"
+  | "tag"
+  | "category"
+  | "urlSlug"
 >;
 
 export type CartItem = {
@@ -23,6 +31,7 @@ export type CartTotals = {
 };
 
 const STORAGE_KEY = "zekra-sweets-cart-v1";
+export const FREE_DELIVERY_MINIMUM = 50;
 const serverSnapshot: CartSnapshot = { items: [] };
 
 let cartState: CartSnapshot = { items: [] };
@@ -209,7 +218,8 @@ export function clearCart() {
 export function getCartTotals(items: CartItem[], deliveryCharge = 0): CartTotals {
   const count = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-  const deliveryEstimate = count > 0 ? Math.max(0, deliveryCharge) : 0;
+  const deliveryEstimate =
+    count > 0 && subtotal < FREE_DELIVERY_MINIMUM ? Math.max(0, deliveryCharge) : 0;
 
   return {
     count,

@@ -11,7 +11,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
         <div className="absolute inset-0 bg-gradient-hero opacity-70" />
       </div>
       <Header />
-      <main className="pt-24">{children}</main>
+      <main className="pt-32 sm:pt-36">{children}</main>
       <Footer />
     </div>
   );

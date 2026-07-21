@@ -24,7 +24,7 @@ import {
   type FulfillmentMode,
   type StripeCheckoutSessionStatus,
 } from "@/lib/api";
-import { clearCart, formatMoney, getCartTotals, useCart } from "@/lib/cart";
+import { FREE_DELIVERY_MINIMUM, clearCart, formatMoney, getCartTotals, useCart } from "@/lib/cart";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -79,8 +79,6 @@ const initialForm: CheckoutForm = {
 
 const fieldClass =
   "w-full rounded-2xl border border-border bg-cream/70 px-4 py-3 text-sm outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20";
-
-const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "";
 
 function Checkout() {
   const cart = useCart();
@@ -159,6 +157,7 @@ function Checkout() {
   const selectedLocation = deliveryLocations.find((location) => location.id === form.locationId);
   const deliveryCharge = form.mode === "delivery" && selectedLocation ? selectedLocation.charge : 0;
   const totals = getCartTotals(cart.items, deliveryCharge);
+  const qualifiesForFreeDelivery = totals.subtotal >= FREE_DELIVERY_MINIMUM;
   const submitText = submitting
     ? "Opening secure payment..."
     : form.mode === "delivery" && locationsLoading
@@ -238,7 +237,7 @@ function Checkout() {
     setSubmitting(true);
     try {
       const response = await createStripeCheckoutSession(payload);
-      await redirectToStripeCheckout(response.sessionId);
+      await redirectToStripeCheckout(response.sessionId, response.publishableKey);
     } catch (caught) {
       setError(
         caught instanceof Error
@@ -366,11 +365,16 @@ function Checkout() {
                     </div>
                     <div className="mt-2 font-display text-xl text-foreground">
                       {selectedLocation
-                        ? formatMoney(selectedLocation.charge)
+                        ? qualifiesForFreeDelivery
+                          ? "Free"
+                          : formatMoney(selectedLocation.charge)
                         : locationsLoading
                           ? "Loading..."
                           : "Select location"}
                     </div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Free above {formatMoney(FREE_DELIVERY_MINIMUM)} across the UAE.
+                    </p>
                   </div>
                 </div>
               )}
@@ -422,13 +426,13 @@ function Checkout() {
   );
 }
 
-async function redirectToStripeCheckout(sessionId: string) {
-  if (!stripePublishableKey) {
+async function redirectToStripeCheckout(sessionId: string, publishableKey: string) {
+  if (!publishableKey) {
     throw new Error("Stripe publishable key is not configured.");
   }
 
   const { loadStripe } = await import("@stripe/stripe-js");
-  const stripe = await loadStripe(stripePublishableKey);
+  const stripe = await loadStripe(publishableKey);
   if (!stripe) throw new Error("Could not initialize Stripe Checkout.");
 
   const result = await stripe.redirectToCheckout({ sessionId });
@@ -507,6 +511,7 @@ function CheckoutSummary({
   const cart = useCart();
   const deliveryCharge = mode === "delivery" && selectedLocation ? selectedLocation.charge : 0;
   const totals = getCartTotals(cart.items, deliveryCharge);
+  const qualifiesForFreeDelivery = totals.subtotal >= FREE_DELIVERY_MINIMUM;
 
   return (
     <aside className="glass h-fit rounded-[2rem] p-5 lg:sticky lg:top-28" data-reveal>
@@ -556,7 +561,9 @@ function CheckoutSummary({
           value={
             mode === "delivery"
               ? selectedLocation
-                ? formatMoney(totals.deliveryEstimate)
+                ? qualifiesForFreeDelivery
+                  ? "Free"
+                  : formatMoney(totals.deliveryEstimate)
                 : "Select location"
               : "AED 0.00"
           }
