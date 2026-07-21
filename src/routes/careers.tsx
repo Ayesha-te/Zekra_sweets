@@ -3,6 +3,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { Phone, Mail, ArrowRight } from "lucide-react";
 import craftImg from "@/assets/craft.jpg";
 import { useState } from "react";
+import { BUSINESS_EMAIL, BUSINESS_PHONE_DISPLAY } from "@/lib/contact";
 
 export const Route = createFileRoute("/careers")({
   head: () => ({
@@ -102,7 +103,7 @@ function Careers() {
                   </div>
                   <div>
                     <div className="text-xs uppercase tracking-widest text-caramel">Phone</div>
-                    <div className="text-sm">+971 55 608 6529</div>
+                    <div className="text-sm">{BUSINESS_PHONE_DISPLAY}</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -111,7 +112,7 @@ function Careers() {
                   </div>
                   <div>
                     <div className="text-xs uppercase tracking-widest text-caramel">Email</div>
-                    <div className="text-sm">zekrasweetsllc@gmail.com</div>
+                    <div className="text-sm">{BUSINESS_EMAIL}</div>
                   </div>
                 </div>
               </div>

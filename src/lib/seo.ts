@@ -1,4 +1,5 @@
 import { API_BASE, assetUrl, type Product } from "@/lib/api";
+import { BUSINESS_PHONE_TEL } from "@/lib/contact";
 
 export const SITE_NAME = "Zekra Sweets";
 export const DEFAULT_SITE_URL = "https://zekrasweets.com";
@@ -182,7 +183,7 @@ export function organizationJsonLd() {
         contactPoint: [
           {
             "@type": "ContactPoint",
-            telephone: "+971 55 608 6529",
+            telephone: BUSINESS_PHONE_TEL,
             contactType: "customer service",
             areaServed: "AE",
           },

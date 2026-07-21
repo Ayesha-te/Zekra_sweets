@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Phone, Mail, MapPin, ArrowRight } from "lucide-react";
+import { BUSINESS_EMAIL, BUSINESS_PHONE_DISPLAY } from "@/lib/contact";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -53,8 +54,8 @@ function Contact() {
             <h2 className="font-display text-2xl">Reach us</h2>
             <div className="mt-6 space-y-5">
               {[
-                { i: Phone, l: "Phone", v: "+971 55 608 6529" },
-                { i: Mail, l: "Email", v: "zekrasweetsllc@gmail.com" },
+                { i: Phone, l: "Phone", v: BUSINESS_PHONE_DISPLAY },
+                { i: Mail, l: "Email", v: BUSINESS_EMAIL },
                 { i: MapPin, l: "Visit", v: "Al Zaher Street, Rumaila 2, Ajman, UAE" },
               ].map((c) => (
                 <div key={c.l} className="flex items-start gap-4">

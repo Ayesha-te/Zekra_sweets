@@ -1,6 +1,15 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, Facebook, Instagram, Mail, MapPin, Phone, Send } from "lucide-react";
 import logo from "@/assets/log.png";
+import {
+  BUSINESS_EMAIL,
+  BUSINESS_EMAIL_LINK,
+  BUSINESS_PHONE_DISPLAY,
+  BUSINESS_PHONE_LINK,
+  FACEBOOK_LINK,
+  INSTAGRAM_LINK,
+  WHATSAPP_LINK,
+} from "@/lib/contact";
 
 const bannerWords = [
   "ZEKRA SWEETS",
@@ -22,9 +31,9 @@ const sitemapLinks = [
 ] as const;
 
 const socialLinks = [
-  { label: "Instagram", href: "#", icon: Instagram },
-  { label: "Facebook", href: "#", icon: Facebook },
-  { label: "WhatsApp", href: "#", icon: Send },
+  { label: "Instagram", href: INSTAGRAM_LINK, icon: Instagram },
+  { label: "Facebook", href: FACEBOOK_LINK, icon: Facebook },
+  { label: "WhatsApp", href: WHATSAPP_LINK, icon: Send },
 ] as const;
 
 export function Footer() {
@@ -71,6 +80,8 @@ export function Footer() {
                   key={label}
                   href={href}
                   aria-label={label}
+                  target="_blank"
+                  rel="noreferrer"
                   className="grid h-10 w-10 place-items-center rounded-full border border-cream/10 bg-cream/5 text-cream/80 transition-colors hover:bg-gradient-gold hover:text-primary-foreground"
                 >
                   <Icon className="h-4 w-4" />
@@ -95,12 +106,18 @@ export function Footer() {
 
           <div>
             <h4 className="font-display text-sm uppercase tracking-widest text-gold">Contact</h4>
-            <p className="mt-3 flex items-center gap-2 text-sm text-cream/75">
-              <Phone className="h-4 w-4 text-gold-soft" /> +971 55 608 6529
-            </p>
-            <p className="mt-2 flex items-center gap-2 text-sm text-cream/75">
-              <Mail className="h-4 w-4 text-gold-soft" /> zekrasweetsllc@gmail.com
-            </p>
+            <a
+              href={BUSINESS_PHONE_LINK}
+              className="mt-3 flex items-center gap-2 text-sm text-cream/75 transition-colors hover:text-gold"
+            >
+              <Phone className="h-4 w-4 text-gold-soft" /> {BUSINESS_PHONE_DISPLAY}
+            </a>
+            <a
+              href={BUSINESS_EMAIL_LINK}
+              className="mt-2 flex items-center gap-2 text-sm text-cream/75 transition-colors hover:text-gold"
+            >
+              <Mail className="h-4 w-4 text-gold-soft" /> {BUSINESS_EMAIL}
+            </a>
           </div>
 
           <div>
