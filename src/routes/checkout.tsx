@@ -17,8 +17,8 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import {
   assetUrl,
   createStripeCheckoutSession,
+  fetchStripeCheckoutSession,
   loadDeliveryLocations,
-  loadStripeCheckoutSession,
   type CreateOrderPayload,
   type DeliveryLocation,
   type FulfillmentMode,
@@ -125,7 +125,7 @@ function Checkout() {
     if (stripeResult !== "success" || !sessionId) return;
 
     setCheckingPayment(true);
-    loadStripeCheckoutSession(sessionId)
+    fetchStripeCheckoutSession(sessionId)
       .then((session) => {
         if (session.paymentStatus !== "paid") {
           setError("Stripe returned without a completed payment. Please try again.");
@@ -237,7 +237,8 @@ function Checkout() {
     setSubmitting(true);
     try {
       const response = await createStripeCheckoutSession(payload);
-      await redirectToStripeCheckout(response.sessionId, response.publishableKey);
+      if (!response.url) throw new Error("Stripe did not return a checkout URL.");
+      window.location.assign(response.url);
     } catch (caught) {
       setError(
         caught instanceof Error
@@ -424,21 +425,6 @@ function Checkout() {
       </section>
     </SiteLayout>
   );
-}
-
-async function redirectToStripeCheckout(sessionId: string, publishableKey: string) {
-  if (!publishableKey) {
-    throw new Error("Stripe publishable key is not configured.");
-  }
-
-  const { loadStripe } = await import("@stripe/stripe-js");
-  const stripe = await loadStripe(publishableKey);
-  if (!stripe) throw new Error("Could not initialize Stripe Checkout.");
-
-  const result = await stripe.redirectToCheckout({ sessionId });
-  if (result.error) {
-    throw new Error(result.error.message || "Could not open Stripe Checkout.");
-  }
 }
 
 function Field({

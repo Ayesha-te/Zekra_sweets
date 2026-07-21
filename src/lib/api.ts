@@ -118,9 +118,8 @@ export type CreateOrderResponse = {
 };
 
 export type CreateStripeCheckoutSessionResponse = {
-  url?: string;
+  url: string;
   sessionId: string;
-  publishableKey: string;
   orderId?: string;
   paymentStatus?: string;
 };
@@ -152,7 +151,7 @@ export function createStripeCheckoutSession(payload: CreateOrderPayload) {
   });
 }
 
-export function loadStripeCheckoutSession(sessionId: string) {
+export function fetchStripeCheckoutSession(sessionId: string) {
   return apiFetch<StripeCheckoutSessionStatus>(
     `/api/stripe/checkout-session/${encodeURIComponent(sessionId)}`,
   );
