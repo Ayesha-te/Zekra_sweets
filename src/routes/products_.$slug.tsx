@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { ArrowLeft, Check, ShoppingBag } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { StructuredData } from "@/components/seo/StructuredData";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -12,6 +12,7 @@ import {
   cleanText,
   effectiveProductSeo,
   productJsonLd,
+  productImageUrls,
   productPath,
   productSeoHead,
   productSlug,
@@ -43,6 +44,8 @@ export const Route = createFileRoute("/products_/$slug")({
 
 function ProductPage() {
   const { product, products } = Route.useLoaderData();
+  const galleryImages = useMemo(() => productImageUrls(product), [product]);
+  const [selectedImage, setSelectedImage] = useState(galleryImages[0] || product.imageUrl);
   const [added, setAdded] = useState(false);
   const cart = useCart();
   const seo = effectiveProductSeo(product);
@@ -56,6 +59,10 @@ function ProductPage() {
 
     return () => window.clearTimeout(timeout);
   }, [added]);
+
+  useEffect(() => {
+    setSelectedImage(galleryImages[0] || product.imageUrl);
+  }, [galleryImages, product.imageUrl]);
 
   const addToBag = () => {
     cart.addItem(product);
@@ -90,14 +97,45 @@ function ProductPage() {
         </nav>
 
         <div className="glass grid gap-8 rounded-[2rem] p-5 sm:p-7 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1fr)]">
-          <div className="overflow-hidden rounded-[1.5rem]">
-            <img
-              src={assetUrl(product.imageUrl)}
-              alt={seo.imageAlt}
-              width={900}
-              height={900}
-              className="aspect-square w-full object-cover"
-            />
+          <div>
+            <div className="overflow-hidden rounded-[1.5rem]">
+              <img
+                src={assetUrl(selectedImage)}
+                alt={seo.imageAlt}
+                width={900}
+                height={900}
+                className="aspect-square w-full object-cover"
+              />
+            </div>
+
+            {galleryImages.length > 1 && (
+              <div className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-5">
+                {galleryImages.map((imageUrl, index) => {
+                  const active = imageUrl === selectedImage;
+
+                  return (
+                    <button
+                      key={imageUrl}
+                      type="button"
+                      onClick={() => setSelectedImage(imageUrl)}
+                      aria-label={`View ${product.name} image ${index + 1}`}
+                      className={`overflow-hidden rounded-2xl border bg-cream/70 transition ${
+                        active ? "border-primary shadow-glow" : "border-gold-soft/50 hover:border-primary/60"
+                      }`}
+                    >
+                      <img
+                        src={assetUrl(imageUrl)}
+                        alt=""
+                        loading="lazy"
+                        width={160}
+                        height={160}
+                        className="aspect-square w-full object-cover"
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="flex min-w-0 flex-col justify-center">

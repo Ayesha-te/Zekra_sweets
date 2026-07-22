@@ -43,6 +43,16 @@ export function absoluteImageUrl(path = "") {
   return absoluteUrl(assetUrl(path));
 }
 
+export function productImageUrls(product: Pick<Product, "imageUrl" | "imageUrls">) {
+  return [
+    ...new Set(
+      [product.imageUrl, ...(product.imageUrls || [])]
+        .map((url) => cleanText(url))
+        .filter(Boolean),
+    ),
+  ];
+}
+
 export function productDisplayName(product: Pick<Product, "name">) {
   return cleanText(product.name).replace(/\s*\|\s*/g, " - ");
 }
@@ -215,13 +225,14 @@ export function breadcrumbJsonLd(items: Array<{ name: string; path: string }>) {
 
 export function productJsonLd(product: Product) {
   const seo = effectiveProductSeo(product);
+  const images = productImageUrls(product).map(absoluteImageUrl);
 
   return {
     "@context": "https://schema.org",
     "@type": "Product",
     name: productDisplayName(product),
     description: seo.description,
-    image: [absoluteImageUrl(product.imageUrl)],
+    image: images.length > 0 ? images : [absoluteImageUrl(product.imageUrl)],
     brand: {
       "@type": "Brand",
       name: SITE_NAME,
