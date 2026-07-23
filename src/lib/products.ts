@@ -14,67 +14,67 @@ import tuti from "@/assets/tuti-fruity.jpg";
 export const fallbackProducts: Product[] = [
   {
     id: "tuti-fruity",
-    name: "Premium Tuti Fruity Butter Cookies",
+    name: "Premium Tuti Fruity Butter Cookies | Fruity Biscuits",
     imageUrl: tuti,
-    price: 6.5,
-    originalPrice: 8.5,
+    price: 8,
+    originalPrice: 10,
     category: "Cookies",
   },
   {
     id: "chocolate",
-    name: "Premium Chocolate Cookies",
+    name: "Premium Chocolate Cookies | Rich & Crispy Choco Biscuits",
     imageUrl: choc,
-    price: 5,
-    originalPrice: 7,
+    price: 6,
+    originalPrice: 8,
     category: "Cookies",
   },
   {
     id: "almond",
-    name: "Premium Almond Cookies",
+    name: "Premium Almond Cookies | Crispy Almond Butter Biscuits",
     imageUrl: almond,
-    price: 6.5,
-    originalPrice: 8.5,
+    price: 8,
+    originalPrice: 10,
     category: "Cookies",
   },
   {
     id: "baklawa",
-    name: "Peanut Baklawa | Middle Eastern Delight",
+    name: "Peanut Baklawa | Premium Middle Eastern Sweet Delight",
     imageUrl: baklawa,
-    price: 6.5,
-    originalPrice: 8.5,
+    price: 8,
+    originalPrice: 10,
     category: "Sweets",
   },
   {
     id: "banana",
-    name: "Premium Banana Butter Cookies",
+    name: "Premium Banana Cookies | Rich Banana Butter Biscuits",
     imageUrl: banana,
-    price: 5,
-    originalPrice: 7,
+    price: 6,
+    originalPrice: 8,
     category: "Cookies",
   },
   {
     id: "jeera",
-    name: "Premium Jeera Cookies | Crispy Cumin",
+    name: "Premium Jeera Cookies | Crispy Cumin Butter Biscuits",
     imageUrl: jeera,
-    price: 5,
-    originalPrice: 7,
+    price: 6,
+    originalPrice: 8,
     category: "Cookies",
   },
   {
     id: "khaari",
     name: "Khaari Puff Packet | Crispy Butter Puff",
     imageUrl: khaari,
-    price: 6.5,
-    originalPrice: 8.5,
+    price: 8,
+    originalPrice: 10,
     tag: "Offer",
     category: "Puff",
   },
   {
     id: "butter",
-    name: "Plain Butter Cookies | Classic Crispy",
+    name: "Plain Butter Cookies | Classic Crispy Butter Biscuits",
     imageUrl: butter,
-    price: 5,
-    originalPrice: 7,
+    price: 6,
+    originalPrice: 8,
     tag: "Offer",
     category: "Cookies",
   },
@@ -82,8 +82,8 @@ export const fallbackProducts: Product[] = [
     id: "rusk",
     name: "Fresh Rusk Packet | Tea Time Toast",
     imageUrl: rusk,
-    price: 6.5,
-    originalPrice: 8.5,
+    price: 8,
+    originalPrice: 10,
     tag: "Fresh",
     category: "Rusk",
   },
@@ -93,12 +93,15 @@ export const productCategories = ["All products", "Cookies", "Sweets", "Rusk", "
 
 export type ProductCategoryFilter = (typeof productCategories)[number];
 
+const productFallbackEnabled =
+  import.meta.env.DEV || import.meta.env.VITE_ENABLE_PRODUCT_FALLBACK === "true";
+
 export async function loadProducts() {
   try {
     const products = await apiFetch<Product[]>("/api/products");
-    return products.length > 0 ? products : fallbackProducts;
+    return products.length > 0 || !productFallbackEnabled ? products : fallbackProducts;
   } catch {
-    return fallbackProducts;
+    return productFallbackEnabled ? fallbackProducts : [];
   }
 }
 

@@ -6,8 +6,15 @@ The Node.js backend is in:
 
 ```text
 ../sweets-backend/server.js
-../sweets-backend/data/products.json
-../sweets-backend/uploads/
+```
+
+Live admin-managed data is stored outside the Git checkout by default:
+
+```text
+../zekra-runtime/data/products.json
+../zekra-runtime/data/orders.json
+../zekra-runtime/data/delivery-locations.json
+../zekra-runtime/uploads/
 ```
 
 The admin panel has been split into its own React app at:
@@ -57,6 +64,7 @@ PORT=4000
 JWT_SECRET=replace-with-a-long-random-secret
 ADMIN_USER=admin
 ADMIN_PASSWORD=your-strong-password
+RUNTIME_DIR=../zekra-runtime
 CORS_ORIGIN=https://your-domain.com
 VITE_API_URL=
 ```
@@ -78,4 +86,4 @@ pm2 start ../sweets-backend/server.js --name zekra-sweets
 pm2 save
 ```
 
-Keep `../sweets-backend/data/products.json` and `../sweets-backend/uploads/` backed up. Those are the product database and uploaded product images.
+Keep `../zekra-runtime/data/` and `../zekra-runtime/uploads/` backed up. Those are the product database, order database, delivery locations, and uploaded product images. Admin changes should not be committed to or deployed from Git.
