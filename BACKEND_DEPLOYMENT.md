@@ -8,7 +8,16 @@ The Node.js backend is in:
 ../sweets-backend/server.js
 ```
 
-Live admin-managed data is stored outside the Git checkout by default:
+In production, live admin-managed data should be stored in MongoDB:
+
+```text
+MONGODB_URI=your Mongo connection string
+MONGODB_DB=sweets-sweets-database-8kgpyr
+```
+
+When MongoDB is configured, products, orders, delivery locations, admin users, and admin-uploaded images are stored in MongoDB/GridFS.
+
+Without MongoDB, the backend falls back to runtime files outside the Git checkout:
 
 ```text
 ../zekra-runtime/data/products.json
@@ -64,6 +73,8 @@ PORT=4000
 JWT_SECRET=replace-with-a-long-random-secret
 ADMIN_USER=admin
 ADMIN_PASSWORD=your-strong-password
+MONGODB_URI=your-mongodb-connection-string
+MONGODB_DB=sweets-sweets-database-8kgpyr
 RUNTIME_DIR=../zekra-runtime
 CORS_ORIGIN=https://your-domain.com
 VITE_API_URL=
@@ -86,4 +97,4 @@ pm2 start ../sweets-backend/server.js --name zekra-sweets
 pm2 save
 ```
 
-Keep `../zekra-runtime/data/` and `../zekra-runtime/uploads/` backed up. Those are the product database, order database, delivery locations, and uploaded product images. Admin changes should not be committed to or deployed from Git.
+Keep MongoDB backed up. If MongoDB is not configured, keep `../zekra-runtime/data/` and `../zekra-runtime/uploads/` backed up. Admin changes should not be committed to or deployed from Git.
