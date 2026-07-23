@@ -49,7 +49,7 @@ function Cart() {
             </p>
           </div>
           <Link
-            to="/order"
+            to="/products"
             className="inline-flex w-fit items-center gap-2 rounded-full border border-gold-soft/60 bg-cream/70 px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -105,10 +105,10 @@ function EmptyCart() {
         you browse.
       </p>
       <Link
-        to="/order"
+        to="/products"
         className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-gold px-6 py-3 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.03]"
       >
-        Start ordering
+        View products
         <ArrowRight className="h-4 w-4" />
       </Link>
     </div>
@@ -208,10 +208,10 @@ function CartTotals() {
           <ArrowRight className="h-4 w-4" />
         </Link>
         <Link
-          to="/order"
+          to="/products"
           className="inline-flex items-center justify-center rounded-full border border-gold-soft/60 bg-cream/60 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
         >
-          Add more treats
+          View products
         </Link>
       </div>
     </aside>

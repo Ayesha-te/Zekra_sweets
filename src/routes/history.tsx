@@ -267,10 +267,10 @@ function HistoryEmptyState({
       <h2 className="mt-5 font-display text-3xl">{title}</h2>
       <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">{text}</p>
       <Link
-        to="/order"
+        to="/products"
         className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-gold px-6 py-3 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.03]"
       >
-        Start ordering
+        View products
         <ArrowRight className="h-4 w-4" />
       </Link>
     </div>

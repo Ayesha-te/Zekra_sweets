@@ -1,15 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check, Search, ShoppingBag } from "lucide-react";
+import { ArrowRight, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { StructuredData } from "@/components/seo/StructuredData";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { assetUrl, type Product } from "@/lib/api";
-import { formatMoney, useCart } from "@/lib/cart";
+import { formatMoney } from "@/lib/cart";
 import {
   filterProducts,
   loadProducts,
+  productDisplayOriginalPrice,
+  productDisplayPrice,
   productCategories,
+  productSizeOptions,
   type ProductCategoryFilter,
 } from "@/lib/products";
 import { buildSeoHead, effectiveProductSeo, itemListJsonLd, productSlug } from "@/lib/seo";
@@ -32,8 +35,6 @@ function Products() {
   const [q, setQ] = useState("");
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [loading, setLoading] = useState(false);
-  const [addedId, setAddedId] = useState<string | null>(null);
-  const cart = useCart();
 
   useEffect(() => {
     loadProducts()
@@ -41,19 +42,7 @@ function Products() {
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
-    if (!addedId) return;
-    const timeout = window.setTimeout(() => setAddedId(null), 1400);
-
-    return () => window.clearTimeout(timeout);
-  }, [addedId]);
-
   const filtered = filterProducts(products, cat, q);
-
-  const addToBag = (product: Product) => {
-    cart.addItem(product);
-    setAddedId(product.id);
-  };
 
   return (
     <SiteLayout>
@@ -96,30 +85,16 @@ function Products() {
               ))}
             </div>
           </div>
-
-          {cart.count > 0 && (
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-2.5 rounded-2xl border border-gold-soft/50 bg-cream/60 px-4 py-3 text-sm">
-              <span className="text-foreground/75">
-                {cart.count} {cart.count === 1 ? "item" : "items"} in your bag
-              </span>
-              <Link
-                to="/cart"
-                className="inline-flex items-center gap-2 rounded-full bg-cocoa px-3.5 py-2 text-xs font-semibold text-cream transition-transform hover:scale-[1.03]"
-              >
-                Review bag
-                <ShoppingBag className="h-3.5 w-3.5" />
-              </Link>
-            </div>
-          )}
         </div>
       </section>
 
       <section className="mx-auto mt-8 max-w-7xl px-4 sm:px-6">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((product, index) => {
-            const quantityInBag = cart.getItemQuantity(product.id);
-            const recentlyAdded = addedId === product.id;
             const seo = effectiveProductSeo(product);
+            const sizes = productSizeOptions(product);
+            const displayPrice = productDisplayPrice(product);
+            const displayOriginalPrice = productDisplayOriginalPrice(product);
 
             return (
               <article
@@ -160,35 +135,33 @@ function Products() {
                       {product.name}
                     </h3>
                   </Link>
+                  {sizes.length > 0 && (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {sizes.slice(0, 4).map((size) => (
+                        <span key={`${product.id}-${size.id || size.label}`} className="rounded-full border border-gold-soft/60 bg-cream/70 px-3 py-1 text-xs text-foreground/75">
+                          {size.label}: {formatMoney(size.price)}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   <div className="mt-4 flex items-end justify-between gap-4">
                     <div>
-                      {product.originalPrice && (
+                      {displayOriginalPrice && (
                         <div className="text-xs text-muted-foreground line-through">
-                          {formatMoney(product.originalPrice)}
+                          {formatMoney(displayOriginalPrice)}
                         </div>
                       )}
                       <div className="font-display text-2xl text-gradient-gold">
-                        {formatMoney(product.price)}
+                        {sizes.length > 0 ? `From ${formatMoney(displayPrice)}` : formatMoney(displayPrice)}
                       </div>
                     </div>
-                    <button
-                      onClick={() => addToBag(product)}
+                    <Link
+                      to="/products/$slug"
+                      params={{ slug: productSlug(product) }}
                       className="inline-flex min-w-[116px] items-center justify-center gap-2 rounded-full bg-gradient-gold px-4 py-2.5 text-xs font-medium text-primary-foreground shadow-glow transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
                     >
-                      {recentlyAdded ? (
-                        <>
-                          <Check className="h-3.5 w-3.5" /> Added
-                        </>
-                      ) : quantityInBag > 0 ? (
-                        <>
-                          <ShoppingBag className="h-3.5 w-3.5" /> In bag ({quantityInBag})
-                        </>
-                      ) : (
-                        <>
-                          <ShoppingBag className="h-3.5 w-3.5" /> Add to bag
-                        </>
-                      )}
-                    </button>
+                      Details <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
                   </div>
                 </div>
               </article>

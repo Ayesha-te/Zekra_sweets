@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ProductsRouteImport } from './routes/products'
-import { Route as OrderRouteImport } from './routes/order'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -29,11 +28,6 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const ProductsRoute = ProductsRouteImport.update({
   id: '/products',
   path: '/products',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OrderRoute = OrderRouteImport.update({
-  id: '/order',
-  path: '/order',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistoryRoute = HistoryRouteImport.update({
@@ -85,7 +79,6 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/gallery': typeof GalleryRoute
   '/history': typeof HistoryRoute
-  '/order': typeof OrderRoute
   '/products': typeof ProductsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -98,7 +91,6 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/gallery': typeof GalleryRoute
   '/history': typeof HistoryRoute
-  '/order': typeof OrderRoute
   '/products': typeof ProductsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -112,7 +104,6 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/gallery': typeof GalleryRoute
   '/history': typeof HistoryRoute
-  '/order': typeof OrderRoute
   '/products': typeof ProductsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/products_/$slug': typeof ProductsSlugRoute
@@ -127,7 +118,6 @@ export interface FileRouteTypes {
     | '/contact'
     | '/gallery'
     | '/history'
-    | '/order'
     | '/products'
     | '/sitemap.xml'
     | '/products/$slug'
@@ -140,7 +130,6 @@ export interface FileRouteTypes {
     | '/contact'
     | '/gallery'
     | '/history'
-    | '/order'
     | '/products'
     | '/sitemap.xml'
     | '/products/$slug'
@@ -153,7 +142,6 @@ export interface FileRouteTypes {
     | '/contact'
     | '/gallery'
     | '/history'
-    | '/order'
     | '/products'
     | '/sitemap.xml'
     | '/products_/$slug'
@@ -167,7 +155,6 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   GalleryRoute: typeof GalleryRoute
   HistoryRoute: typeof HistoryRoute
-  OrderRoute: typeof OrderRoute
   ProductsRoute: typeof ProductsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ProductsSlugRoute: typeof ProductsSlugRoute
@@ -187,13 +174,6 @@ declare module '@tanstack/react-router' {
       path: '/products'
       fullPath: '/products'
       preLoaderRoute: typeof ProductsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/order': {
-      id: '/order'
-      path: '/order'
-      fullPath: '/order'
-      preLoaderRoute: typeof OrderRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/history': {
@@ -263,7 +243,6 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   GalleryRoute: GalleryRoute,
   HistoryRoute: HistoryRoute,
-  OrderRoute: OrderRoute,
   ProductsRoute: ProductsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ProductsSlugRoute: ProductsSlugRoute,

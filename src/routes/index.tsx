@@ -61,7 +61,7 @@ function Home() {
                   to="/products"
                   className="group inline-flex items-center gap-2 rounded-full bg-gradient-gold px-6 py-3.5 text-sm font-medium text-primary-foreground shadow-glow transition-transform hover:scale-[1.03]"
                 >
-                  Order now
+                  View products
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
                 <Link

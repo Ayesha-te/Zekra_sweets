@@ -596,10 +596,10 @@ function EmptyCheckout() {
         Add a few bakery favorites before checkout.
       </p>
       <Link
-        to="/order"
+        to="/products"
         className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-gold px-6 py-3 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.03]"
       >
-        Start ordering
+        View products
       </Link>
     </div>
   );
@@ -655,10 +655,10 @@ function CheckoutConfirmation({ confirmation }: { confirmation: Confirmation }) 
           </div>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link
-              to="/order"
+              to="/products"
               className="inline-flex items-center gap-2 rounded-full bg-gradient-gold px-6 py-3 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.03]"
             >
-              Order more treats
+              View products
             </Link>
             <Link
               to="/products"

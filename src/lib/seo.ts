@@ -1,4 +1,5 @@
 import { API_BASE, assetUrl, type Product } from "@/lib/api";
+import { productDisplayPrice } from "@/lib/products";
 import { BUSINESS_PHONE_TEL } from "@/lib/contact";
 
 export const SITE_NAME = "Zekra Sweets";
@@ -99,7 +100,7 @@ export function productGeneratedDescription(product: Product) {
   const category = cleanText(product.category).toLowerCase() || "bakery treat";
   const factual = description || `Fresh handmade ${category} baked by ${SITE_NAME}.`;
 
-  return `Shop ${name} from ${SITE_NAME}. ${factual} Order online today.`;
+  return `Shop ${name} from ${SITE_NAME}. ${factual} Contact the bakery for today's availability.`;
 }
 
 export function productGeneratedImageAlt(product: Product) {
@@ -241,7 +242,7 @@ export function productJsonLd(product: Product) {
     offers: {
       "@type": "Offer",
       url: absoluteUrl(productPath(product)),
-      price: Number(product.price).toFixed(2),
+      price: productDisplayPrice(product).toFixed(2),
       priceCurrency: "AED",
     },
   };

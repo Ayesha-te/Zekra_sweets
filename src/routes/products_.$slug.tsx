@@ -1,12 +1,17 @@
 import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
-import { ArrowLeft, Check, ShoppingBag } from "lucide-react";
+import { ArrowLeft, MessageCircle } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { StructuredData } from "@/components/seo/StructuredData";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { assetUrl, type Product } from "@/lib/api";
-import { formatMoney, useCart } from "@/lib/cart";
-import { loadProducts } from "@/lib/products";
+import { formatMoney } from "@/lib/cart";
+import {
+  loadProducts,
+  productDisplayOriginalPrice,
+  productDisplayPrice,
+  productSizeOptions,
+} from "@/lib/products";
 import {
   breadcrumbJsonLd,
   cleanText,
@@ -46,28 +51,17 @@ function ProductPage() {
   const { product, products } = Route.useLoaderData();
   const galleryImages = useMemo(() => productImageUrls(product), [product]);
   const [selectedImage, setSelectedImage] = useState(galleryImages[0] || product.imageUrl);
-  const [added, setAdded] = useState(false);
-  const cart = useCart();
   const seo = effectiveProductSeo(product);
+  const sizes = productSizeOptions(product);
+  const displayPrice = productDisplayPrice(product);
+  const displayOriginalPrice = productDisplayOriginalPrice(product);
   const relatedProducts = products
     .filter((candidate) => candidate.id !== product.id && candidate.category === product.category)
     .slice(0, 3);
 
   useEffect(() => {
-    if (!added) return;
-    const timeout = window.setTimeout(() => setAdded(false), 1400);
-
-    return () => window.clearTimeout(timeout);
-  }, [added]);
-
-  useEffect(() => {
     setSelectedImage(galleryImages[0] || product.imageUrl);
   }, [galleryImages, product.imageUrl]);
-
-  const addToBag = () => {
-    cart.addItem(product);
-    setAdded(true);
-  };
 
   return (
     <SiteLayout>
@@ -158,22 +152,43 @@ function ProductPage() {
 
             <div className="mt-7 flex flex-wrap items-end gap-3">
               <span className="font-display text-4xl text-gradient-gold">
-                {formatMoney(product.price)}
+                {sizes.length > 0 ? `From ${formatMoney(displayPrice)}` : formatMoney(displayPrice)}
               </span>
-              {product.originalPrice && (
+              {displayOriginalPrice && (
                 <span className="pb-1 text-sm text-muted-foreground line-through">
-                  {formatMoney(product.originalPrice)}
+                  {formatMoney(displayOriginalPrice)}
                 </span>
               )}
             </div>
 
-            <button
-              onClick={addToBag}
+            <div className="mt-6 overflow-hidden rounded-3xl border border-gold-soft/55 bg-cream/65">
+              <div className="border-b border-gold-soft/45 px-4 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-caramel">
+                Size prices
+              </div>
+              <div className="divide-y divide-gold-soft/35">
+                {(sizes.length > 0 ? sizes : [{ label: "Regular", price: displayPrice, originalPrice: displayOriginalPrice }]).map((size) => (
+                  <div key={`${size.label}-${size.price}`} className="flex items-center justify-between gap-4 px-4 py-3 text-sm">
+                    <span className="font-semibold text-foreground">{size.label}</span>
+                    <span className="flex items-center gap-2">
+                      {size.originalPrice && (
+                        <span className="text-xs text-muted-foreground line-through">
+                          {formatMoney(size.originalPrice)}
+                        </span>
+                      )}
+                      <span className="font-display text-xl text-primary">{formatMoney(size.price)}</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Link
+              to="/contact"
               className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-gold px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 sm:w-fit"
             >
-              {added ? <Check className="h-4 w-4" /> : <ShoppingBag className="h-4 w-4" />}
-              {added ? "Added to bag" : "Add to bag"}
-            </button>
+              <MessageCircle className="h-4 w-4" />
+              Ask about this product
+            </Link>
           </div>
         </div>
       </section>
@@ -213,7 +228,11 @@ function ProductPage() {
                       {related.category}
                     </div>
                     <h3 className="mt-2 font-display text-lg leading-tight">{related.name}</h3>
-                    <p className="mt-3 font-semibold text-primary">{formatMoney(related.price)}</p>
+                    <p className="mt-3 font-semibold text-primary">
+                      {productSizeOptions(related).length > 0
+                        ? `From ${formatMoney(productDisplayPrice(related))}`
+                        : formatMoney(productDisplayPrice(related))}
+                    </p>
                   </div>
                 </Link>
               );

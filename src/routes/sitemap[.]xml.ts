@@ -9,7 +9,7 @@ export const Route = createFileRoute("/sitemap.xml")({
     handlers: {
       GET: async () => {
         const products = await loadProducts();
-        const staticEntries = ["/", "/about", "/products", "/order", "/gallery", "/contact"];
+        const staticEntries = ["/", "/about", "/products", "/gallery", "/contact"];
         const productEntries = products
           .filter((product) => product.isActive !== false && product.robotsIndex !== false)
           .map((product) => ({

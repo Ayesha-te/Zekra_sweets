@@ -138,11 +138,11 @@ function Contact() {
                 Email us
               </a>
               <Link
-                to="/order"
+                to="/products"
                 className="inline-flex items-center justify-center gap-2 rounded-full border border-gold-soft/60 bg-cream/70 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
               >
                 <ShoppingBag className="h-4 w-4 text-primary" />
-                Order online
+                View products
               </Link>
             </div>
 
