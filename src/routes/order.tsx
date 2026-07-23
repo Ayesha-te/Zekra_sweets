@@ -1,5 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Check, Minus, Plus, Search, ShoppingBag, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  History,
+  Minus,
+  Plus,
+  Search,
+  ShoppingBag,
+  Sparkles,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -327,6 +336,13 @@ function CartSummaryPanel() {
           className="inline-flex items-center justify-center rounded-full border border-gold-soft/60 bg-cream/60 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
         >
           Edit cart
+        </Link>
+        <Link
+          to="/history"
+          className="inline-flex items-center justify-center gap-2 rounded-full border border-gold-soft/60 bg-cream/60 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
+        >
+          <History className="h-4 w-4 text-primary" />
+          Order history
         </Link>
       </div>
     </aside>

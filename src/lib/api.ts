@@ -66,6 +66,7 @@ export type CreateOrderPayload = {
   customer: {
     name: string;
     phone: string;
+    email?: string;
   };
   fulfillment: {
     mode: FulfillmentMode;
@@ -136,6 +137,40 @@ export type StripeCheckoutSessionStatus = {
   mode?: FulfillmentMode | string;
 };
 
+export type CustomerOrderHistoryItem = {
+  id: string;
+  status: string;
+  createdAt: string;
+  fulfillment: {
+    type: FulfillmentMode | string;
+    locationName?: string;
+  };
+  payment?: {
+    method?: string;
+    status?: string;
+  };
+  items: Array<{
+    productId?: string;
+    name: string;
+    category?: string;
+    imageUrl?: string;
+    quantity: number;
+    unitPrice: number;
+    lineTotal: number;
+  }>;
+  totals: {
+    currency?: string;
+    subtotal: number;
+    deliveryFee: number;
+    total: number;
+  };
+};
+
+export type CustomerOrderHistoryResponse = {
+  count: number;
+  orders: CustomerOrderHistoryItem[];
+};
+
 export function createOrder(payload: CreateOrderPayload) {
   return apiFetch<CreateOrderResponse>("/api/orders", {
     method: "POST",
@@ -155,5 +190,11 @@ export function createStripeCheckoutSession(payload: CreateOrderPayload) {
 export function fetchStripeCheckoutSession(sessionId: string) {
   return apiFetch<StripeCheckoutSessionStatus>(
     `/api/stripe/checkout-session/${encodeURIComponent(sessionId)}`,
+  );
+}
+
+export function fetchOrderHistory(contact: string) {
+  return apiFetch<CustomerOrderHistoryResponse>(
+    `/api/orders/history?contact=${encodeURIComponent(contact)}`,
   );
 }

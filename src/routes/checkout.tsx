@@ -4,6 +4,8 @@ import {
   ArrowLeft,
   CheckCircle2,
   CreditCard,
+  History,
+  Mail,
   MapPin,
   Phone,
   ShoppingBag,
@@ -55,6 +57,7 @@ export const Route = createFileRoute("/checkout")({
 type CheckoutForm = {
   name: string;
   phone: string;
+  email: string;
   mode: FulfillmentMode;
   locationId: string;
   address: string;
@@ -71,6 +74,7 @@ type Confirmation = {
 const initialForm: CheckoutForm = {
   name: "",
   phone: "",
+  email: "",
   mode: "delivery",
   locationId: "",
   address: "",
@@ -211,6 +215,7 @@ function Checkout() {
       customer: {
         name: form.name.trim(),
         phone: form.phone.trim(),
+        ...(form.email.trim() ? { email: form.email.trim() } : {}),
       },
       fulfillment: {
         mode: form.mode,
@@ -275,13 +280,22 @@ function Checkout() {
               cannot be submitted.
             </p>
           </div>
-          <Link
-            to="/cart"
-            className="inline-flex w-fit items-center gap-2 rounded-full border border-gold-soft/60 bg-cream/70 px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to cart
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              to="/history"
+              className="inline-flex w-fit items-center gap-2 rounded-full border border-gold-soft/60 bg-cream/70 px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
+            >
+              <History className="h-4 w-4 text-primary" />
+              Order history
+            </Link>
+            <Link
+              to="/cart"
+              className="inline-flex w-fit items-center gap-2 rounded-full border border-gold-soft/60 bg-cream/70 px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to cart
+            </Link>
+          </div>
         </div>
 
         {cart.items.length === 0 ? (
@@ -292,7 +306,7 @@ function Checkout() {
               <div>
                 <h2 className="font-display text-2xl">Customer details</h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Name and phone are required. Payment opens securely through Stripe.
+                  Name and phone are required. Email helps keep future history lookups simple.
                 </p>
               </div>
 
@@ -316,6 +330,17 @@ function Checkout() {
                     inputMode="tel"
                     required
                     placeholder="+971 55 000 0000"
+                  />
+                </Field>
+                <Field label="Email optional" icon={Mail} wide>
+                  <input
+                    value={form.email}
+                    onChange={(event) => updateField("email", event.target.value)}
+                    className={fieldClass}
+                    autoComplete="email"
+                    inputMode="email"
+                    type="email"
+                    placeholder="name@example.com"
                   />
                 </Field>
               </div>
