@@ -93,15 +93,12 @@ export const productCategories = ["All products", "Cookies", "Sweets", "Rusk", "
 
 export type ProductCategoryFilter = (typeof productCategories)[number];
 
-const productFallbackEnabled =
-  import.meta.env.DEV || import.meta.env.VITE_ENABLE_PRODUCT_FALLBACK === "true";
-
 export async function loadProducts() {
   try {
     const products = await apiFetch<Product[]>("/api/products");
-    return products.length > 0 || !productFallbackEnabled ? products : fallbackProducts;
+    return products.length > 0 ? products : fallbackProducts;
   } catch {
-    return productFallbackEnabled ? fallbackProducts : [];
+    return fallbackProducts;
   }
 }
 
