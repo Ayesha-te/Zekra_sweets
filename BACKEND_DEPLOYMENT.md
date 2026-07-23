@@ -12,7 +12,7 @@ In production, live admin-managed data should be stored in MongoDB:
 
 ```text
 MONGODB_URI=your Mongo connection string
-MONGODB_DB=sweets-sweets-database-8kgpyr
+MONGODB_DB=sweets
 ```
 
 When MongoDB is configured, products, orders, delivery locations, admin users, and admin-uploaded images are stored in MongoDB/GridFS.
@@ -74,7 +74,7 @@ JWT_SECRET=replace-with-a-long-random-secret
 ADMIN_USER=admin
 ADMIN_PASSWORD=your-strong-password
 MONGODB_URI=your-mongodb-connection-string
-MONGODB_DB=sweets-sweets-database-8kgpyr
+MONGODB_DB=sweets
 RUNTIME_DIR=../zekra-runtime
 CORS_ORIGIN=https://your-domain.com
 VITE_API_URL=
