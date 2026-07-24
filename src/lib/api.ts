@@ -3,6 +3,8 @@ export type Product = {
   name: string;
   imageUrl: string;
   imageUrls?: string[];
+  image?: ProductImageMetadata | null;
+  images?: ProductImageMetadata[];
   sizes?: ProductSizeOption[];
   price: number;
   originalPrice?: number | null;
@@ -26,6 +28,15 @@ export type Product = {
   category: "Cookies" | "Sweets" | "Rusk" | "Puff" | string;
 };
 
+export type ProductImageMetadata = {
+  url: string;
+  path?: string;
+  filename?: string;
+  mimeType?: string;
+  size?: number;
+  isPrimary?: boolean;
+};
+
 export type ProductSizeOption = {
   id?: string;
   label: string;
@@ -43,7 +54,7 @@ export type DeliveryLocation = {
 export const API_BASE = import.meta.env.VITE_API_URL || "https://api.zekrasweets.com";
 
 export function assetUrl(path: string) {
-  if (!path) return "";
+  if (!path) return "/favicon.png";
   if (/^(data|blob):/i.test(path)) return path;
   if (/^https?:\/\//i.test(path)) return path;
   if (
@@ -54,6 +65,11 @@ export function assetUrl(path: string) {
     return path;
   }
   return `${API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+export function productImageError(event: { currentTarget: HTMLImageElement }) {
+  const image = event.currentTarget;
+  if (!image.src.endsWith("/favicon.png")) image.src = "/favicon.png";
 }
 
 export async function apiFetch<T>(path: string, options: RequestInit = {}) {

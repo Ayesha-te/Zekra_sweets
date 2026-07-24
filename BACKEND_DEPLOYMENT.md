@@ -15,7 +15,7 @@ MONGODB_URI=your Mongo connection string
 MONGODB_DB=sweets
 ```
 
-When MongoDB is configured, products, orders, delivery locations, admin users, and admin-uploaded images are stored in MongoDB/GridFS.
+MongoDB stores products, orders, delivery locations, admin users, and image metadata. New admin-uploaded image bytes are stored in the persistent Dokploy volume; legacy MongoDB/GridFS images remain readable.
 
 Without MongoDB, the backend falls back to runtime files outside the Git checkout:
 
@@ -78,6 +78,9 @@ MONGODB_DB=sweets
 RUNTIME_DIR=../zekra-runtime
 CORS_ORIGIN=https://your-domain.com
 VITE_API_URL=
+UPLOAD_DIR=/app/uploads
+PUBLIC_UPLOAD_URL=https://api.your-domain.com/uploads
+MAX_UPLOAD_SIZE_MB=5
 ```
 
 For same-domain deployment, keep `VITE_API_URL` empty so the frontend calls `/api/...` on the same server.
@@ -97,4 +100,4 @@ pm2 start ../sweets-backend/server.js --name zekra-sweets
 pm2 save
 ```
 
-Keep MongoDB backed up. If MongoDB is not configured, keep `../zekra-runtime/data/` and `../zekra-runtime/uploads/` backed up. Admin changes should not be committed to or deployed from Git.
+In Dokploy, mount a persistent volume at `/app/uploads`. Do not add that directory to the Docker image and do not overwrite it during deployment. Ensure the container user has read/write permission, and back up both MongoDB and the uploads volume. Admin changes and secrets should not be committed to Git.

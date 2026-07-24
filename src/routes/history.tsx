@@ -17,6 +17,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import {
   assetUrl,
+  productImageError,
   fetchOrderHistory,
   type CustomerOrderHistoryItem,
   type Product,
@@ -321,6 +322,7 @@ function OrderHistoryCard({
             {item.imageUrl ? (
               <img
                 src={assetUrl(item.imageUrl)}
+                onError={productImageError}
                 alt={item.name}
                 className="h-14 w-14 rounded-2xl object-cover"
               />

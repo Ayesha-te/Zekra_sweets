@@ -18,6 +18,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import {
   assetUrl,
+  productImageError,
   createStripeCheckoutSession,
   fetchStripeCheckoutSession,
   loadDeliveryLocations,
@@ -543,6 +544,7 @@ function CheckoutSummary({
           <div key={item.product.id} className="grid grid-cols-[52px_minmax(0,1fr)_auto] gap-3">
             <img
               src={assetUrl(item.product.imageUrl)}
+              onError={productImageError}
               alt={item.product.imageAlt || item.product.name}
               className="h-12 w-12 rounded-2xl object-cover"
             />

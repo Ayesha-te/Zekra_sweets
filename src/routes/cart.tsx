@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { assetUrl } from "@/lib/api";
+import { assetUrl, productImageError } from "@/lib/api";
 import { FREE_DELIVERY_MINIMUM, formatMoney, useCart, type CartItem } from "@/lib/cart";
 
 export const Route = createFileRoute("/cart")({
@@ -123,6 +123,7 @@ function CartItemRow({ item }: { item: CartItem }) {
     <article className="grid gap-4 p-5 sm:grid-cols-[104px_minmax(0,1fr)_auto] sm:p-6">
       <img
         src={assetUrl(item.product.imageUrl)}
+        onError={productImageError}
         alt={item.product.imageAlt || item.product.name}
         className="h-28 w-full rounded-3xl object-cover sm:h-28 sm:w-[104px]"
       />

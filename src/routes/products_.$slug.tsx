@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { StructuredData } from "@/components/seo/StructuredData";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { assetUrl, type Product } from "@/lib/api";
+import { assetUrl, productImageError, type Product } from "@/lib/api";
 import { formatMoney } from "@/lib/cart";
 import {
   loadProducts,
@@ -95,6 +95,7 @@ function ProductPage() {
             <div className="overflow-hidden rounded-[1.5rem]">
               <img
                 src={assetUrl(selectedImage)}
+                onError={productImageError}
                 alt={seo.imageAlt}
                 width={900}
                 height={900}
@@ -119,6 +120,7 @@ function ProductPage() {
                     >
                       <img
                         src={assetUrl(imageUrl)}
+                        onError={productImageError}
                         alt=""
                         loading="lazy"
                         width={160}
@@ -217,6 +219,7 @@ function ProductPage() {
                 >
                   <img
                     src={assetUrl(related.imageUrl)}
+                    onError={productImageError}
                     alt={relatedSeo.imageAlt}
                     loading="lazy"
                     width={520}

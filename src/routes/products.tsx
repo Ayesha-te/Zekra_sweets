@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { StructuredData } from "@/components/seo/StructuredData";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { assetUrl, type Product } from "@/lib/api";
+import { assetUrl, productImageError, type Product } from "@/lib/api";
 import { formatMoney } from "@/lib/cart";
 import {
   filterProducts,
@@ -110,6 +110,7 @@ function Products() {
                 >
                   <img
                     src={assetUrl(product.imageUrl)}
+                    onError={productImageError}
                     alt={seo.imageAlt}
                     loading="lazy"
                     width={640}
