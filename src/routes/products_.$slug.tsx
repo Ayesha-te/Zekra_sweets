@@ -51,6 +51,7 @@ function ProductPage() {
   const { product, products } = Route.useLoaderData();
   const galleryImages = useMemo(() => productImageUrls(product), [product]);
   const [selectedImage, setSelectedImage] = useState(galleryImages[0] || product.imageUrl);
+  const [selectedSizeIndex, setSelectedSizeIndex] = useState(0);
   const [added, setAdded] = useState(false);
   const cart = useCart();
   const navigate = useNavigate();
@@ -58,6 +59,10 @@ function ProductPage() {
   const sizes = productSizeOptions(product);
   const displayPrice = productDisplayPrice(product);
   const displayOriginalPrice = productDisplayOriginalPrice(product);
+  const sizeOptions = sizes.length > 0
+    ? sizes
+    : [{ label: "Regular", price: displayPrice, originalPrice: displayOriginalPrice }];
+  const selectedSize = sizeOptions[selectedSizeIndex] ?? sizeOptions[0];
   const relatedProducts = products
     .filter((candidate) => candidate.id !== product.id && candidate.category === product.category)
     .slice(0, 3);
@@ -67,6 +72,10 @@ function ProductPage() {
   }, [galleryImages, product.imageUrl]);
 
   useEffect(() => {
+    setSelectedSizeIndex(0);
+  }, [product.id]);
+
+  useEffect(() => {
     if (!added) return;
     const timeout = window.setTimeout(() => setAdded(false), 1400);
 
@@ -74,10 +83,14 @@ function ProductPage() {
   }, [added]);
 
   const productForBag = () => {
-    const defaultSize = sizes[0];
-    return defaultSize
-      ? { ...product, price: defaultSize.price, originalPrice: defaultSize.originalPrice }
-      : product;
+    if (sizes.length === 0) return product;
+
+    return {
+      ...product,
+      name: `${product.name} (${selectedSize.label})`,
+      price: selectedSize.price,
+      originalPrice: selectedSize.originalPrice,
+    };
   };
 
   const addToBag = () => {
@@ -181,35 +194,60 @@ function ProductPage() {
 
             <div className="mt-7 flex flex-wrap items-end gap-3">
               <span className="font-display text-4xl text-gradient-gold">
-                {sizes.length > 0 ? `From ${formatMoney(displayPrice)}` : formatMoney(displayPrice)}
+                {formatMoney(selectedSize.price)}
               </span>
-              {displayOriginalPrice && (
+              {selectedSize.originalPrice && (
                 <span className="pb-1 text-sm text-muted-foreground line-through">
-                  {formatMoney(displayOriginalPrice)}
+                  {formatMoney(selectedSize.originalPrice)}
                 </span>
               )}
             </div>
 
-            <div className="mt-6 overflow-hidden rounded-3xl border border-gold-soft/55 bg-cream/65">
-              <div className="border-b border-gold-soft/45 px-4 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-caramel">
-                Size prices
-              </div>
-              <div className="divide-y divide-gold-soft/35">
-                {(sizes.length > 0 ? sizes : [{ label: "Regular", price: displayPrice, originalPrice: displayOriginalPrice }]).map((size) => (
-                  <div key={`${size.label}-${size.price}`} className="flex items-center justify-between gap-4 px-4 py-3 text-sm">
-                    <span className="font-semibold text-foreground">{size.label}</span>
-                    <span className="flex items-center gap-2">
-                      {size.originalPrice && (
-                        <span className="text-xs text-muted-foreground line-through">
-                          {formatMoney(size.originalPrice)}
+            <fieldset className="mt-6 min-w-0">
+              <legend className="text-xs font-semibold uppercase tracking-[0.2em] text-caramel">
+                Select size
+              </legend>
+              <div className="mt-3 flex gap-3 overflow-x-auto pb-1" role="radiogroup">
+                {sizeOptions.map((size, index) => {
+                  const selected = index === selectedSizeIndex;
+
+                  return (
+                    <button
+                      key={`${size.label}-${size.price}`}
+                      type="button"
+                      role="radio"
+                      aria-checked={selected}
+                      onClick={() => setSelectedSizeIndex(index)}
+                      className={`relative flex min-w-[8.5rem] shrink-0 flex-col rounded-2xl border px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 ${
+                        selected
+                          ? "border-primary bg-secondary shadow-sm"
+                          : "border-gold-soft/55 bg-cream/65 hover:border-primary/60 hover:bg-secondary/60"
+                      }`}
+                    >
+                      <span className="flex items-center justify-between gap-3 text-sm font-bold text-foreground">
+                        {size.label}
+                        <span
+                          aria-hidden="true"
+                          className={`flex h-4 w-4 items-center justify-center rounded-full border ${
+                            selected ? "border-primary bg-primary text-primary-foreground" : "border-gold-soft"
+                          }`}
+                        >
+                          {selected && <Check className="h-3 w-3" />}
                         </span>
-                      )}
-                      <span className="font-display text-xl text-primary">{formatMoney(size.price)}</span>
-                    </span>
-                  </div>
-                ))}
+                      </span>
+                      <span className="mt-1 flex items-baseline gap-2 whitespace-nowrap">
+                        <span className="font-display text-lg text-primary">{formatMoney(size.price)}</span>
+                        {size.originalPrice && (
+                          <span className="text-[11px] text-muted-foreground line-through">
+                            {formatMoney(size.originalPrice)}
+                          </span>
+                        )}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
-            </div>
+            </fieldset>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <button
