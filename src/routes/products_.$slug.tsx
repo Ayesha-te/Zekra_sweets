@@ -1,11 +1,11 @@
-import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
-import { ArrowLeft, MessageCircle } from "lucide-react";
+import { createFileRoute, Link, notFound, redirect, useNavigate } from "@tanstack/react-router";
+import { ArrowLeft, Check, MessageCircle, ShoppingBag } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { StructuredData } from "@/components/seo/StructuredData";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { assetUrl, productImageError, type Product } from "@/lib/api";
-import { formatMoney } from "@/lib/cart";
+import { formatMoney, useCart } from "@/lib/cart";
 import {
   loadProducts,
   productDisplayOriginalPrice,
@@ -51,6 +51,9 @@ function ProductPage() {
   const { product, products } = Route.useLoaderData();
   const galleryImages = useMemo(() => productImageUrls(product), [product]);
   const [selectedImage, setSelectedImage] = useState(galleryImages[0] || product.imageUrl);
+  const [added, setAdded] = useState(false);
+  const cart = useCart();
+  const navigate = useNavigate();
   const seo = effectiveProductSeo(product);
   const sizes = productSizeOptions(product);
   const displayPrice = productDisplayPrice(product);
@@ -62,6 +65,30 @@ function ProductPage() {
   useEffect(() => {
     setSelectedImage(galleryImages[0] || product.imageUrl);
   }, [galleryImages, product.imageUrl]);
+
+  useEffect(() => {
+    if (!added) return;
+    const timeout = window.setTimeout(() => setAdded(false), 1400);
+
+    return () => window.clearTimeout(timeout);
+  }, [added]);
+
+  const productForBag = () => {
+    const defaultSize = sizes[0];
+    return defaultSize
+      ? { ...product, price: defaultSize.price, originalPrice: defaultSize.originalPrice }
+      : product;
+  };
+
+  const addToBag = () => {
+    cart.addItem(productForBag());
+    setAdded(true);
+  };
+
+  const buyNow = () => {
+    cart.addItem(productForBag());
+    void navigate({ to: "/checkout" });
+  };
 
   return (
     <SiteLayout>
@@ -184,13 +211,33 @@ function ProductPage() {
               </div>
             </div>
 
-            <Link
-              to="/contact"
-              className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-gold px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 sm:w-fit"
-            >
-              <MessageCircle className="h-4 w-4" />
-              Ask about this product
-            </Link>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <button
+                type="button"
+                onClick={addToBag}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-gold-soft/60 bg-cream/70 px-6 py-3.5 text-sm font-bold text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 sm:w-auto"
+              >
+                {added ? <Check className="h-4 w-4" /> : <ShoppingBag className="h-4 w-4" />}
+                {added ? "Added to bag" : "Add to bag"}
+              </button>
+              <button
+                type="button"
+                onClick={buyNow}
+                className="inline-flex w-full items-center justify-center rounded-full bg-cocoa px-6 py-3.5 text-sm font-bold text-cream shadow-glow transition-transform hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 sm:w-auto"
+              >
+                Buy now
+              </button>
+              <Link
+                to="/contact"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-gold px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 sm:w-auto"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Ask about this product
+              </Link>
+            </div>
+            <span className="sr-only" aria-live="polite">
+              {added ? `${product.name} added to bag` : ""}
+            </span>
           </div>
         </div>
       </section>

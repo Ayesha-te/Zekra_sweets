@@ -1,11 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Search } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { ArrowRight, Check, Search, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { StructuredData } from "@/components/seo/StructuredData";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { assetUrl, productImageError, type Product } from "@/lib/api";
-import { formatMoney } from "@/lib/cart";
+import { formatMoney, useCart } from "@/lib/cart";
 import {
   filterProducts,
   loadProducts,
@@ -35,6 +35,9 @@ function Products() {
   const [q, setQ] = useState("");
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [loading, setLoading] = useState(false);
+  const [addedId, setAddedId] = useState<string | null>(null);
+  const cart = useCart();
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadProducts()
@@ -42,7 +45,31 @@ function Products() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    if (!addedId) return;
+    const timeout = window.setTimeout(() => setAddedId(null), 1400);
+
+    return () => window.clearTimeout(timeout);
+  }, [addedId]);
+
   const filtered = filterProducts(products, cat, q);
+
+  const productForBag = (product: Product) => {
+    const defaultSize = productSizeOptions(product)[0];
+    return defaultSize
+      ? { ...product, price: defaultSize.price, originalPrice: defaultSize.originalPrice }
+      : product;
+  };
+
+  const addToBag = (product: Product) => {
+    cart.addItem(productForBag(product));
+    setAddedId(product.id);
+  };
+
+  const buyNow = (product: Product) => {
+    cart.addItem(productForBag(product));
+    void navigate({ to: "/checkout" });
+  };
 
   return (
     <SiteLayout>
@@ -95,6 +122,8 @@ function Products() {
             const sizes = productSizeOptions(product);
             const displayPrice = productDisplayPrice(product);
             const displayOriginalPrice = productDisplayOriginalPrice(product);
+            const quantityInBag = cart.getItemQuantity(product.id);
+            const recentlyAdded = addedId === product.id;
 
             return (
               <article
@@ -164,6 +193,27 @@ function Products() {
                       Details <ArrowRight className="h-3.5 w-3.5" />
                     </Link>
                   </div>
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => addToBag(product)}
+                      aria-label={`Add ${product.name} to bag`}
+                      className="inline-flex items-center justify-center gap-2 rounded-full border border-gold-soft/60 bg-cream/70 px-3 py-2.5 text-xs font-semibold text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
+                    >
+                      {recentlyAdded ? <Check className="h-3.5 w-3.5" /> : <ShoppingBag className="h-3.5 w-3.5" />}
+                      {recentlyAdded ? "Added" : quantityInBag > 0 ? `In bag (${quantityInBag})` : "Add to bag"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => buyNow(product)}
+                      className="inline-flex items-center justify-center rounded-full bg-cocoa px-3 py-2.5 text-xs font-semibold text-cream transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
+                    >
+                      Buy now
+                    </button>
+                  </div>
+                  <span className="sr-only" aria-live="polite">
+                    {recentlyAdded ? `${product.name} added to bag` : ""}
+                  </span>
                 </div>
               </article>
             );
