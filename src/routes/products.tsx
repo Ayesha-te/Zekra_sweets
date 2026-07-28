@@ -57,7 +57,7 @@ function Products() {
   const productForBag = (product: Product) => {
     const defaultSize = productSizeOptions(product)[0];
     return defaultSize
-      ? { ...product, price: defaultSize.price, originalPrice: defaultSize.originalPrice }
+      ? { ...product, price: defaultSize.price, originalPrice: defaultSize.originalPrice, sizeId: defaultSize.id, sizeLabel: defaultSize.label }
       : product;
   };
 

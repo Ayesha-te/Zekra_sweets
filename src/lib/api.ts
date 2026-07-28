@@ -113,6 +113,8 @@ export type CreateOrderPayload = {
     category?: string;
     quantity: number;
     unitPrice: number;
+    sizeId?: string;
+    sizeLabel?: string;
   }>;
   totals: {
     currency: "AED";

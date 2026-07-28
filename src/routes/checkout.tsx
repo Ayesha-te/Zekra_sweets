@@ -27,7 +27,7 @@ import {
   type FulfillmentMode,
   type StripeCheckoutSessionStatus,
 } from "@/lib/api";
-import { FREE_DELIVERY_MINIMUM, clearCart, formatMoney, getCartTotals, useCart } from "@/lib/cart";
+import { FREE_DELIVERY_MINIMUM, cartItemKey, clearCart, formatMoney, getCartTotals, useCart } from "@/lib/cart";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -231,6 +231,8 @@ function Checkout() {
         category: item.product.category,
         quantity: item.quantity,
         unitPrice: item.product.price,
+        sizeId: item.product.sizeId,
+        sizeLabel: item.product.sizeLabel,
       })),
       totals: {
         currency: "AED",
@@ -541,7 +543,7 @@ function CheckoutSummary({
 
       <div className="mt-5 max-h-[360px] space-y-3 overflow-auto pr-1">
         {cart.items.map((item) => (
-          <div key={item.product.id} className="grid grid-cols-[52px_minmax(0,1fr)_auto] gap-3">
+          <div key={cartItemKey(item.product)} className="grid grid-cols-[52px_minmax(0,1fr)_auto] gap-3">
             <img
               src={assetUrl(item.product.imageUrl)}
               onError={productImageError}
@@ -550,6 +552,7 @@ function CheckoutSummary({
             />
             <div className="min-w-0">
               <div className="truncate text-sm font-semibold">{item.product.name}</div>
+              {item.product.sizeLabel && <div className="text-xs font-semibold text-caramel">Size: {item.product.sizeLabel}</div>}
               <div className="mt-0.5 text-xs text-muted-foreground">
                 {item.quantity} x {formatMoney(item.product.price)}
               </div>

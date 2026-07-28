@@ -3,7 +3,7 @@ import { ArrowLeft, ArrowRight, Minus, Plus, ShoppingBag, Trash2, X } from "luci
 
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { assetUrl, productImageError } from "@/lib/api";
-import { FREE_DELIVERY_MINIMUM, formatMoney, useCart, type CartItem } from "@/lib/cart";
+import { FREE_DELIVERY_MINIMUM, cartItemKey, formatMoney, useCart, type CartItem } from "@/lib/cart";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -80,7 +80,7 @@ function Cart() {
 
               <div className="divide-y divide-gold-soft/35">
                 {cart.items.map((item) => (
-                  <CartItemRow key={item.product.id} item={item} />
+                  <CartItemRow key={cartItemKey(item.product)} item={item} />
                 ))}
               </div>
             </div>
@@ -133,6 +133,7 @@ function CartItemRow({ item }: { item: CartItem }) {
           {item.product.category}
         </div>
         <h2 className="mt-1 font-display text-xl leading-tight">{item.product.name}</h2>
+        {item.product.sizeLabel && <p className="mt-1 text-sm font-semibold text-caramel">Size: {item.product.sizeLabel}</p>}
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <span className="font-semibold text-primary">{formatMoney(item.product.price)}</span>
           <span className="text-xs text-muted-foreground">per pack</span>
@@ -141,7 +142,7 @@ function CartItemRow({ item }: { item: CartItem }) {
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <div className="inline-flex h-11 items-center overflow-hidden rounded-full border border-gold-soft/60 bg-cream/70">
             <button
-              onClick={() => cart.updateQuantity(item.product.id, item.quantity - 1)}
+              onClick={() => cart.updateQuantity(cartItemKey(item.product), item.quantity - 1)}
               aria-label={`Decrease ${item.product.name}`}
               className="grid h-11 w-11 place-items-center transition hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
             >
@@ -149,7 +150,7 @@ function CartItemRow({ item }: { item: CartItem }) {
             </button>
             <span className="min-w-10 text-center text-sm font-bold">{item.quantity}</span>
             <button
-              onClick={() => cart.updateQuantity(item.product.id, item.quantity + 1)}
+              onClick={() => cart.updateQuantity(cartItemKey(item.product), item.quantity + 1)}
               aria-label={`Increase ${item.product.name}`}
               className="grid h-11 w-11 place-items-center transition hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
             >
@@ -157,7 +158,7 @@ function CartItemRow({ item }: { item: CartItem }) {
             </button>
           </div>
           <button
-            onClick={() => cart.removeItem(item.product.id)}
+            onClick={() => cart.removeItem(cartItemKey(item.product))}
             className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/25"
           >
             <X className="h-3.5 w-3.5" />

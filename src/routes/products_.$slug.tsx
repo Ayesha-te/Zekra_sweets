@@ -87,9 +87,10 @@ function ProductPage() {
 
     return {
       ...product,
-      name: `${product.name} (${selectedSize.label})`,
       price: selectedSize.price,
       originalPrice: selectedSize.originalPrice,
+      sizeId: selectedSize.id,
+      sizeLabel: selectedSize.label,
     };
   };
 

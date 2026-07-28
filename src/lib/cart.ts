@@ -12,7 +12,10 @@ export type CartProduct = Pick<
   | "tag"
   | "category"
   | "urlSlug"
->;
+> & {
+  sizeId?: string;
+  sizeLabel?: string;
+};
 
 export type CartItem = {
   product: CartProduct;
@@ -50,6 +53,7 @@ function normalizeQuantity(quantity: number) {
 }
 
 function normalizeProduct(product: Product): CartProduct {
+  const cartProduct = product as Product & { sizeId?: string; sizeLabel?: string };
   return {
     id: product.id,
     name: product.name,
@@ -60,6 +64,8 @@ function normalizeProduct(product: Product): CartProduct {
     originalPrice: product.originalPrice,
     tag: product.tag,
     category: product.category,
+    sizeId: cartProduct.sizeId,
+    sizeLabel: cartProduct.sizeLabel,
   };
 }
 
@@ -88,6 +94,8 @@ function normalizeItems(value: unknown): CartItem[] {
               : Number(product.originalPrice),
           tag: product.tag,
           category: String(product.category || "Sweets"),
+          sizeId: typeof product.sizeId === "string" ? product.sizeId : undefined,
+          sizeLabel: typeof product.sizeLabel === "string" ? product.sizeLabel : undefined,
         },
         quantity: normalizeQuantity(Number(candidate.quantity)),
       };
@@ -174,12 +182,13 @@ export function addCartItem(product: Product, quantity = 1) {
   initializeCart();
 
   const amount = normalizeQuantity(quantity);
-  const existing = cartState.items.find((item) => item.product.id === product.id);
+  const normalized = normalizeProduct(product);
+  const existing = cartState.items.find((item) => cartItemKey(item.product) === cartItemKey(normalized));
 
   if (existing) {
     commit(
       cartState.items.map((item) =>
-        item.product.id === product.id
+        cartItemKey(item.product) === cartItemKey(normalized)
           ? { ...item, quantity: item.quantity + amount, product: normalizeProduct(product) }
           : item,
       ),
@@ -200,14 +209,19 @@ export function updateCartQuantity(productId: string, quantity: number) {
 
   commit(
     cartState.items.map((item) =>
-      item.product.id === productId ? { ...item, quantity: normalizeQuantity(quantity) } : item,
+      cartItemKey(item.product) === productId ? { ...item, quantity: normalizeQuantity(quantity) } : item,
     ),
   );
 }
 
 export function removeCartItem(productId: string) {
   initializeCart();
-  commit(cartState.items.filter((item) => item.product.id !== productId));
+  commit(cartState.items.filter((item) => cartItemKey(item.product) !== productId));
+}
+
+export function cartItemKey(product: CartProduct) {
+  const size = product.sizeId || product.sizeLabel;
+  return size ? `${product.id}::${size}` : product.id;
 }
 
 export function clearCart() {
@@ -250,6 +264,6 @@ export function useCart() {
     removeItem: removeCartItem,
     clear: clearCart,
     getItemQuantity: (productId: string) =>
-      cart.items.find((item) => item.product.id === productId)?.quantity ?? 0,
+      cart.items.filter((item) => item.product.id === productId).reduce((sum, item) => sum + item.quantity, 0),
   };
 }
