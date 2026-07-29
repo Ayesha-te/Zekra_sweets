@@ -7,6 +7,11 @@ export const productCategories = ["All products", "Cookies", "Sweets", "Rusk", "
 
 export type ProductCategoryFilter = (typeof productCategories)[number];
 
+const PRODUCT_CACHE_TTL_MS = 60_000;
+let cachedProducts: Product[] | null = null;
+let productsCacheExpiresAt = 0;
+let pendingProducts: Promise<Product[]> | null = null;
+
 export function productSizeOptions(product: Product) {
   return (product.sizes || [])
     .filter((size) => size.label && Number.isFinite(Number(size.price)))
@@ -37,12 +42,22 @@ export function productDisplayOriginalPrice(product: Product) {
 }
 
 export async function loadProducts() {
-  try {
-    const products = await apiFetch<Product[]>("/api/products");
-    return products.length > 0 ? products : fallbackProducts;
-  } catch {
-    return fallbackProducts;
-  }
+  if (cachedProducts && Date.now() < productsCacheExpiresAt) return cachedProducts;
+  if (pendingProducts) return pendingProducts;
+
+  pendingProducts = apiFetch<Product[]>("/api/products", { cache: "force-cache" })
+    .then((products) => {
+      if (products.length === 0) return fallbackProducts;
+      cachedProducts = products;
+      productsCacheExpiresAt = Date.now() + PRODUCT_CACHE_TTL_MS;
+      return products;
+    })
+    .catch(() => cachedProducts || fallbackProducts)
+    .finally(() => {
+      pendingProducts = null;
+    });
+
+  return pendingProducts;
 }
 
 export function filterProducts(

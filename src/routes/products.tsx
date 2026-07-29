@@ -44,8 +44,8 @@ function Products() {
   const [category, setCategory] = useState<ProductCategoryFilter>(initialCategory);
   const [query, setQuery] = useState(search.q || "");
   const [debouncedQuery, setDebouncedQuery] = useState(search.q || "");
-  const [products, setProducts] = useState<Product[]>(initialProducts);
-  const [loading, setLoading] = useState(initialProducts.length === 0);
+  const products = initialProducts;
+  const loading = false;
 
   useEffect(() => {
     const timeout = window.setTimeout(() => setDebouncedQuery(query.trim()), 250);
@@ -62,16 +62,6 @@ function Products() {
       resetScroll: false,
     });
   }, [category, debouncedQuery, navigate]);
-
-  useEffect(() => {
-    let mounted = true;
-    loadProducts()
-      .then((next) => mounted && setProducts(next))
-      .finally(() => mounted && setLoading(false));
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   const filtered = useMemo(
     () => filterProducts(products, category, debouncedQuery),

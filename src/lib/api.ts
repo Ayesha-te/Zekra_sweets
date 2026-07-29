@@ -90,6 +90,7 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}) {
 function freshApiPath(path: string, options: RequestInit) {
   const method = String(options.method || "GET").toUpperCase();
   if (method !== "GET" && method !== "HEAD") return path;
+  if (options.cache && options.cache !== "no-store") return path;
   return `${path}${path.includes("?") ? "&" : "?"}_=${Date.now()}`;
 }
 

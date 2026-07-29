@@ -63,6 +63,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
       <Link
         to="/products/$slug"
         params={{ slug: productSlug(product) }}
+        preload="intent"
         className="relative block aspect-[4/3] overflow-hidden bg-secondary/50"
       >
         <img
@@ -87,6 +88,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
         <Link
           to="/products/$slug"
           params={{ slug: productSlug(product) }}
+          preload="intent"
           className="mt-1.5 block rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
         >
           <h2 className="line-clamp-2 min-h-[2.6rem] font-display text-base leading-[1.3] sm:text-lg">
@@ -127,6 +129,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
           <Link
             to="/products/$slug"
             params={{ slug: productSlug(product) }}
+            preload="intent"
             className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-gold-soft/60 px-3 text-[11px] font-bold hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
           >
             Details <ArrowRight className="h-3 w-3" />
