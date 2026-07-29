@@ -5,7 +5,7 @@ import { BUSINESS_PHONE_TEL } from "@/lib/contact";
 export const SITE_NAME = "Zekra Sweets";
 export const DEFAULT_SITE_URL = "https://zekrasweets.com";
 export const SITE_URL = (import.meta.env.VITE_SITE_URL || DEFAULT_SITE_URL).replace(/\/+$/, "");
-export const DEFAULT_OG_IMAGE = absoluteUrl("/favicon.png");
+export const DEFAULT_OG_IMAGE = absoluteUrl("/seed-products/almond-cookies.jpg");
 
 type SeoHeadInput = {
   title: string;
@@ -47,9 +47,7 @@ export function absoluteImageUrl(path = "") {
 export function productImageUrls(product: Pick<Product, "imageUrl" | "imageUrls">) {
   return [
     ...new Set(
-      [product.imageUrl, ...(product.imageUrls || [])]
-        .map((url) => cleanText(url))
-        .filter(Boolean),
+      [product.imageUrl, ...(product.imageUrls || [])].map((url) => cleanText(url)).filter(Boolean),
     ),
   ];
 }
@@ -186,7 +184,7 @@ export function organizationJsonLd() {
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "Organization",
+        "@type": ["Bakery", "Organization"],
         "@id": `${SITE_URL}/#organization`,
         name: SITE_NAME,
         url: SITE_URL,

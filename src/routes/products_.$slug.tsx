@@ -1,11 +1,13 @@
 import { createFileRoute, Link, notFound, redirect, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Check, MessageCircle, ShoppingBag } from "lucide-react";
+import { ArrowLeft, Check, MessageCircle, Minus, Plus, ShoppingBag } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { StructuredData } from "@/components/seo/StructuredData";
+import { ProductCard } from "@/components/products/ProductCard";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { assetUrl, productImageError, type Product } from "@/lib/api";
 import { formatMoney, useCart } from "@/lib/cart";
+import { WHATSAPP_NUMBER } from "@/lib/contact";
 import {
   loadProducts,
   productDisplayOriginalPrice,
@@ -53,19 +55,27 @@ function ProductPage() {
   const [selectedImage, setSelectedImage] = useState(galleryImages[0] || product.imageUrl);
   const [selectedSizeIndex, setSelectedSizeIndex] = useState(0);
   const [added, setAdded] = useState(false);
+  const [quantity, setQuantity] = useState(1);
   const cart = useCart();
   const navigate = useNavigate();
   const seo = effectiveProductSeo(product);
   const sizes = productSizeOptions(product);
   const displayPrice = productDisplayPrice(product);
   const displayOriginalPrice = productDisplayOriginalPrice(product);
-  const sizeOptions = sizes.length > 0
-    ? sizes
-    : [{ label: "Regular", price: displayPrice, originalPrice: displayOriginalPrice }];
+  const sizeOptions =
+    sizes.length > 0
+      ? sizes
+      : [{ label: "Regular", price: displayPrice, originalPrice: displayOriginalPrice }];
   const selectedSize = sizeOptions[selectedSizeIndex] ?? sizeOptions[0];
   const relatedProducts = products
     .filter((candidate) => candidate.id !== product.id && candidate.category === product.category)
     .slice(0, 3);
+  const details = product as Product & {
+    ingredients?: string;
+    allergens?: string;
+    storage?: string;
+    delivery?: string;
+  };
 
   useEffect(() => {
     setSelectedImage(galleryImages[0] || product.imageUrl);
@@ -73,6 +83,7 @@ function ProductPage() {
 
   useEffect(() => {
     setSelectedSizeIndex(0);
+    setQuantity(1);
   }, [product.id]);
 
   useEffect(() => {
@@ -95,14 +106,18 @@ function ProductPage() {
   };
 
   const addToBag = () => {
-    cart.addItem(productForBag());
+    cart.addItem(productForBag(), quantity);
     setAdded(true);
   };
 
   const buyNow = () => {
-    cart.addItem(productForBag());
+    cart.addItem(productForBag(), quantity);
     void navigate({ to: "/checkout" });
   };
+
+  const whatsappMessage = encodeURIComponent(
+    `Hello Zekra Sweets, I would like to order ${quantity} × ${product.name}${selectedSize?.label ? ` (${selectedSize.label})` : ""} at ${formatMoney(selectedSize.price)} each. ${typeof window !== "undefined" ? window.location.href : `https://zekrasweets.com${productPath(product)}`}`,
+  );
 
   return (
     <SiteLayout>
@@ -156,7 +171,9 @@ function ProductPage() {
                       onClick={() => setSelectedImage(imageUrl)}
                       aria-label={`View ${product.name} image ${index + 1}`}
                       className={`overflow-hidden rounded-2xl border bg-cream/70 transition ${
-                        active ? "border-primary shadow-glow" : "border-gold-soft/50 hover:border-primary/60"
+                        active
+                          ? "border-primary shadow-glow"
+                          : "border-gold-soft/50 hover:border-primary/60"
                       }`}
                     >
                       <img
@@ -189,8 +206,7 @@ function ProductPage() {
             </span>
             <h1 className="mt-3 font-display text-4xl leading-tight sm:text-5xl">{product.name}</h1>
             <p className="mt-4 max-w-2xl text-sm leading-relaxed text-foreground/75 sm:text-base">
-              {cleanText(product.description) ||
-                `Fresh handmade ${cleanText(product.category).toLowerCase()} from Zekra Sweets.`}
+              {cleanText(product.description) || "Product details are being updated."}
             </p>
 
             <div className="mt-7 flex flex-wrap items-end gap-3">
@@ -230,14 +246,18 @@ function ProductPage() {
                         <span
                           aria-hidden="true"
                           className={`flex h-4 w-4 items-center justify-center rounded-full border ${
-                            selected ? "border-primary bg-primary text-primary-foreground" : "border-gold-soft"
+                            selected
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-gold-soft"
                           }`}
                         >
                           {selected && <Check className="h-3 w-3" />}
                         </span>
                       </span>
                       <span className="mt-1 flex items-baseline gap-2 whitespace-nowrap">
-                        <span className="font-display text-lg text-primary">{formatMoney(size.price)}</span>
+                        <span className="font-display text-lg text-primary">
+                          {formatMoney(size.price)}
+                        </span>
                         {size.originalPrice && (
                           <span className="text-[11px] text-muted-foreground line-through">
                             {formatMoney(size.originalPrice)}
@@ -249,6 +269,34 @@ function ProductPage() {
                 })}
               </div>
             </fieldset>
+
+            <div className="mt-6">
+              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-caramel">
+                Quantity
+              </div>
+              <div className="mt-3 inline-flex min-h-11 items-center overflow-hidden rounded-xl border border-gold-soft/60 bg-cream/70">
+                <button
+                  type="button"
+                  onClick={() => setQuantity((value) => Math.max(1, value - 1))}
+                  disabled={quantity === 1}
+                  aria-label={`Decrease quantity of ${product.name}`}
+                  className="grid h-11 w-11 place-items-center disabled:opacity-40"
+                >
+                  <Minus className="h-4 w-4" />
+                </button>
+                <span className="min-w-10 text-center text-sm font-bold" aria-live="polite">
+                  {quantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setQuantity((value) => value + 1)}
+                  aria-label={`Increase quantity of ${product.name}`}
+                  className="grid h-11 w-11 place-items-center"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <button
@@ -266,13 +314,15 @@ function ProductPage() {
               >
                 Buy now
               </button>
-              <Link
-                to="/contact"
+              <a
+                href={`https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`}
+                target="_blank"
+                rel="noreferrer"
                 className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-gold px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 sm:w-auto"
               >
                 <MessageCircle className="h-4 w-4" />
-                Ask about this product
-              </Link>
+                Order on WhatsApp
+              </a>
             </div>
             <span className="sr-only" aria-live="polite">
               {added ? `${product.name} added to bag` : ""}
@@ -280,6 +330,37 @@ function ProductPage() {
           </div>
         </div>
       </section>
+
+      {[details.ingredients, details.allergens, details.storage, details.delivery].some(
+        Boolean,
+      ) && (
+        <section className="mx-auto mt-8 max-w-7xl px-4 sm:px-6">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {(
+              [
+                ["Ingredients", details.ingredients],
+                ["Allergens", details.allergens],
+                ["Storage", details.storage],
+                ["Delivery", details.delivery],
+              ] as const
+            )
+              .filter(([, value]) => cleanText(value))
+              .map(([label, value]) => (
+                <section
+                  key={label}
+                  className="rounded-2xl border border-gold-soft/45 bg-cream/65 p-5"
+                >
+                  <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-caramel">
+                    {label}
+                  </h2>
+                  <p className="mt-2 text-sm leading-relaxed text-foreground/75">
+                    {cleanText(value)}
+                  </p>
+                </section>
+              ))}
+          </div>
+        </section>
+      )}
 
       {relatedProducts.length > 0 && (
         <section className="mx-auto mt-12 max-w-7xl px-4 sm:px-6">
@@ -292,40 +373,10 @@ function ProductPage() {
               View all products
             </Link>
           </div>
-          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {relatedProducts.map((related) => {
-              const relatedSeo = effectiveProductSeo(related);
-
-              return (
-                <Link
-                  key={related.id}
-                  to="/products/$slug"
-                  params={{ slug: productSlug(related) }}
-                  className="group glass overflow-hidden rounded-3xl hover-lift"
-                >
-                  <img
-                    src={assetUrl(related.imageUrl)}
-                    onError={productImageError}
-                    alt={relatedSeo.imageAlt}
-                    loading="lazy"
-                    width={520}
-                    height={520}
-                    className="aspect-square w-full object-cover transition-transform duration-[1200ms] group-hover:scale-110"
-                  />
-                  <div className="p-5">
-                    <div className="text-[10px] uppercase tracking-widest text-caramel">
-                      {related.category}
-                    </div>
-                    <h3 className="mt-2 font-display text-lg leading-tight">{related.name}</h3>
-                    <p className="mt-3 font-semibold text-primary">
-                      {productSizeOptions(related).length > 0
-                        ? `From ${formatMoney(productDisplayPrice(related))}`
-                        : formatMoney(productDisplayPrice(related))}
-                    </p>
-                  </div>
-                </Link>
-              );
-            })}
+          <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3">
+            {relatedProducts.map((related, index) => (
+              <ProductCard key={related.id} product={related} index={index} />
+            ))}
           </div>
         </section>
       )}

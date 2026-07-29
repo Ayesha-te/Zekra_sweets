@@ -54,7 +54,17 @@ export function filterProducts(
 
   return products.filter((product) => {
     const matchesCategory = category === "All products" || product.category === category;
-    const matchesQuery = !needle || product.name.toLowerCase().includes(needle);
+    const searchable = [
+      product.name,
+      product.category,
+      product.primaryKeyword,
+      ...(product.secondaryKeywords || []),
+      product.description,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    const matchesQuery = !needle || searchable.includes(needle);
 
     return matchesCategory && matchesQuery;
   });

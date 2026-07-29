@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu, ShoppingBag, X, Truck } from "lucide-react";
-import { useCart } from "@/lib/cart";
+import { formatMoney, useCart } from "@/lib/cart";
 import logo from "@/assets/log.png";
 
 const nav = [
@@ -37,7 +37,7 @@ export function Header() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-1 lg:flex">
           {nav.map((n) => (
             <Link
               key={n.to}
@@ -55,9 +55,14 @@ export function Header() {
           <Link
             to="/cart"
             aria-label={`Open bag with ${cart.count} ${cart.count === 1 ? "item" : "items"}`}
-            className="relative grid h-11 w-11 place-items-center rounded-full border border-gold-soft/45 bg-cream/70 text-foreground backdrop-blur-md transition-colors hover:bg-secondary hover:text-primary"
+            className="relative flex h-11 min-w-11 items-center justify-center gap-2 rounded-full border border-gold-soft/45 bg-cream/70 px-3 text-foreground backdrop-blur-md transition-colors hover:bg-secondary hover:text-primary"
           >
             <ShoppingBag className="h-4 w-4" />
+            {cart.count > 0 && (
+              <span className="hidden text-xs font-bold lg:inline">
+                {formatMoney(cart.subtotal)}
+              </span>
+            )}
             {cart.count > 0 && (
               <span className="absolute -right-1 -top-1 grid min-h-5 min-w-5 place-items-center rounded-full bg-cocoa px-1.5 text-[10px] font-bold text-cream shadow-glass">
                 {cartLabel}
@@ -66,13 +71,13 @@ export function Header() {
           </Link>
           <Link
             to="/products"
-            className="hidden items-center gap-2 rounded-full bg-gradient-gold px-6 py-3 text-[15px] font-semibold text-primary-foreground shadow-glow transition-transform hover:scale-105 sm:inline-flex"
+            className="hidden items-center gap-2 rounded-full bg-gradient-gold px-6 py-3 text-[15px] font-semibold text-primary-foreground shadow-glow transition-transform hover:scale-105 lg:inline-flex"
           >
             Products
           </Link>
           <button
             aria-label="Toggle navigation"
-            className="grid h-11 w-11 place-items-center rounded-full border border-gold-soft/45 bg-cream/70 backdrop-blur-md md:hidden"
+            className="grid h-11 w-11 place-items-center rounded-full border border-gold-soft/45 bg-cream/70 backdrop-blur-md lg:hidden"
             onClick={() => setOpen((v) => !v)}
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -81,8 +86,8 @@ export function Header() {
       </div>
 
       {open && (
-        <div className="mx-auto mt-2 max-w-7xl md:hidden">
-          <div className="rounded-3xl border border-gold-soft/45 bg-cream/90 p-3 shadow-elegant backdrop-blur-md">
+        <div className="mx-auto mt-2 max-w-7xl lg:hidden">
+          <div className="rounded-3xl border border-gold-soft/45 bg-cream/90 p-3 shadow-elegant backdrop-blur-md lg:hidden">
             {nav.map((n) => (
               <Link
                 key={n.to}

@@ -137,20 +137,20 @@ function OrderHistory() {
   return (
     <SiteLayout>
       <section className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="grid gap-6 lg:grid-cols-[390px_minmax(0,1fr)]">
-          <aside className="glass h-fit rounded-[2rem] p-5 sm:p-7 lg:sticky lg:top-28" data-reveal>
+        <div className="grid gap-5 lg:grid-cols-[360px_minmax(0,1fr)]">
+          <aside className="glass h-fit rounded-[2rem] p-5 sm:p-6 lg:sticky lg:top-28" data-reveal>
             <span className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-caramel">
               <ReceiptText className="h-3.5 w-3.5" />
               Returning customers
             </span>
-            <h1 className="mt-3 font-display text-4xl leading-tight sm:text-5xl">
+            <h1 className="mt-3 font-display text-4xl leading-tight">
               Find your <span className="text-gradient-gold">past orders.</span>
             </h1>
             <p className="mt-3 text-sm leading-relaxed text-foreground/70">
               Use the same phone number or email from checkout to see recent bakery orders.
             </p>
 
-            <form className="mt-7 space-y-4" onSubmit={handleSubmit}>
+            <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
               <label>
                 <span className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-caramel">
                   <Search className="h-3.5 w-3.5" />
@@ -200,7 +200,7 @@ function OrderHistory() {
               </button>
             </form>
 
-            <div className="mt-6 grid grid-cols-2 gap-3 border-t border-gold-soft/45 pt-5 text-sm">
+            <div className="mt-5 grid grid-cols-2 gap-3 border-t border-gold-soft/45 pt-4 text-sm">
               <HistoryStat label="Matches" value={String(count)} />
               <HistoryStat label="In bag" value={String(cart.count)} />
             </div>
@@ -261,15 +261,15 @@ function HistoryEmptyState({
   text: string;
 }) {
   return (
-    <div className="glass rounded-[2rem] p-8 text-center sm:p-12" data-reveal>
-      <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-secondary text-primary shadow-glass">
-        <Icon className="h-7 w-7" />
+    <div className="glass rounded-[2rem] p-6 text-center sm:p-8" data-reveal>
+      <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-secondary text-primary shadow-glass">
+        <Icon className="h-5 w-5" />
       </div>
-      <h2 className="mt-5 font-display text-3xl">{title}</h2>
+      <h2 className="mt-4 font-display text-2xl">{title}</h2>
       <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">{text}</p>
       <Link
         to="/products"
-        className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-gold px-6 py-3 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.03]"
+        className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl border border-gold-soft/60 bg-cream/70 px-5 text-sm font-bold text-foreground transition-colors hover:bg-secondary"
       >
         View products
         <ArrowRight className="h-4 w-4" />

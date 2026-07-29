@@ -2,5 +2,9 @@ User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /api/
+Disallow: /cart
+Disallow: /checkout
+Disallow: /history
+Disallow: /products?*
 
 Sitemap: https://zekrasweets.com/sitemap.xml

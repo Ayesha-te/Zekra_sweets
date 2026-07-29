@@ -1,113 +1,140 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, Check, Search, ShoppingBag } from "lucide-react";
-import { useEffect, useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Search, SlidersHorizontal, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
+import { ProductCard } from "@/components/products/ProductCard";
 import { StructuredData } from "@/components/seo/StructuredData";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { assetUrl, productImageError, type Product } from "@/lib/api";
-import { formatMoney, useCart } from "@/lib/cart";
+import type { Product } from "@/lib/api";
 import {
   filterProducts,
   loadProducts,
-  productDisplayOriginalPrice,
-  productDisplayPrice,
   productCategories,
-  productSizeOptions,
   type ProductCategoryFilter,
 } from "@/lib/products";
-import { buildSeoHead, effectiveProductSeo, itemListJsonLd, productSlug } from "@/lib/seo";
+import { buildSeoHead, itemListJsonLd } from "@/lib/seo";
+
+type ProductSearch = { q?: string; category?: string };
 
 export const Route = createFileRoute("/products")({
+  validateSearch: (search: Record<string, unknown>): ProductSearch => ({
+    q: typeof search.q === "string" && search.q.trim() ? search.q : undefined,
+    category:
+      typeof search.category === "string" && search.category.trim() ? search.category : undefined,
+  }),
   loader: () => loadProducts(),
-  head: () =>
+  head: ({ match }) =>
     buildSeoHead({
       title: "Shop Cookies, Baklawa, Rusk and Puffs | Zekra Sweets",
       description:
         "Browse Zekra Sweets cookies, rusks, baklawa and khaari puffs. Explore handmade bakery treats and order online.",
       path: "/products",
+      robots: match.search.q || match.search.category ? "noindex, follow" : "index, follow",
     }),
   component: Products,
 });
 
 function Products() {
   const initialProducts = Route.useLoaderData();
-  const [cat, setCat] = useState<ProductCategoryFilter>("All products");
-  const [q, setQ] = useState("");
+  const search = Route.useSearch();
+  const navigate = useNavigate({ from: "/products" });
+  const initialCategory = productCategories.includes(search.category as ProductCategoryFilter)
+    ? (search.category as ProductCategoryFilter)
+    : "All products";
+  const [category, setCategory] = useState<ProductCategoryFilter>(initialCategory);
+  const [query, setQuery] = useState(search.q || "");
+  const [debouncedQuery, setDebouncedQuery] = useState(search.q || "");
   const [products, setProducts] = useState<Product[]>(initialProducts);
-  const [loading, setLoading] = useState(false);
-  const [addedId, setAddedId] = useState<string | null>(null);
-  const cart = useCart();
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(initialProducts.length === 0);
 
   useEffect(() => {
+    const timeout = window.setTimeout(() => setDebouncedQuery(query.trim()), 250);
+    return () => window.clearTimeout(timeout);
+  }, [query]);
+
+  useEffect(() => {
+    void navigate({
+      search: {
+        q: debouncedQuery || undefined,
+        category: category === "All products" ? undefined : category,
+      },
+      replace: true,
+      resetScroll: false,
+    });
+  }, [category, debouncedQuery, navigate]);
+
+  useEffect(() => {
+    let mounted = true;
     loadProducts()
-      .then(setProducts)
-      .finally(() => setLoading(false));
+      .then((next) => mounted && setProducts(next))
+      .finally(() => mounted && setLoading(false));
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  useEffect(() => {
-    if (!addedId) return;
-    const timeout = window.setTimeout(() => setAddedId(null), 1400);
-
-    return () => window.clearTimeout(timeout);
-  }, [addedId]);
-
-  const filtered = filterProducts(products, cat, q);
-
-  const productForBag = (product: Product) => {
-    const defaultSize = productSizeOptions(product)[0];
-    return defaultSize
-      ? { ...product, price: defaultSize.price, originalPrice: defaultSize.originalPrice, sizeId: defaultSize.id, sizeLabel: defaultSize.label }
-      : product;
-  };
-
-  const addToBag = (product: Product) => {
-    cart.addItem(productForBag(product));
-    setAddedId(product.id);
-  };
-
-  const buyNow = (product: Product) => {
-    cart.addItem(productForBag(product));
-    void navigate({ to: "/checkout" });
+  const filtered = useMemo(
+    () => filterProducts(products, category, debouncedQuery),
+    [products, category, debouncedQuery],
+  );
+  const filteredOut = category !== "All products" || Boolean(debouncedQuery);
+  const clearFilters = () => {
+    setQuery("");
+    setDebouncedQuery("");
+    setCategory("All products");
   };
 
   return (
     <SiteLayout>
       <StructuredData data={itemListJsonLd(products)} />
       <section className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="glass rounded-[1.75rem] p-5 sm:p-6 md:p-7" data-reveal>
-          <span className="text-[11px] uppercase tracking-[0.24em] text-caramel">Browse by</span>
-          <h1 className="mt-2 font-display text-4xl sm:text-5xl">
-            All <span className="text-gradient-gold">products.</span>
-          </h1>
-          <p className="mt-2 text-sm text-foreground/75 sm:text-base">
-            {loading
-              ? "Loading fresh availability..."
-              : `${filtered.length} handcrafted treats - baked fresh, delivered warm.`}
-          </p>
-
-          <div className="mt-5 flex flex-wrap items-center gap-2.5">
-            <div className="relative min-w-[220px] flex-1">
+        <div className="glass rounded-[1.75rem] p-5 sm:p-7" data-reveal>
+          <span className="text-[11px] uppercase tracking-[0.24em] text-caramel">
+            The bakery counter
+          </span>
+          <div className="mt-2 flex flex-col justify-between gap-3 md:flex-row md:items-end">
+            <div>
+              <h1 className="font-display text-4xl sm:text-5xl">
+                Fresh <span className="text-gradient-gold">selection.</span>
+              </h1>
+              <p className="mt-2 text-sm text-foreground/70">
+                {loading
+                  ? "Loading current products..."
+                  : `${filtered.length} of ${products.length} products`}
+              </p>
+            </div>
+            {filteredOut && (
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="inline-flex min-h-11 items-center gap-2 self-start rounded-xl border border-gold-soft/60 px-4 text-sm font-bold hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
+              >
+                <X className="h-4 w-4" /> Clear filters
+              </button>
+            )}
+          </div>
+          <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(240px,1fr)_auto] lg:items-center">
+            <label className="relative block">
+              <span className="sr-only">Search products</span>
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
-                value={q}
-                onChange={(event) => setQ(event.target.value)}
-                placeholder="Search products..."
-                className="w-full rounded-full border border-border bg-cream/60 px-11 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search name, category or description"
+                className="min-h-11 w-full rounded-xl border border-border bg-cream/70 px-11 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
-            </div>
-            <div className="flex flex-wrap gap-1.5 sm:gap-2">
-              {productCategories.map((category) => (
+            </label>
+            <div className="flex gap-2 overflow-x-auto pb-1" aria-label="Filter by category">
+              <SlidersHorizontal className="mt-3 h-4 w-4 shrink-0 text-caramel" aria-hidden />
+              {productCategories.map((item) => (
                 <button
-                  key={category}
-                  onClick={() => setCat(category)}
-                  className={`rounded-full px-3.5 py-2 text-xs font-medium transition-all ${
-                    cat === category
-                      ? "bg-gradient-gold text-primary-foreground shadow-glow"
-                      : "glass text-foreground/80 hover:text-primary"
-                  }`}
+                  key={item}
+                  type="button"
+                  onClick={() => setCategory(item)}
+                  aria-pressed={category === item}
+                  className={`min-h-11 shrink-0 rounded-xl border px-3 text-xs font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 ${category === item ? "border-cocoa bg-cocoa text-cream" : "border-gold-soft/55 bg-cream/60 hover:bg-secondary"}`}
                 >
-                  {category}
+                  {item}
                 </button>
               ))}
             </div>
@@ -115,114 +142,44 @@ function Products() {
         </div>
       </section>
 
-      <section className="mx-auto mt-8 max-w-7xl px-4 sm:px-6">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((product, index) => {
-            const seo = effectiveProductSeo(product);
-            const sizes = productSizeOptions(product);
-            const displayPrice = productDisplayPrice(product);
-            const displayOriginalPrice = productDisplayOriginalPrice(product);
-            const quantityInBag = cart.getItemQuantity(product.id);
-            const recentlyAdded = addedId === product.id;
-
-            return (
-              <article
-                key={product.id}
-                data-reveal
-                style={{ transitionDelay: `${(index % 6) * 70}ms` }}
-                className="group glass overflow-hidden rounded-3xl hover-lift"
+      <section className="mx-auto mt-6 max-w-7xl px-4 sm:px-6">
+        {loading && products.length === 0 ? (
+          <div
+            className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4"
+            aria-label="Loading products"
+          >
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div
+                key={i}
+                className="aspect-[3/4] animate-pulse rounded-[1.4rem] bg-secondary/70 motion-reduce:animate-none"
+              />
+            ))}
+          </div>
+        ) : filtered.length > 0 ? (
+          <div className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
+            {filtered.map((product, index) => (
+              <ProductCard key={product.id} product={product} index={index} />
+            ))}
+          </div>
+        ) : (
+          <div className="glass rounded-[2rem] px-6 py-14 text-center">
+            <h2 className="font-display text-3xl">
+              {products.length === 0 ? "The counter is being updated." : "No matching treats."}
+            </h2>
+            <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
+              {products.length === 0
+                ? "There are no products available online right now. Please check back soon."
+                : "Try another search or clear the current filters."}
+            </p>
+            {filteredOut && (
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="mt-6 min-h-11 rounded-xl bg-cocoa px-5 text-sm font-bold text-cream"
               >
-                <Link
-                  to="/products/$slug"
-                  params={{ slug: productSlug(product) }}
-                  className="relative block aspect-square overflow-hidden"
-                >
-                  <img
-                    src={assetUrl(product.imageUrl)}
-                    onError={productImageError}
-                    alt={seo.imageAlt}
-                    loading="lazy"
-                    width={640}
-                    height={640}
-                    className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-110"
-                  />
-                  {product.tag && (
-                    <span className="absolute left-4 top-4 rounded-full bg-gradient-gold px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary-foreground shadow-glow">
-                      {product.tag}
-                    </span>
-                  )}
-                </Link>
-                <div className="p-5">
-                  <div className="text-[10px] uppercase tracking-widest text-caramel">
-                    {product.category}
-                  </div>
-                  <Link
-                    to="/products/$slug"
-                    params={{ slug: productSlug(product) }}
-                    className="story-link mt-2 block"
-                  >
-                    <h3 className="font-display text-lg leading-tight text-foreground">
-                      {product.name}
-                    </h3>
-                  </Link>
-                  {sizes.length > 0 && (
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {sizes.slice(0, 4).map((size) => (
-                        <span key={`${product.id}-${size.id || size.label}`} className="rounded-full border border-gold-soft/60 bg-cream/70 px-3 py-1 text-xs text-foreground/75">
-                          {size.label}: {formatMoney(size.price)}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  <div className="mt-4 flex items-end justify-between gap-4">
-                    <div>
-                      {displayOriginalPrice && (
-                        <div className="text-xs text-muted-foreground line-through">
-                          {formatMoney(displayOriginalPrice)}
-                        </div>
-                      )}
-                      <div className="font-display text-2xl text-gradient-gold">
-                        {sizes.length > 0 ? `From ${formatMoney(displayPrice)}` : formatMoney(displayPrice)}
-                      </div>
-                    </div>
-                    <Link
-                      to="/products/$slug"
-                      params={{ slug: productSlug(product) }}
-                      className="inline-flex min-w-[116px] items-center justify-center gap-2 rounded-full bg-gradient-gold px-4 py-2.5 text-xs font-medium text-primary-foreground shadow-glow transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
-                    >
-                      Details <ArrowRight className="h-3.5 w-3.5" />
-                    </Link>
-                  </div>
-                  <div className="mt-4 grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => addToBag(product)}
-                      aria-label={`Add ${product.name} to bag`}
-                      className="inline-flex items-center justify-center gap-2 rounded-full border border-gold-soft/60 bg-cream/70 px-3 py-2.5 text-xs font-semibold text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
-                    >
-                      {recentlyAdded ? <Check className="h-3.5 w-3.5" /> : <ShoppingBag className="h-3.5 w-3.5" />}
-                      {recentlyAdded ? "Added" : quantityInBag > 0 ? `In bag (${quantityInBag})` : "Add to bag"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => buyNow(product)}
-                      className="inline-flex items-center justify-center rounded-full bg-cocoa px-3 py-2.5 text-xs font-semibold text-cream transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
-                    >
-                      Buy now
-                    </button>
-                  </div>
-                  <span className="sr-only" aria-live="polite">
-                    {recentlyAdded ? `${product.name} added to bag` : ""}
-                  </span>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-
-        {!loading && filtered.length === 0 && (
-          <div className="glass mt-10 rounded-3xl p-12 text-center text-muted-foreground">
-            No products match your search.
+                Clear filters
+              </button>
+            )}
           </div>
         )}
       </section>

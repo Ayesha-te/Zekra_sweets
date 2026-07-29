@@ -26,6 +26,15 @@ const sitemapLinks = [
   ["Products", "/products"],
   ["History", "/history"],
   ["Contact", "/contact"],
+  ["Delivery", "/delivery"],
+  ["FAQ", "/faq"],
+] as const;
+
+const categoryLinks = [
+  ["Cookies", "/categories/cookies"],
+  ["Rusk", "/categories/rusk"],
+  ["Puff", "/categories/puff"],
+  ["Sweets", "/categories/sweets"],
 ] as const;
 
 const socialLinks = [
@@ -56,7 +65,7 @@ export function Footer() {
       <div className="absolute inset-0 grain-overlay opacity-35" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 py-14 md:py-16">
-        <div className="grid gap-10 border-b border-cream/10 pb-10 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-10 border-b border-cream/10 pb-10 md:grid-cols-2 lg:grid-cols-5">
           <div>
             <div className="flex items-center gap-2">
               <img
@@ -86,6 +95,19 @@ export function Footer() {
                 </a>
               ))}
             </div>
+          </div>
+
+          <div>
+            <h4 className="font-display text-sm uppercase tracking-widest text-gold">Shop</h4>
+            <ul className="mt-3 space-y-2 text-sm">
+              {categoryLinks.map(([label, to]) => (
+                <li key={to}>
+                  <Link to={to} className="text-cream/70 transition-colors hover:text-gold">
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
 
           <div>
@@ -137,8 +159,8 @@ export function Footer() {
         </div>
 
         <div className="mt-7 flex flex-col items-center justify-between gap-3 text-center text-xs text-cream/45 sm:flex-row sm:text-left">
-          <p>© {new Date().getFullYear()} Zekra Sweets LLC. All rights reserved.</p>
-          <p className="font-display italic text-cream/35">Baked fresh in Ajman, UAE.</p>
+          <p>© {new Date().getFullYear()} Zekra Sweets. All rights reserved.</p>
+          <p className="font-display italic text-cream/35">Ajman, UAE.</p>
         </div>
       </div>
     </footer>
