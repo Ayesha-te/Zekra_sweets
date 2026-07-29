@@ -229,7 +229,7 @@ export function productJsonLd(product: Product) {
   return {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: productDisplayName(product),
+    name: product.name,
     description: seo.description,
     image: images.length > 0 ? images : [absoluteImageUrl(product.imageUrl)],
     brand: {

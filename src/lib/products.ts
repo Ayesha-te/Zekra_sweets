@@ -7,6 +7,14 @@ export const productCategories = ["All products", "Cookies", "Sweets", "Rusk", "
 
 export type ProductCategoryFilter = (typeof productCategories)[number];
 
+export function productDisplayName(product: Product) {
+  const explicitDisplayName = product.displayName?.trim();
+  if (explicitDisplayName) return explicitDisplayName;
+
+  const shortenedName = product.name.split("|", 1)[0]?.trim();
+  return shortenedName || product.name;
+}
+
 const PRODUCT_CACHE_TTL_MS = 60_000;
 let cachedProducts: Product[] | null = null;
 let productsCacheExpiresAt = 0;

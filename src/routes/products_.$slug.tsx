@@ -10,6 +10,7 @@ import { formatMoney, useCart } from "@/lib/cart";
 import { WHATSAPP_NUMBER } from "@/lib/contact";
 import {
   loadProducts,
+  productDisplayName,
   productDisplayOriginalPrice,
   productDisplayPrice,
   productSizeOptions,
@@ -62,6 +63,7 @@ function ProductPage() {
   const sizes = productSizeOptions(product);
   const displayPrice = productDisplayPrice(product);
   const displayOriginalPrice = productDisplayOriginalPrice(product);
+  const visibleProductName = productDisplayName(product);
   const sizeOptions =
     sizes.length > 0
       ? sizes
@@ -130,9 +132,9 @@ function ProductPage() {
         ])}
       />
 
-      <section className="mx-auto max-w-7xl px-4 sm:px-6">
+      <section className="mx-auto max-w-[1380px] px-4 sm:px-6">
         <nav
-          className="mb-5 flex flex-wrap items-center gap-2 text-sm text-muted-foreground"
+          className="mb-2 flex flex-wrap items-center gap-2 text-sm text-muted-foreground"
           aria-label="Breadcrumb"
         >
           <Link to="/" className="story-link text-foreground/75">
@@ -146,21 +148,21 @@ function ProductPage() {
           <span className="text-foreground">{product.name}</span>
         </nav>
 
-        <div className="glass grid gap-8 rounded-[2rem] p-5 sm:p-7 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1fr)]">
-          <div>
-            <div className="overflow-hidden rounded-[1.5rem]">
+        <div className="glass grid gap-7 rounded-[2rem] p-5 sm:p-7 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:gap-8 lg:p-5">
+          <div className="min-w-0">
+            <div className="flex max-h-[660px] items-center justify-center overflow-hidden rounded-[1.5rem] bg-cream/35">
               <img
                 src={assetUrl(selectedImage)}
                 onError={productImageError}
                 alt={seo.imageAlt}
                 width={900}
                 height={900}
-                className="aspect-square w-full object-cover"
+                className="aspect-square max-h-[660px] w-full object-cover"
               />
             </div>
 
             {galleryImages.length > 1 && (
-              <div className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-5">
+              <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
                 {galleryImages.map((imageUrl, index) => {
                   const active = imageUrl === selectedImage;
 
@@ -170,7 +172,7 @@ function ProductPage() {
                       type="button"
                       onClick={() => setSelectedImage(imageUrl)}
                       aria-label={`View ${product.name} image ${index + 1}`}
-                      className={`overflow-hidden rounded-2xl border bg-cream/70 transition ${
+                      className={`h-16 w-16 shrink-0 overflow-hidden rounded-xl border bg-cream/70 transition sm:h-[4.5rem] sm:w-[4.5rem] ${
                         active
                           ? "border-primary shadow-glow"
                           : "border-gold-soft/50 hover:border-primary/60"
@@ -195,7 +197,7 @@ function ProductPage() {
           <div className="flex min-w-0 flex-col justify-center">
             <Link
               to="/products"
-              className="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-gold-soft/60 bg-cream/70 px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
+              className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-gold-soft/60 bg-cream/70 px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 lg:hidden"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to products
@@ -204,12 +206,14 @@ function ProductPage() {
             <span className="text-xs uppercase tracking-[0.3em] text-caramel">
               {product.category}
             </span>
-            <h1 className="mt-3 font-display text-4xl leading-tight sm:text-5xl">{product.name}</h1>
-            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-foreground/75 sm:text-base">
+            <h1 className="mt-3 max-w-[680px] break-words font-display text-[clamp(1.875rem,8vw,2.125rem)] leading-[1.08] tracking-[-0.03em] [overflow-wrap:anywhere] md:text-[43px] md:leading-[1.06] lg:text-[clamp(2rem,3.2vw,3.5rem)] lg:leading-[1.05]">
+              {visibleProductName}
+            </h1>
+            <p className="mt-5 max-w-[620px] text-base leading-[1.55] text-foreground/75 lg:mt-6 lg:text-[17px]">
               {cleanText(product.description) || "Product details are being updated."}
             </p>
 
-            <div className="mt-7 flex flex-wrap items-end gap-3">
+            <div className="mt-6 flex flex-wrap items-end gap-3">
               <span className="font-display text-4xl text-gradient-gold">
                 {formatMoney(selectedSize.price)}
               </span>
@@ -224,7 +228,10 @@ function ProductPage() {
               <legend className="text-xs font-semibold uppercase tracking-[0.2em] text-caramel">
                 Select size
               </legend>
-              <div className="mt-3 flex gap-3 overflow-x-auto pb-1" role="radiogroup">
+              <div
+                className="mt-3 grid grid-cols-2 gap-2 sm:flex sm:gap-3 sm:overflow-x-auto sm:pb-1"
+                role="radiogroup"
+              >
                 {sizeOptions.map((size, index) => {
                   const selected = index === selectedSizeIndex;
 
@@ -235,17 +242,17 @@ function ProductPage() {
                       role="radio"
                       aria-checked={selected}
                       onClick={() => setSelectedSizeIndex(index)}
-                      className={`relative flex min-w-[8.5rem] shrink-0 flex-col rounded-2xl border px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 ${
+                      className={`relative flex min-h-11 min-w-0 flex-col justify-center overflow-hidden rounded-xl border px-3 py-2.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 sm:w-auto sm:min-w-[7.25rem] sm:shrink-0 sm:px-3.5 ${
                         selected
                           ? "border-primary bg-secondary shadow-sm"
                           : "border-gold-soft/55 bg-cream/65 hover:border-primary/60 hover:bg-secondary/60"
                       }`}
                     >
-                      <span className="flex items-center justify-between gap-3 text-sm font-bold text-foreground">
-                        {size.label}
+                      <span className="flex min-w-0 items-center justify-between gap-2 text-sm font-bold leading-tight text-foreground">
+                        <span className="min-w-0 break-words">{size.label}</span>
                         <span
                           aria-hidden="true"
-                          className={`flex h-4 w-4 items-center justify-center rounded-full border ${
+                          className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
                             selected
                               ? "border-primary bg-primary text-primary-foreground"
                               : "border-gold-soft"
@@ -254,8 +261,8 @@ function ProductPage() {
                           {selected && <Check className="h-3 w-3" />}
                         </span>
                       </span>
-                      <span className="mt-1 flex items-baseline gap-2 whitespace-nowrap">
-                        <span className="font-display text-lg text-primary">
+                      <span className="mt-0.5 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0">
+                        <span className="font-display text-[17px] text-primary">
                           {formatMoney(size.price)}
                         </span>
                         {size.originalPrice && (
@@ -270,7 +277,7 @@ function ProductPage() {
               </div>
             </fieldset>
 
-            <div className="mt-6">
+            <div className="mt-5">
               <div className="text-xs font-semibold uppercase tracking-[0.2em] text-caramel">
                 Quantity
               </div>
@@ -298,7 +305,7 @@ function ProductPage() {
               </div>
             </div>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <button
                 type="button"
                 onClick={addToBag}

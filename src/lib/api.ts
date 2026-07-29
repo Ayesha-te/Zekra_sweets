@@ -1,6 +1,7 @@
 export type Product = {
   id: string;
   name: string;
+  displayName?: string;
   imageUrl: string;
   imageUrls?: string[];
   image?: ProductImageMetadata | null;
