@@ -9,6 +9,8 @@ export type Product = {
   sizes?: ProductSizeOption[];
   price: number;
   originalPrice?: number | null;
+  preparationHours?: number;
+  deliveryHours?: number;
   tag?: string;
   description?: string;
   urlSlug?: string;
@@ -124,6 +126,15 @@ export type CreateOrderPayload = {
     delivery: number;
     total: number;
   };
+  timeline?: {
+    preparationHours?: number;
+    deliveryHours?: number;
+    receivedAt?: string;
+    preparationEndsAt?: string;
+    deliveryEndsAt?: string;
+    estimatedCompletionAt?: string;
+  };
+  progressPercent?: number;
 };
 
 export const fallbackDeliveryLocations: DeliveryLocation[] = [

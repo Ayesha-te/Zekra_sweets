@@ -289,7 +289,7 @@ function Checkout() {
               className="inline-flex w-fit items-center gap-2 rounded-full border border-gold-soft/60 bg-cream/70 px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
             >
               <History className="h-4 w-4 text-primary" />
-              Order history
+              Track order
             </Link>
             <Link
               to="/cart"
@@ -666,10 +666,10 @@ function CheckoutConfirmation({ confirmation }: { confirmation: Confirmation }) 
               View products
             </Link>
             <Link
-              to="/products"
+              to="/history"
               className="inline-flex items-center gap-2 rounded-full border border-gold-soft/60 bg-cream/70 px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
             >
-              Browse products
+              Track order
             </Link>
           </div>
         </div>

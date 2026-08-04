@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   AlertCircle,
   ArrowRight,
+  ChefHat,
   CheckCircle2,
   Clock3,
   Mail,
@@ -11,6 +12,7 @@ import {
   RefreshCw,
   Search,
   ShoppingBag,
+  Truck,
 } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 
@@ -34,16 +36,16 @@ export const Route = createFileRoute("/history")({
       { property: "og:image", content: "https://zekrasweets.com/favicon.png" },
       { property: "og:site_name", content: "Zekra Sweets" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Order History - Zekra Sweets" },
+      { name: "twitter:title", content: "Track Order - Zekra Sweets" },
       {
         name: "twitter:description",
-        content: "Look up recent Zekra Sweets orders by phone number or email.",
+        content: "Track recent Zekra Sweets orders by phone number or email.",
       },
       { name: "twitter:image", content: "https://zekrasweets.com/favicon.png" },
-      { title: "Order History - Zekra Sweets" },
+      { title: "Track Order - Zekra Sweets" },
       {
         name: "description",
-        content: "Look up recent Zekra Sweets orders by phone number or email.",
+        content: "Track recent Zekra Sweets orders by phone number or email.",
       },
     ],
     links: [{ rel: "canonical", href: "https://zekrasweets.com/history" }],
@@ -76,6 +78,23 @@ function OrderHistory() {
       mounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!searched || !contact.trim()) return;
+
+    const refresh = window.setInterval(() => {
+      fetchOrderHistory(contact.trim())
+        .then((response) => {
+          setOrders(response.orders);
+          setCount(response.count);
+        })
+        .catch(() => {
+          // Keep the current tracking view if a background refresh fails.
+        });
+    }, 60_000);
+
+    return () => window.clearInterval(refresh);
+  }, [contact, searched]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -141,13 +160,13 @@ function OrderHistory() {
           <aside className="glass h-fit rounded-[2rem] p-5 sm:p-6 lg:sticky lg:top-28" data-reveal>
             <span className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-caramel">
               <ReceiptText className="h-3.5 w-3.5" />
-              Returning customers
+              Order tracking
             </span>
             <h1 className="mt-3 font-display text-4xl leading-tight">
-              Find your <span className="text-gradient-gold">past orders.</span>
+              Track your <span className="text-gradient-gold">order.</span>
             </h1>
             <p className="mt-3 text-sm leading-relaxed text-foreground/70">
-              Use the same phone number or email from checkout to see recent bakery orders.
+              Use the same phone number or email from checkout to see products, progress, and estimated completion.
             </p>
 
             <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
@@ -196,7 +215,7 @@ function OrderHistory() {
                 ) : (
                   <Search className="h-4 w-4" />
                 )}
-                {loading ? "Checking history..." : "Check history"}
+                {loading ? "Checking orders..." : "Track order"}
               </button>
             </form>
 
@@ -210,8 +229,8 @@ function OrderHistory() {
             {!searched ? (
               <HistoryEmptyState
                 icon={Clock3}
-                title="Your bakery trail starts here."
-                text="Previous orders will appear with items, status, payment, and totals."
+                title="Your tracking starts here."
+                text="Orders appear with products, live status, progress, and estimated completion."
               />
             ) : orders.length === 0 && !loading ? (
               <HistoryEmptyState
@@ -343,6 +362,8 @@ function OrderHistoryCard({
         ))}
       </div>
 
+      <OrderProgressTracker order={order} />
+
       <div className="mt-5 grid gap-3 border-t border-gold-soft/45 pt-5 text-sm sm:grid-cols-[1fr_auto] sm:items-center">
         <div className="flex flex-wrap gap-x-5 gap-y-2 text-foreground/70">
           <span>Subtotal {formatHistoryMoney(order.totals.subtotal, order.totals.currency)}</span>
@@ -363,16 +384,97 @@ function OrderHistoryCard({
   );
 }
 
+const trackingSteps = [
+  { status: "new", label: "Order Received", icon: ReceiptText },
+  { status: "preparing", label: "Preparing", icon: ChefHat },
+  { status: "out_for_delivery", label: "Out for Delivery", icon: Truck },
+  { status: "completed", label: "Delivered", icon: CheckCircle2 },
+] as const;
+
+function OrderProgressTracker({ order }: { order: CustomerOrderHistoryItem }) {
+  const activeIndex = trackingStepIndex(order.status);
+  const progress = Math.max(0, Math.min(100, Number(order.progressPercent || 0)));
+  const estimated = order.timeline?.estimatedCompletionAt;
+
+  return (
+    <section className="mt-5 rounded-3xl border border-gold-soft/40 bg-cream/45 p-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <div className="text-xs font-bold uppercase tracking-[0.2em] text-caramel">
+            Current progress
+          </div>
+          <h3 className="mt-1 font-display text-2xl">{statusLabel(order.status)}</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Estimated completion: {estimated ? formatOrderDate(estimated) : "Calculating"}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-gold-soft/45 bg-cream/65 px-4 py-3 text-left sm:text-right">
+          <div className="text-xs font-bold uppercase tracking-[0.18em] text-caramel">Progress</div>
+          <div className="mt-1 font-display text-2xl text-gradient-gold">{progress}%</div>
+        </div>
+      </div>
+
+      <div className="mt-5 h-2 overflow-hidden rounded-full bg-gold-soft/35">
+        <div className="h-full rounded-full bg-cocoa transition-[width]" style={{ width: `${progress}%` }} />
+      </div>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-4">
+        {trackingSteps.map((step, index) => {
+          const Icon = step.icon;
+          const complete = index <= activeIndex;
+
+          return (
+            <div
+              key={step.status}
+              className={`rounded-2xl border p-3 ${
+                complete
+                  ? "border-primary/30 bg-secondary text-foreground"
+                  : "border-gold-soft/35 bg-cream/50 text-muted-foreground"
+              }`}
+            >
+              <span
+                className={`grid h-9 w-9 place-items-center rounded-full ${
+                  complete ? "bg-gradient-gold text-primary-foreground" : "bg-cream text-muted-foreground"
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+              </span>
+              <div className="mt-3 text-sm font-bold leading-tight">{step.label}</div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function statusLabel(value: string | null | undefined) {
   const labels: Record<string, string> = {
     new: "New",
     confirmed: "Confirmed",
     preparing: "Preparing",
     ready: "Ready",
+    out_for_delivery: "Out for Delivery",
     completed: "Completed",
     cancelled: "Cancelled",
   };
   return labels[String(value || "").toLowerCase()] || tokenLabel(value || "Order");
+}
+
+function trackingStepIndex(status: string | null | undefined) {
+  switch (String(status || "").toLowerCase()) {
+    case "completed":
+      return 3;
+    case "out_for_delivery":
+      return 2;
+    case "ready":
+    case "preparing":
+      return 1;
+    case "cancelled":
+      return -1;
+    default:
+      return 0;
+  }
 }
 
 function paymentLabel(value: string | null | undefined) {
