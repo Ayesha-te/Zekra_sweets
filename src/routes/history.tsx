@@ -54,7 +54,7 @@ export const Route = createFileRoute("/history")({
 });
 
 const fieldClass =
-  "w-full rounded-2xl border border-border bg-cream/70 px-11 py-3 text-sm outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20";
+  "h-14 w-full rounded-full border border-border bg-cream/70 pl-12 pr-4 text-base outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 sm:text-sm";
 
 function OrderHistory() {
   const cart = useCart();
@@ -186,7 +186,7 @@ function OrderHistory() {
                     onChange={(event) => setContact(event.target.value)}
                     className={fieldClass}
                     autoComplete="email tel"
-                    placeholder="+971 55 000 0000 or name@example.com"
+                    placeholder="Phone or email"
                   />
                 </span>
               </label>
@@ -208,7 +208,7 @@ function OrderHistory() {
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-gold px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 disabled:pointer-events-none disabled:opacity-60"
+                className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-full bg-gradient-gold px-5 text-base font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 disabled:pointer-events-none disabled:opacity-60 sm:text-sm"
               >
                 {loading ? (
                   <RefreshCw className="h-4 w-4 animate-spin" />
