@@ -470,7 +470,7 @@ function statusLabel(value: string | null | undefined) {
     preparing: "Preparing",
     ready: "Ready",
     out_for_delivery: "Out for Delivery",
-    completed: "Completed",
+    completed: "Delivered",
     cancelled: "Cancelled",
   };
   return labels[String(value || "").toLowerCase()] || tokenLabel(value || "Order");
