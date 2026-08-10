@@ -398,16 +398,17 @@ function OrderHistoryCard({
 }
 
 const trackingSteps = [
-  { status: "new", label: "Order Confirmation", icon: ReceiptText },
+  { status: "new", label: "Order Received", icon: ReceiptText },
+  { status: "confirmed", label: "Order Confirmed", icon: CheckCircle2 },
   { status: "preparing", label: "Order Making", icon: ChefHat },
-  { status: "out_for_delivery", label: "Order Sent / Out for Delivery", icon: Truck },
+  { status: "out_for_delivery", label: "Sent for Delivery", icon: Truck },
   { status: "completed", label: "Delivered", icon: CheckCircle2 },
 ] as const;
 
 function OrderProgressTracker({ order }: { order: CustomerOrderHistoryItem }) {
   const activeIndex = trackingStepIndex(order.status);
   const progress = Math.max(0, Math.min(100, Number(order.progressPercent || 0)));
-  const estimated = order.timeline?.estimatedCompletionAt;
+  const estimated = order.timeline?.preparationEndsAt;
 
   return (
     <section className="mt-5 rounded-3xl border border-gold-soft/40 bg-cream/45 p-4">
@@ -418,7 +419,7 @@ function OrderProgressTracker({ order }: { order: CustomerOrderHistoryItem }) {
           </div>
           <h3 className="mt-1 font-display text-2xl">{statusLabel(order.status)}</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            Estimated completion: {estimated ? formatOrderDate(estimated) : "Calculating"}
+            {estimated ? `Making completes: ${formatOrderDate(estimated)} Dubai time` : "Making time starts after confirmation"}
           </p>
         </div>
         <div className="rounded-2xl border border-gold-soft/45 bg-cream/65 px-4 py-3 text-left sm:text-right">
@@ -431,7 +432,7 @@ function OrderProgressTracker({ order }: { order: CustomerOrderHistoryItem }) {
         <div className="h-full rounded-full bg-cocoa transition-[width]" style={{ width: `${progress}%` }} />
       </div>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-4">
+      <div className="mt-5 grid gap-3 sm:grid-cols-5">
         {trackingSteps.map((step, index) => {
           const Icon = step.icon;
           const complete = index <= activeIndex;
@@ -453,7 +454,7 @@ function OrderProgressTracker({ order }: { order: CustomerOrderHistoryItem }) {
                 <Icon className="h-4 w-4" />
               </span>
               <div className="mt-3 text-sm font-bold leading-tight">{step.label}</div>
-              {statusTime(order, step.status) && <div className="mt-1 text-xs opacity-75">{formatOrderDate(statusTime(order, step.status)!)}</div>}
+              {statusTime(order, step.status) && <div className="mt-1 text-xs opacity-75">{formatOrderDate(statusTime(order, step.status)!)} Dubai time</div>}
             </div>
           );
         })}
@@ -478,12 +479,13 @@ function statusLabel(value: string | null | undefined) {
 function trackingStepIndex(status: string | null | undefined) {
   switch (String(status || "").toLowerCase()) {
     case "completed":
-      return 3;
+      return 4;
     case "out_for_delivery":
-      return 2;
+      return 3;
     case "ready":
     case "preparing":
-      return 1;
+    case "confirmed":
+      return 2;
     case "cancelled":
       return -1;
     default:
