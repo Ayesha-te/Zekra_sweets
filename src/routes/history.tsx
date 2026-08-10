@@ -398,10 +398,9 @@ function OrderHistoryCard({
 }
 
 const trackingSteps = [
-  { status: "new", label: "Order Received", icon: ReceiptText },
-  { status: "confirmed", label: "Order Accepted", icon: PackageCheck },
-  { status: "preparing", label: "Preparing", icon: ChefHat },
-  { status: "out_for_delivery", label: "Out for Delivery", icon: Truck },
+  { status: "new", label: "Order Confirmation", icon: ReceiptText },
+  { status: "preparing", label: "Order Making", icon: ChefHat },
+  { status: "out_for_delivery", label: "Order Sent / Out for Delivery", icon: Truck },
   { status: "completed", label: "Delivered", icon: CheckCircle2 },
 ] as const;
 
@@ -432,7 +431,7 @@ function OrderProgressTracker({ order }: { order: CustomerOrderHistoryItem }) {
         <div className="h-full rounded-full bg-cocoa transition-[width]" style={{ width: `${progress}%` }} />
       </div>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-5">
+      <div className="mt-5 grid gap-3 sm:grid-cols-4">
         {trackingSteps.map((step, index) => {
           const Icon = step.icon;
           const complete = index <= activeIndex;
@@ -479,13 +478,11 @@ function statusLabel(value: string | null | undefined) {
 function trackingStepIndex(status: string | null | undefined) {
   switch (String(status || "").toLowerCase()) {
     case "completed":
-      return 4;
-    case "out_for_delivery":
       return 3;
+    case "out_for_delivery":
+      return 2;
     case "ready":
     case "preparing":
-      return 2;
-    case "confirmed":
       return 1;
     case "cancelled":
       return -1;
@@ -519,6 +516,7 @@ function formatOrderDate(value: string) {
   return new Intl.DateTimeFormat("en-AE", {
     dateStyle: "medium",
     timeStyle: "short",
+    timeZone: "Asia/Dubai",
   }).format(date);
 }
 
