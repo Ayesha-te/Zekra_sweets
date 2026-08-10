@@ -375,6 +375,8 @@ function OrderHistoryCard({
 
       <OrderProgressTracker order={order} />
 
+      {order.assignedDriver && <div className="mt-4 rounded-3xl border border-primary/20 bg-secondary p-4"><div className="text-xs font-bold uppercase tracking-[0.18em] text-caramel">Order assigned to</div><div className="mt-2 font-display text-xl">{order.assignedDriver.name}</div><a href={`tel:${order.assignedDriver.contact}`} className="mt-1 inline-flex text-sm font-semibold text-primary">Contact driver: {order.assignedDriver.contact}</a></div>}
+
       <div className="mt-5 grid gap-3 border-t border-gold-soft/45 pt-5 text-sm sm:grid-cols-[1fr_auto] sm:items-center">
         <div className="flex flex-wrap gap-x-5 gap-y-2 text-foreground/70">
           <span>Subtotal {formatHistoryMoney(order.totals.subtotal, order.totals.currency)}</span>

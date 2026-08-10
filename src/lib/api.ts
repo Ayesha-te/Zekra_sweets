@@ -139,6 +139,7 @@ export type CreateOrderPayload = {
   };
   progressPercent?: number;
   statusHistory?: Array<{ status: string; at: string }>;
+  assignedDriver?: { id: string; name: string; contact: string } | null;
 };
 
 export const fallbackDeliveryLocations: DeliveryLocation[] = [
