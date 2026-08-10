@@ -119,6 +119,30 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  useEffect(() => {
+    const moveChatbotLeft = () => {
+      const host = document.querySelector("#zanderio-widget-host") as HTMLElement & { shadowRoot: ShadowRoot | null };
+      if (!host?.shadowRoot || host.shadowRoot.querySelector("#zekra-chatbot-left-position")) return Boolean(host?.shadowRoot);
+      const style = document.createElement("style");
+      style.id = "zekra-chatbot-left-position";
+      style.textContent = `
+        [aria-label="Open chat"], [role="dialog"] {
+          left: 20px !important;
+          right: auto !important;
+        }
+      `;
+      host.shadowRoot.appendChild(style);
+      return true;
+    };
+
+    if (moveChatbotLeft()) return;
+    const observer = new MutationObserver(() => {
+      if (moveChatbotLeft()) observer.disconnect();
+    });
+    observer.observe(document.body, { childList: true });
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <StructuredData data={organizationJsonLd()} />

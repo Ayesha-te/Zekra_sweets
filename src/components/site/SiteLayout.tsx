@@ -7,7 +7,6 @@ import { useReveal } from "@/hooks/use-reveal";
 import { BUSINESS_PHONE_DISPLAY, WHATSAPP_LINK } from "@/lib/contact";
 import { formatMoney, useCart } from "@/lib/cart";
 import { trackEvent } from "@/lib/analytics";
-import { ChatWidget } from "./ChatWidget";
 
 export function SiteLayout({ children }: { children: ReactNode }) {
   useReveal();
@@ -28,7 +27,6 @@ export function SiteLayout({ children }: { children: ReactNode }) {
         {children}
       </main>
       <Footer />
-      <ChatWidget hasCartItems={cart.count > 0} />
       {cart.count > 0 && (
         <Link
           to="/cart"
