@@ -80,6 +80,17 @@ function OrderHistory() {
   }, []);
 
   useEffect(() => {
+    const lookup = new URLSearchParams(window.location.search).get("contact")?.trim();
+    if (!lookup) return;
+    setContact(lookup);
+    setLoading(true);
+    fetchOrderHistory(lookup)
+      .then((response) => { setOrders(response.orders); setCount(response.count); setSearched(true); })
+      .catch((caught) => { setSearched(true); setError(caught instanceof Error ? caught.message : "We could not load your order history."); })
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
     if (!searched || !contact.trim()) return;
 
     const refresh = window.setInterval(() => {
@@ -386,6 +397,7 @@ function OrderHistoryCard({
 
 const trackingSteps = [
   { status: "new", label: "Order Received", icon: ReceiptText },
+  { status: "confirmed", label: "Order Accepted", icon: PackageCheck },
   { status: "preparing", label: "Preparing", icon: ChefHat },
   { status: "out_for_delivery", label: "Out for Delivery", icon: Truck },
   { status: "completed", label: "Delivered", icon: CheckCircle2 },
@@ -418,7 +430,7 @@ function OrderProgressTracker({ order }: { order: CustomerOrderHistoryItem }) {
         <div className="h-full rounded-full bg-cocoa transition-[width]" style={{ width: `${progress}%` }} />
       </div>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-4">
+      <div className="mt-5 grid gap-3 sm:grid-cols-5">
         {trackingSteps.map((step, index) => {
           const Icon = step.icon;
           const complete = index <= activeIndex;
@@ -440,6 +452,7 @@ function OrderProgressTracker({ order }: { order: CustomerOrderHistoryItem }) {
                 <Icon className="h-4 w-4" />
               </span>
               <div className="mt-3 text-sm font-bold leading-tight">{step.label}</div>
+              {statusTime(order, step.status) && <div className="mt-1 text-xs opacity-75">{formatOrderDate(statusTime(order, step.status)!)}</div>}
             </div>
           );
         })}
@@ -464,17 +477,24 @@ function statusLabel(value: string | null | undefined) {
 function trackingStepIndex(status: string | null | undefined) {
   switch (String(status || "").toLowerCase()) {
     case "completed":
-      return 3;
+      return 4;
     case "out_for_delivery":
-      return 2;
+      return 3;
     case "ready":
     case "preparing":
+      return 2;
+    case "confirmed":
       return 1;
     case "cancelled":
       return -1;
     default:
       return 0;
   }
+}
+
+function statusTime(order: CustomerOrderHistoryItem, status: string) {
+  const aliases = status === "preparing" ? ["preparing", "ready"] : [status];
+  return order.statusHistory?.find((entry) => aliases.includes(entry.status))?.at;
 }
 
 function paymentLabel(value: string | null | undefined) {

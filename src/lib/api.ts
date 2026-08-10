@@ -138,6 +138,7 @@ export type CreateOrderPayload = {
     estimatedCompletionAt?: string;
   };
   progressPercent?: number;
+  statusHistory?: Array<{ status: string; at: string }>;
 };
 
 export const fallbackDeliveryLocations: DeliveryLocation[] = [

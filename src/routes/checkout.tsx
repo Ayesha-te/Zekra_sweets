@@ -208,8 +208,8 @@ function Checkout() {
       return;
     }
 
-    if (!form.name.trim() || !form.phone.trim()) {
-      setError("Please add your name and phone number.");
+    if (!form.name.trim() || !form.phone.trim() || !form.email.trim()) {
+      setError("Please add your name, phone number, and email.");
       return;
     }
 
@@ -330,7 +330,7 @@ function Checkout() {
               <div>
                 <h2 className="font-display text-2xl">Customer details</h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Name and phone are required. Email helps keep future history lookups simple.
+                  Name, phone, and email are required. We send tracking updates to your email.
                 </p>
               </div>
 
@@ -356,7 +356,7 @@ function Checkout() {
                     placeholder="+971 55 000 0000"
                   />
                 </Field>
-                <Field label="Email optional" icon={Mail} wide>
+                <Field label="Email" icon={Mail} wide>
                   <input
                     value={form.email}
                     onChange={(event) => updateField("email", event.target.value)}
@@ -364,6 +364,7 @@ function Checkout() {
                     autoComplete="email"
                     inputMode="email"
                     type="email"
+                    required
                     placeholder="name@example.com"
                   />
                 </Field>
