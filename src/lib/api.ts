@@ -54,6 +54,8 @@ export type DeliveryLocation = {
   isActive?: boolean;
 };
 
+export type ValidatedCoupon = { code: string; percentageOff: number };
+
 export const API_BASE = import.meta.env.VITE_API_URL || "https://api.zekrasweets.com";
 
 export function assetUrl(path: string) {
@@ -111,6 +113,7 @@ export type CreateOrderPayload = {
     locationId?: string;
   };
   notes?: string;
+  couponCode?: string;
   items: Array<{
     productId: string;
     name: string;
@@ -232,6 +235,14 @@ export function createStripeCheckoutSession(payload: CreateOrderPayload) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
+  });
+}
+
+export function validateCoupon(code: string) {
+  return apiFetch<ValidatedCoupon>("/api/coupons/validate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code }),
   });
 }
 

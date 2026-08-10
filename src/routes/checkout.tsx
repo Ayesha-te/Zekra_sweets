@@ -3,6 +3,7 @@ import {
   AlertCircle,
   ArrowLeft,
   CheckCircle2,
+  BadgePercent,
   CreditCard,
   History,
   Mail,
@@ -22,10 +23,12 @@ import {
   createStripeCheckoutSession,
   fetchStripeCheckoutSession,
   loadDeliveryLocations,
+  validateCoupon,
   type CreateOrderPayload,
   type DeliveryLocation,
   type FulfillmentMode,
   type StripeCheckoutSessionStatus,
+  type ValidatedCoupon,
 } from "@/lib/api";
 import { FREE_DELIVERY_MINIMUM, cartItemKey, clearCart, formatMoney, getCartTotals, useCart } from "@/lib/cart";
 
@@ -94,6 +97,10 @@ function Checkout() {
   const [checkingPayment, setCheckingPayment] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<ValidatedCoupon | null>(null);
+  const [couponBusy, setCouponBusy] = useState(false);
+  const [couponMessage, setCouponMessage] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -162,6 +169,8 @@ function Checkout() {
   const selectedLocation = deliveryLocations.find((location) => location.id === form.locationId);
   const deliveryCharge = form.mode === "delivery" && selectedLocation ? selectedLocation.charge : 0;
   const totals = getCartTotals(cart.items, deliveryCharge);
+  const discount = appliedCoupon ? roundMoney(totals.subtotal * appliedCoupon.percentageOff / 100) : 0;
+  const payableTotal = roundMoney(totals.total - discount);
   const qualifiesForFreeDelivery = totals.subtotal >= FREE_DELIVERY_MINIMUM;
   const submitText = submitting
     ? "Opening secure payment..."
@@ -169,7 +178,18 @@ function Checkout() {
       ? "Loading delivery locations..."
       : form.mode === "delivery" && !selectedLocation
         ? "Select delivery location"
-        : `Pay with card - ${formatMoney(totals.total)}`;
+        : `Pay with card - ${formatMoney(payableTotal)}`;
+
+  async function applyCoupon() {
+    if (!couponCode.trim()) { setCouponMessage("Enter a coupon code."); return; }
+    setCouponBusy(true); setCouponMessage(null);
+    try {
+      const coupon = await validateCoupon(couponCode);
+      setAppliedCoupon(coupon); setCouponCode(coupon.code); setCouponMessage(`${coupon.percentageOff}% discount applied.`);
+    } catch (caught) {
+      setAppliedCoupon(null); setCouponMessage(caught instanceof Error ? caught.message : "Coupon could not be applied.");
+    } finally { setCouponBusy(false); }
+  }
 
   const updateField = (field: keyof CheckoutForm, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -225,6 +245,7 @@ function Checkout() {
           : {}),
       },
       ...(form.notes.trim() ? { notes: form.notes.trim() } : {}),
+      ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
       items: cart.items.map((item) => ({
         productId: item.product.id,
         name: item.product.name,
@@ -430,6 +451,12 @@ function Checkout() {
                 </Field>
               </div>
 
+              <div className="mt-6 rounded-3xl border border-gold-soft/55 bg-cream/60 p-4">
+                <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-caramel"><BadgePercent className="h-4 w-4" />Coupon code</label>
+                <div className="mt-3 flex gap-2"><input value={couponCode} onChange={(event) => { setCouponCode(event.target.value.toUpperCase().replace(/\s/g, "")); if (appliedCoupon) { setAppliedCoupon(null); setCouponMessage(null); } }} className={fieldClass} placeholder="TEAM20" aria-label="Coupon code" /><button type="button" onClick={applyCoupon} disabled={couponBusy} className="shrink-0 rounded-full bg-cocoa px-5 text-sm font-bold text-cream disabled:opacity-60">{couponBusy ? "Checking..." : "Apply"}</button></div>
+                {couponMessage && <p className={`mt-2 text-sm ${appliedCoupon ? "text-primary" : "text-destructive"}`}>{couponMessage}</p>}
+              </div>
+
               {error && (
                 <div className="mt-6 flex gap-3 rounded-3xl border border-destructive/25 bg-destructive/5 p-4 text-sm text-destructive">
                   <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -447,7 +474,7 @@ function Checkout() {
               </button>
             </form>
 
-            <CheckoutSummary mode={form.mode} selectedLocation={selectedLocation} />
+            <CheckoutSummary mode={form.mode} selectedLocation={selectedLocation} coupon={appliedCoupon} />
           </div>
         )}
       </section>
@@ -518,14 +545,17 @@ function ModeButton({
 function CheckoutSummary({
   mode,
   selectedLocation,
+  coupon,
 }: {
   mode: FulfillmentMode;
   selectedLocation?: DeliveryLocation;
+  coupon: ValidatedCoupon | null;
 }) {
   const cart = useCart();
   const deliveryCharge = mode === "delivery" && selectedLocation ? selectedLocation.charge : 0;
   const totals = getCartTotals(cart.items, deliveryCharge);
   const qualifiesForFreeDelivery = totals.subtotal >= FREE_DELIVERY_MINIMUM;
+  const discount = coupon ? roundMoney(totals.subtotal * coupon.percentageOff / 100) : 0;
 
   return (
     <aside className="glass h-fit rounded-[2rem] p-5 lg:sticky lg:top-28" data-reveal>
@@ -584,7 +614,8 @@ function CheckoutSummary({
               : "AED 0.00"
           }
         />
-        <SummaryRow label="Total" value={formatMoney(totals.total)} strong />
+        {coupon && <SummaryRow label={`Discount (${coupon.code}, ${coupon.percentageOff}%)`} value={`-${formatMoney(discount)}`} />}
+        <SummaryRow label="Total" value={formatMoney(totals.total - discount)} strong />
       </div>
     </aside>
   );
