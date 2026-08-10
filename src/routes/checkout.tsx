@@ -454,7 +454,7 @@ function Checkout() {
 
               <div className="mt-6 rounded-3xl border border-gold-soft/55 bg-cream/60 p-4">
                 <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-caramel"><BadgePercent className="h-4 w-4" />Coupon code</label>
-                <div className="mt-3 flex gap-2"><input value={couponCode} onChange={(event) => { setCouponCode(event.target.value.toUpperCase().replace(/\s/g, "")); if (appliedCoupon) { setAppliedCoupon(null); setCouponMessage(null); } }} className={fieldClass} placeholder="TEAM20" aria-label="Coupon code" /><button type="button" onClick={applyCoupon} disabled={couponBusy} className="shrink-0 rounded-full bg-cocoa px-5 text-sm font-bold text-cream disabled:opacity-60">{couponBusy ? "Checking..." : "Apply"}</button></div>
+                <div className="mt-3 flex gap-2"><input maxLength={100} value={couponCode} onChange={(event) => { setCouponCode(event.target.value); if (appliedCoupon) { setAppliedCoupon(null); setCouponMessage(null); } }} className={fieldClass} placeholder="Enter coupon code" aria-label="Coupon code" /><button type="button" onClick={applyCoupon} disabled={couponBusy} className="shrink-0 rounded-full bg-cocoa px-5 text-sm font-bold text-cream disabled:opacity-60">{couponBusy ? "Checking..." : "Apply"}</button></div>
                 {couponMessage && <p className={`mt-2 text-sm ${appliedCoupon ? "text-primary" : "text-destructive"}`}>{couponMessage}</p>}
               </div>
 
