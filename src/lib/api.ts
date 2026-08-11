@@ -52,6 +52,7 @@ export type DeliveryLocation = {
   charge: number;
   isActive?: boolean;
 };
+export type PickupLocation = { id: string; name: string; address: string; contact: string; isActive?: boolean };
 
 export type ValidatedCoupon = { code: string; percentageOff: number };
 
@@ -110,6 +111,7 @@ export type CreateOrderPayload = {
     mode: FulfillmentMode;
     address?: string;
     locationId?: string;
+    pickupLocationId?: string;
   };
   notes?: string;
   couponCode?: string;
@@ -162,6 +164,10 @@ export async function loadDeliveryLocations() {
   }
 }
 
+export function loadPickupLocations() {
+  return apiFetch<PickupLocation[]>("/api/pickup-locations");
+}
+
 export type CreateOrderResponse = {
   id?: string;
   _id?: string;
@@ -174,13 +180,11 @@ export type CreateOrderResponse = {
 
 export type CreateStripeCheckoutSessionResponse = {
   url: string;
-  sessionId: string;
   orderId?: string;
   paymentStatus?: string;
 };
 
 export type StripeCheckoutSessionStatus = {
-  sessionId: string;
   orderId?: string;
   orderNumber?: string;
   status?: string | null;
@@ -197,7 +201,11 @@ export type CustomerOrderHistoryItem = {
   fulfillment: {
     type: FulfillmentMode | string;
     locationName?: string;
+    address?: string;
+    pickupLocationId?: string;
+    pickupLocation?: PickupLocation | null;
   };
+  assignedPickupLocation?: PickupLocation | null;
   payment?: {
     method?: string;
     status?: string;

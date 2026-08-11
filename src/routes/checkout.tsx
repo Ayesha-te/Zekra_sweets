@@ -23,10 +23,12 @@ import {
   createStripeCheckoutSession,
   fetchStripeCheckoutSession,
   loadDeliveryLocations,
+  loadPickupLocations,
   validateCoupon,
   type CreateOrderPayload,
   type DeliveryLocation,
   type FulfillmentMode,
+  type PickupLocation,
   type StripeCheckoutSessionStatus,
   type ValidatedCoupon,
 } from "@/lib/api";
@@ -92,7 +94,10 @@ function Checkout() {
   const cart = useCart();
   const [form, setForm] = useState<CheckoutForm>(initialForm);
   const [deliveryLocations, setDeliveryLocations] = useState<DeliveryLocation[]>([]);
-  const [locationsLoading, setLocationsLoading] = useState(true);
+  const [pickupLocations, setPickupLocations] = useState<PickupLocation[]>([]);
+  const [deliveryLocationsLoading, setDeliveryLocationsLoading] = useState(true);
+  const [pickupLocationsLoading, setPickupLocationsLoading] = useState(true);
+  const [pickupLocationsError, setPickupLocationsError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [checkingPayment, setCheckingPayment] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -105,13 +110,8 @@ function Checkout() {
   useEffect(() => {
     let mounted = true;
 
-    loadDeliveryLocations()
-      .then((locations) => {
-        if (mounted) setDeliveryLocations(locations);
-      })
-      .finally(() => {
-        if (mounted) setLocationsLoading(false);
-      });
+    loadDeliveryLocations().then((delivery) => { if (mounted) setDeliveryLocations(delivery); }).finally(() => { if (mounted) setDeliveryLocationsLoading(false); });
+    loadPickupLocations().then((pickup) => { if (mounted) setPickupLocations(pickup); }).catch(() => { if (mounted) setPickupLocationsError(true); }).finally(() => { if (mounted) setPickupLocationsLoading(false); });
 
     return () => {
       mounted = false;
@@ -167,6 +167,8 @@ function Checkout() {
   }, []);
 
   const selectedLocation = deliveryLocations.find((location) => location.id === form.locationId);
+  const selectedPickupLocation = pickupLocations.find((location) => location.id === form.locationId);
+  const locationsLoading = form.mode === "delivery" ? deliveryLocationsLoading : pickupLocationsLoading;
   const deliveryCharge = form.mode === "delivery" && selectedLocation ? selectedLocation.charge : 0;
   const totals = getCartTotals(cart.items, deliveryCharge);
   const discount = appliedCoupon ? roundMoney(totals.subtotal * appliedCoupon.percentageOff / 100) : 0;
@@ -178,6 +180,8 @@ function Checkout() {
       ? "Loading delivery locations..."
       : form.mode === "delivery" && !selectedLocation
         ? "Select delivery location"
+        : form.mode === "pickup" && !selectedPickupLocation
+          ? "Select pickup location"
         : `Pay with card - ${formatMoney(payableTotal)}`;
 
   async function applyCoupon() {
@@ -196,7 +200,7 @@ function Checkout() {
   };
 
   const updateMode = (mode: FulfillmentMode) => {
-    setForm((current) => ({ ...current, mode }));
+    setForm((current) => ({ ...current, mode, locationId: "" }));
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -229,6 +233,10 @@ function Checkout() {
       setError("Please add a delivery address or switch to pickup.");
       return;
     }
+    if (form.mode === "pickup" && !selectedPickupLocation) {
+      setError("Please choose a pickup location.");
+      return;
+    }
 
     const orderTotals = getCartTotals(cart.items, deliveryLocation ? deliveryLocation.charge : 0);
 
@@ -242,7 +250,7 @@ function Checkout() {
         mode: form.mode,
         ...(deliveryLocation
           ? { address: form.address.trim(), locationId: deliveryLocation.id }
-          : {}),
+          : { pickupLocationId: selectedPickupLocation!.id }),
       },
       ...(form.notes.trim() ? { notes: form.notes.trim() } : {}),
       ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
@@ -430,6 +438,16 @@ function Checkout() {
                 </div>
               )}
 
+              {form.mode === "pickup" && (
+                <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                  <fieldset className="space-y-2"><legend className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-caramel"><Store className="h-3.5 w-3.5" />Pickup location</legend>{pickupLocationsLoading ? <div className="rounded-2xl border border-border bg-cream/70 px-4 py-3 text-sm text-muted-foreground">Loading pickup locations...</div> : pickupLocations.length === 0 ? <div className="rounded-2xl border border-destructive/25 bg-destructive/5 px-4 py-3 text-sm text-destructive">{pickupLocationsError ? "Pickup locations could not be loaded. Delivery remains available." : "No pickup locations are currently available."}</div> : pickupLocations.map((location) => <label key={location.id} className={`block cursor-pointer rounded-2xl border p-3 transition ${form.locationId === location.id ? "border-primary bg-gold-soft/25 ring-2 ring-primary/15" : "border-border bg-cream/70 hover:border-gold-soft"}`}><span className="flex items-start gap-3"><input type="radio" name="pickupLocation" value={location.id} checked={form.locationId === location.id} onChange={(event) => updateField("locationId", event.target.value)} required className="mt-1 accent-primary" /><span><span className="block font-display text-base font-bold">{location.name}</span><span className="mt-1 block text-xs leading-relaxed text-muted-foreground">{location.address}<br />{location.contact}</span></span></span></label>)}</fieldset>
+                  <div className="rounded-2xl border border-gold-soft/55 bg-cream/60 px-4 py-3 text-sm" aria-live="polite">
+                    <div className="text-xs font-bold uppercase tracking-[0.18em] text-caramel">Collection point</div>
+                    {selectedPickupLocation ? <><div className="mt-2 font-display text-xl text-foreground">{selectedPickupLocation.name}</div><p className="mt-1 text-muted-foreground">{selectedPickupLocation.address}</p><a href={`tel:${selectedPickupLocation.contact}`} className="mt-2 inline-flex font-semibold text-primary">{selectedPickupLocation.contact}</a></> : <p className="mt-2 text-muted-foreground">Choose a location to see its address and contact.</p>}
+                  </div>
+                </div>
+              )}
+
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 {form.mode === "delivery" && (
                   <Field label="Delivery address" icon={MapPin} wide>
@@ -467,7 +485,7 @@ function Checkout() {
 
               <button
                 type="submit"
-                disabled={submitting || (form.mode === "delivery" && locationsLoading)}
+                disabled={submitting || locationsLoading}
                 className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-gold px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 disabled:pointer-events-none disabled:opacity-60"
               >
                 <CreditCard className="h-4 w-4" />

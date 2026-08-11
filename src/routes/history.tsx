@@ -376,6 +376,7 @@ function OrderHistoryCard({
       <OrderProgressTracker order={order} />
 
       {order.assignedDriver && <div className="mt-4 rounded-3xl border border-primary/20 bg-secondary p-4"><div className="text-xs font-bold uppercase tracking-[0.18em] text-caramel">Order assigned to</div><div className="mt-2 font-display text-xl">{order.assignedDriver.name}</div><a href={`tel:${order.assignedDriver.contact}`} className="mt-1 inline-flex text-sm font-semibold text-primary">Contact driver: {order.assignedDriver.contact}</a></div>}
+      {order.fulfillment.type === "pickup" && (order.assignedPickupLocation || order.fulfillment.pickupLocation) && (() => { const location = order.assignedPickupLocation || order.fulfillment.pickupLocation!; return <div className="mt-4 rounded-3xl border border-primary/20 bg-secondary p-4"><div className="text-xs font-bold uppercase tracking-[0.18em] text-caramel">Pickup location</div><div className="mt-2 font-display text-xl">{location.name}</div><p className="mt-1 text-sm text-muted-foreground">{location.address}</p><a href={`tel:${location.contact}`} className="mt-1 inline-flex text-sm font-semibold text-primary">Contact: {location.contact}</a></div>; })()}
 
       <div className="mt-5 grid gap-3 border-t border-gold-soft/45 pt-5 text-sm sm:grid-cols-[1fr_auto] sm:items-center">
         <div className="flex flex-wrap gap-x-5 gap-y-2 text-foreground/70">
@@ -406,7 +407,9 @@ const trackingSteps = [
 ] as const;
 
 function OrderProgressTracker({ order }: { order: CustomerOrderHistoryItem }) {
-  const activeIndex = trackingStepIndex(order.status);
+  const isPickup = order.fulfillment.type === "pickup";
+  const visibleSteps = trackingSteps.map((step) => step.status === "out_for_delivery" && isPickup ? { ...step, status: "ready" as const, label: "Ready for Pickup" } : step.status === "completed" && isPickup ? { ...step, status: "collected" as const, label: "Collected" } : step);
+  const activeIndex = isPickup && order.status === "ready" ? 3 : trackingStepIndex(order.status);
   const progress = Math.max(0, Math.min(100, Number(order.progressPercent || 0)));
   const estimated = order.timeline?.preparationEndsAt;
 
@@ -433,7 +436,7 @@ function OrderProgressTracker({ order }: { order: CustomerOrderHistoryItem }) {
       </div>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-5">
-        {trackingSteps.map((step, index) => {
+        {visibleSteps.map((step, index) => {
           const Icon = step.icon;
           const complete = index <= activeIndex;
 
@@ -471,6 +474,7 @@ function statusLabel(value: string | null | undefined) {
     ready: "Ready",
     out_for_delivery: "Out for Delivery",
     completed: "Delivered",
+    collected: "Collected",
     cancelled: "Cancelled",
   };
   return labels[String(value || "").toLowerCase()] || tokenLabel(value || "Order");
@@ -479,6 +483,7 @@ function statusLabel(value: string | null | undefined) {
 function trackingStepIndex(status: string | null | undefined) {
   switch (String(status || "").toLowerCase()) {
     case "completed":
+    case "collected":
       return 4;
     case "out_for_delivery":
       return 3;
