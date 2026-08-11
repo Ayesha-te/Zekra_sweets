@@ -10,7 +10,7 @@ export const Route = createFileRoute("/about")({
   head: () =>
     buildSeoHead({
       title: "About Zekra Sweets - Our Story",
-      description: "Discover the story behind Zekra Sweets in Ajman.",
+      description: "Discover the story behind Zekra Sweets, serving customers all over the UAE.",
       path: "/about",
     }),
   component: About,

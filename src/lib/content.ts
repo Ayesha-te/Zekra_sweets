@@ -2,22 +2,22 @@ export const CATEGORY_CONTENT = {
   cookies: {
     label: "Cookies",
     productCategory: "Cookies",
-    description: "Browse the cookie selection currently available from Zekra Sweets in Ajman.",
+    description: "Browse cookies from Zekra Sweets, available all over the UAE.",
   },
   rusk: {
     label: "Rusk",
     productCategory: "Rusk",
-    description: "Explore the rusk selection currently available from Zekra Sweets in Ajman.",
+    description: "Explore rusks from Zekra Sweets, available all over the UAE.",
   },
   puff: {
     label: "Puff",
     productCategory: "Puff",
-    description: "Explore the puff selection currently available from Zekra Sweets in Ajman.",
+    description: "Explore puffs from Zekra Sweets, available all over the UAE.",
   },
   sweets: {
     label: "Sweets",
     productCategory: "Sweets",
-    description: "Browse the sweets currently available from Zekra Sweets in Ajman.",
+    description: "Browse sweets from Zekra Sweets, available all over the UAE.",
   },
 } as const;
 

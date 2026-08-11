@@ -24,9 +24,9 @@ export const Route = createFileRoute("/")({
   loader: () => loadProducts(),
   head: () =>
     buildSeoHead({
-      title: "Zekra Sweets - Artisan Bakery in Ajman, UAE",
+      title: "Zekra Sweets - Artisan Bakery Delivering Across the UAE",
       description:
-        "Explore the current selection of cookies, rusks and pastries from Zekra Sweets in Ajman.",
+        "Explore cookies, rusks, sweets and pastries from Zekra Sweets, available for delivery all over the UAE.",
       path: "/",
       image: heroPoster,
     }),
@@ -64,7 +64,7 @@ function Home() {
           <div className="relative z-10 flex items-end p-6 pb-10 text-cream sm:p-10 lg:p-14">
             <div className="max-w-3xl">
               <span className="inline-flex items-center gap-2 rounded-full border border-cream/20 bg-cocoa/35 px-4 py-2 text-xs font-medium text-gold-soft backdrop-blur-sm">
-                <Sparkles className="h-3.5 w-3.5" /> Artisan bakery in Ajman, UAE
+                <Sparkles className="h-3.5 w-3.5" /> Artisan bakery serving all over the UAE
               </span>
               <h1 className="mt-5 font-display text-6xl font-extrabold leading-[0.9] sm:text-7xl lg:text-8xl">
                 Zekra <span className="text-gradient-gold">Sweets</span>
