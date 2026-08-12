@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   CheckCircle2,
   BadgePercent,
+  Banknote,
   CreditCard,
   History,
   Mail,
@@ -21,6 +22,7 @@ import {
   assetUrl,
   productImageError,
   createStripeCheckoutSession,
+  createOrder,
   fetchStripeCheckoutSession,
   loadDeliveryLocations,
   loadPickupLocations,
@@ -68,6 +70,7 @@ type CheckoutForm = {
   locationId: string;
   address: string;
   notes: string;
+  paymentMethod: "card" | "cash_on_pickup";
 };
 
 type Confirmation = {
@@ -85,6 +88,7 @@ const initialForm: CheckoutForm = {
   locationId: "",
   address: "",
   notes: "",
+  paymentMethod: "card",
 };
 
 const fieldClass =
@@ -175,14 +179,16 @@ function Checkout() {
   const payableTotal = roundMoney(totals.total - discount);
   const qualifiesForFreeDelivery = totals.subtotal >= FREE_DELIVERY_MINIMUM;
   const submitText = submitting
-    ? "Opening secure payment..."
+    ? form.paymentMethod === "cash_on_pickup" ? "Placing order..." : "Opening secure payment..."
     : form.mode === "delivery" && locationsLoading
       ? "Loading delivery locations..."
       : form.mode === "delivery" && !selectedLocation
         ? "Select delivery location"
         : form.mode === "pickup" && !selectedPickupLocation
           ? "Select pickup location"
-        : `Pay with card - ${formatMoney(payableTotal)}`;
+        : form.paymentMethod === "cash_on_pickup"
+          ? `Place order - Pay ${formatMoney(payableTotal)} on pickup`
+          : `Pay with card - ${formatMoney(payableTotal)}`;
 
   async function applyCoupon() {
     if (!couponCode.trim()) { setCouponMessage("Enter a coupon code."); return; }
@@ -200,7 +206,7 @@ function Checkout() {
   };
 
   const updateMode = (mode: FulfillmentMode) => {
-    setForm((current) => ({ ...current, mode, locationId: "" }));
+    setForm((current) => ({ ...current, mode, locationId: "", paymentMethod: mode === "delivery" ? "card" : current.paymentMethod }));
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -241,6 +247,7 @@ function Checkout() {
     const orderTotals = getCartTotals(cart.items, deliveryLocation ? deliveryLocation.charge : 0);
 
     const payload: CreateOrderPayload = {
+      paymentMethod: form.paymentMethod,
       customer: {
         name: form.name.trim(),
         phone: form.phone.trim(),
@@ -273,9 +280,18 @@ function Checkout() {
 
     setSubmitting(true);
     try {
-      const response = await createStripeCheckoutSession(payload);
-      if (!response.url) throw new Error("Stripe did not return a checkout URL.");
-      window.location.assign(response.url);
+      if (form.mode === "pickup" && form.paymentMethod === "cash_on_pickup") {
+        const response = await createOrder(payload);
+        const reference = response.id || response.orderId || response.orderNumber || response.number;
+        if (!reference) throw new Error("The order was created but no reference was returned.");
+        setConfirmation({ reference, total: payableTotal, mode: "pickup", paymentStatus: "cash_on_pickup" });
+        clearCart();
+        setForm(initialForm);
+      } else {
+        const response = await createStripeCheckoutSession(payload);
+        if (!response.url) throw new Error("Stripe did not return a checkout URL.");
+        window.location.assign(response.url);
+      }
     } catch (caught) {
       setError(
         caught instanceof Error
@@ -468,6 +484,15 @@ function Checkout() {
                     placeholder="Packaging requests, allergies, delivery guidance"
                   />
                 </Field>
+              </div>
+
+              <div className="mt-6 rounded-3xl border border-gold-soft/55 bg-cream/60 p-4">
+                <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-caramel">Payment method</h3>
+                <div className={`mt-3 grid gap-3 ${form.mode === "pickup" ? "sm:grid-cols-2" : ""}`}>
+                  <ModeButton active={form.paymentMethod === "card"} icon={CreditCard} title="Card" detail="Pay securely with Stripe" onClick={() => updateField("paymentMethod", "card")} />
+                  {form.mode === "pickup" && <ModeButton active={form.paymentMethod === "cash_on_pickup"} icon={Banknote} title="Cash on Pickup" detail="Pay when collecting your order" onClick={() => updateField("paymentMethod", "cash_on_pickup")} />}
+                </div>
+                {form.mode === "delivery" && <p className="mt-3 text-xs text-muted-foreground">Delivery orders are paid by card.</p>}
               </div>
 
               <div className="mt-6 rounded-3xl border border-gold-soft/55 bg-cream/60 p-4">
@@ -692,7 +717,7 @@ function CheckoutConfirmation({ confirmation }: { confirmation: Confirmation }) 
             <CheckCircle2 className="h-9 w-9 text-primary" />
           </div>
           <span className="mt-6 inline-flex rounded-full bg-cream/70 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-caramel">
-            {confirmation.paymentStatus === "paid" ? "Payment received" : "Order received"}
+            {confirmation.paymentStatus === "paid" ? "Payment received" : confirmation.paymentStatus === "cash_on_pickup" ? "Cash on pickup" : "Order received"}
           </span>
           <h1 className="mt-4 font-display text-4xl leading-tight sm:text-5xl">
             Thank you for ordering.
