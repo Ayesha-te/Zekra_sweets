@@ -160,7 +160,20 @@ export function Footer() {
 
         <div className="mt-7 flex flex-col items-center justify-between gap-3 text-center text-xs text-cream/45 sm:flex-row sm:text-left">
           <p>© {new Date().getFullYear()} Zekra Sweets. All rights reserved.</p>
-          <p className="font-display italic text-cream/35">Ajman, UAE.</p>
+          <div className="flex flex-col items-center gap-1 sm:items-end">
+            <p className="font-display italic text-cream/35">Ajman, UAE.</p>
+            <p>
+              Designed and developed by{" "}
+              <a
+                href="https://www.web-wired.net/"
+                target="_blank"
+                rel="noreferrer"
+                className="text-cream/65 transition-colors hover:text-gold"
+              >
+                webwire.net
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </footer>
