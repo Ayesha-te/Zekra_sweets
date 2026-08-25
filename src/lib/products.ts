@@ -3,7 +3,7 @@ import { apiFetch } from "@/lib/api";
 
 export const fallbackProducts: Product[] = [];
 
-export const productCategories = ["All products", "Cookies", "Sweets", "Rusk", "Puff"] as const;
+export const productCategories = ["All products", "Combo Packs", "Cookies", "Sweets", "Rusk", "Puff"] as const;
 
 export type ProductCategoryFilter = (typeof productCategories)[number];
 
@@ -76,7 +76,9 @@ export function filterProducts(
   const needle = query.trim().toLowerCase();
 
   return products.filter((product) => {
-    const matchesCategory = category === "All products" || product.category === category;
+    const matchesCategory =
+      category === "All products" ||
+      (category === "Combo Packs" ? product.isComboPack === true : product.category === category);
     const searchable = [
       product.name,
       product.category,

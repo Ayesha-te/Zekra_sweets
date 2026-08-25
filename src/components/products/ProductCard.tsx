@@ -117,6 +117,11 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
 
         <div className="mt-3 flex min-h-10 items-end justify-between gap-2">
           <div>
+            {product.isComboPack && (
+              <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-primary">
+                Combo pack · {product.comboProductIds?.length || 0} items
+              </div>
+            )}
             {isSale && (
               <div className="text-[11px] text-muted-foreground line-through">
                 {formatMoney(originalPrice)}
