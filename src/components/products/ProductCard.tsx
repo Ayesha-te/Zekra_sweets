@@ -119,7 +119,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
           <div>
             {product.isComboPack && (
               <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-primary">
-                Combo pack · {product.comboProductIds?.length || 0} items
+                {product.name} · {product.comboSize || product.comboProductIds?.length || 0} items
               </div>
             )}
             {isSale && (

@@ -11,6 +11,7 @@ export type Product = {
   originalPrice?: number | null;
   isComboPack?: boolean;
   comboProductIds?: string[];
+  comboSize?: number | null;
   preparationHours?: number;
   tag?: string;
   description?: string;
