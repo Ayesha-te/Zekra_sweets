@@ -15,7 +15,7 @@ export function productDisplayName(product: Product) {
   return shortenedName || product.name;
 }
 
-const PRODUCT_CACHE_TTL_MS = 60_000;
+const PRODUCT_CACHE_TTL_MS = 0;
 let cachedProducts: Product[] | null = null;
 let productsCacheExpiresAt = 0;
 let pendingProducts: Promise<Product[]> | null = null;
@@ -53,7 +53,7 @@ export async function loadProducts() {
   if (cachedProducts && Date.now() < productsCacheExpiresAt) return cachedProducts;
   if (pendingProducts) return pendingProducts;
 
-  pendingProducts = apiFetch<Product[]>("/api/products", { cache: "force-cache" })
+  pendingProducts = apiFetch<Product[]>("/api/products", { cache: "no-store" })
     .then((products) => {
       if (products.length === 0) return fallbackProducts;
       cachedProducts = products;
