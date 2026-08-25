@@ -210,7 +210,7 @@ function ProductPage() {
               {visibleProductName}
             </h1>
             <p className="mt-5 max-w-[620px] text-base leading-[1.55] text-foreground/75 lg:mt-6 lg:text-[17px]">
-              {cleanText(product.description) || "Product details are being updated."}
+              {cleanText(product.description)}
             </p>
 
             <div className="mt-6 flex flex-wrap items-end gap-3">
