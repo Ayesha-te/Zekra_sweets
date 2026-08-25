@@ -224,7 +224,7 @@ function ProductPage() {
               )}
             </div>
 
-            <fieldset className="mt-6 min-w-0">
+            {!product.isComboPack && <fieldset className="mt-6 min-w-0">
               <legend className="text-xs font-semibold uppercase tracking-[0.2em] text-caramel">
                 Select size
               </legend>
@@ -275,7 +275,7 @@ function ProductPage() {
                   );
                 })}
               </div>
-            </fieldset>
+            </fieldset>}
 
             <div className="mt-5">
               <div className="text-xs font-semibold uppercase tracking-[0.2em] text-caramel">

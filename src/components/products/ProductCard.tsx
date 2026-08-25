@@ -96,7 +96,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
           </h2>
         </Link>
 
-        {sizes.length > 0 && (
+        {!product.isComboPack && sizes.length > 0 && (
           <div className="mt-3 flex gap-1.5 overflow-x-auto pb-1" aria-label="Choose size">
             {sizes.map((size) => {
               const key = size.id || size.label;
