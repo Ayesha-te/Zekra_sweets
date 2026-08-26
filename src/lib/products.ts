@@ -3,9 +3,24 @@ import { apiFetch } from "@/lib/api";
 
 export const fallbackProducts: Product[] = [];
 
-export const productCategories = ["All products", "Combo Packs", "Cookies", "Sweets", "Rusk", "Puff"] as const;
+export type ProductCategoryFilter = string;
 
-export type ProductCategoryFilter = (typeof productCategories)[number];
+const defaultProductCategoryFilters = ["Cookies", "Sweets", "Rusk", "Puff"];
+
+export function productCategoryFilters(products: Product[]) {
+  return [
+    "All products",
+    "Combo Packs",
+    ...new Set(
+      [
+        ...defaultProductCategoryFilters,
+        ...products.map((product) => product.category),
+      ]
+        .map((category) => category.trim())
+        .filter(Boolean),
+    ),
+  ];
+}
 
 export function productDisplayName(product: Product) {
   const explicitDisplayName = product.displayName?.trim();

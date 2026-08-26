@@ -9,7 +9,7 @@ import type { Product } from "@/lib/api";
 import {
   filterProducts,
   loadProducts,
-  productCategories,
+  productCategoryFilters,
   type ProductCategoryFilter,
 } from "@/lib/products";
 import { buildSeoHead, itemListJsonLd } from "@/lib/seo";
@@ -38,13 +38,14 @@ function Products() {
   const initialProducts = Route.useLoaderData();
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/products" });
-  const initialCategory = productCategories.includes(search.category as ProductCategoryFilter)
+  const products = initialProducts;
+  const categories = useMemo(() => productCategoryFilters(products), [products]);
+  const initialCategory = categories.includes(search.category as ProductCategoryFilter)
     ? (search.category as ProductCategoryFilter)
     : "All products";
   const [category, setCategory] = useState<ProductCategoryFilter>(initialCategory);
   const [query, setQuery] = useState(search.q || "");
   const [debouncedQuery, setDebouncedQuery] = useState(search.q || "");
-  const products = initialProducts;
   const loading = false;
 
   useEffect(() => {
@@ -116,7 +117,7 @@ function Products() {
             </label>
             <div className="flex gap-2 overflow-x-auto pb-1" aria-label="Filter by category">
               <SlidersHorizontal className="mt-3 h-4 w-4 shrink-0 text-caramel" aria-hidden />
-              {productCategories.map((item) => (
+              {categories.map((item) => (
                 <button
                   key={item}
                   type="button"
