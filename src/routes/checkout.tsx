@@ -709,6 +709,17 @@ function CheckoutPaymentLoading() {
 }
 
 function CheckoutConfirmation({ confirmation }: { confirmation: Confirmation }) {
+  useEffect(() => {
+    const gtag = (window as typeof window & { gtag?: (...args: unknown[]) => void }).gtag;
+    if (!gtag) return;
+
+    gtag("event", "conversion_event_purchase", {
+      transaction_id: confirmation.reference,
+      value: confirmation.total,
+      currency: "AED",
+    });
+  }, [confirmation.reference, confirmation.total]);
+
   return (
     <SiteLayout>
       <section className="mx-auto max-w-3xl px-4 sm:px-6">
