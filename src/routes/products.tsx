@@ -3,6 +3,7 @@ import { Search, SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { ProductCard } from "@/components/products/ProductCard";
+import { ComboBoxBuilder } from "@/components/products/ComboBoxBuilder";
 import { StructuredData } from "@/components/seo/StructuredData";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import type { Product } from "@/lib/api";
@@ -132,6 +133,8 @@ function Products() {
           </div>
         </div>
       </section>
+
+      <ComboBoxBuilder products={products} />
 
       <section className="mx-auto mt-6 max-w-7xl px-4 sm:px-6">
         {loading && products.length === 0 ? (

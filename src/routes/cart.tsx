@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { ProductRecommendations } from "@/components/products/ProductRecommendations";
 import { assetUrl, productImageError } from "@/lib/api";
 import {
   FREE_DELIVERY_MINIMUM,
@@ -10,6 +11,7 @@ import {
   useCart,
   type CartItem,
 } from "@/lib/cart";
+import { loadProducts } from "@/lib/products";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -31,11 +33,13 @@ export const Route = createFileRoute("/cart")({
     ],
     links: [{ rel: "canonical", href: "https://zekrasweets.com/cart" }],
   }),
+  loader: () => loadProducts(),
   component: Cart,
 });
 
 function Cart() {
   const cart = useCart();
+  const products = Route.useLoaderData();
 
   return (
     <SiteLayout>
@@ -93,6 +97,13 @@ function Cart() {
 
             <CartTotals />
           </div>
+        )}
+        {cart.items.length > 0 && (
+          <ProductRecommendations
+            products={products}
+            title="You may also like this"
+            subtitle="Add one of these favourites before you checkout."
+          />
         )}
       </section>
     </SiteLayout>

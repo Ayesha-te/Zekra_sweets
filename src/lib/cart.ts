@@ -15,6 +15,7 @@ export type CartProduct = Pick<
 > & {
   sizeId?: string;
   sizeLabel?: string;
+  isFreeGift?: boolean;
 };
 
 export type CartItem = {
@@ -54,6 +55,7 @@ function normalizeQuantity(quantity: number) {
 
 function normalizeProduct(product: Product): CartProduct {
   const cartProduct = product as Product & { sizeId?: string; sizeLabel?: string };
+  const giftProduct = product as Product & { isFreeGift?: boolean };
   return {
     id: product.id,
     name: product.name,
@@ -66,6 +68,7 @@ function normalizeProduct(product: Product): CartProduct {
     category: product.category,
     sizeId: cartProduct.sizeId,
     sizeLabel: cartProduct.sizeLabel,
+    isFreeGift: giftProduct.isFreeGift === true,
   };
 }
 
@@ -96,6 +99,7 @@ function normalizeItems(value: unknown): CartItem[] {
           category: String(product.category || "Sweets"),
           sizeId: typeof product.sizeId === "string" ? product.sizeId : undefined,
           sizeLabel: typeof product.sizeLabel === "string" ? product.sizeLabel : undefined,
+          isFreeGift: product.isFreeGift === true,
         },
         quantity: normalizeQuantity(Number(candidate.quantity)),
       };

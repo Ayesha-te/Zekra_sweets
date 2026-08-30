@@ -3,6 +3,7 @@ import { MessageCircle, ShoppingBag } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
+import { PromoPopup } from "./PromoPopup";
 import { useReveal } from "@/hooks/use-reveal";
 import { BUSINESS_PHONE_DISPLAY, WHATSAPP_LINK } from "@/lib/contact";
 import { formatMoney, useCart } from "@/lib/cart";
@@ -27,6 +28,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
         {children}
       </main>
       <Footer />
+      <PromoPopup />
       {cart.count > 0 && (
         <Link
           to="/cart"

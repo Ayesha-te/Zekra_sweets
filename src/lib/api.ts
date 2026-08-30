@@ -10,6 +10,7 @@ export type Product = {
   price: number;
   originalPrice?: number | null;
   isComboPack?: boolean;
+  isFreeGift?: boolean;
   comboProductIds?: string[];
   comboSize?: number | null;
   preparationHours?: number;

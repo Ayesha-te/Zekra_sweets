@@ -18,6 +18,7 @@ import {
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { ProductRecommendations } from "@/components/products/ProductRecommendations";
 import {
   assetUrl,
   productImageError,
@@ -35,6 +36,7 @@ import {
   type ValidatedCoupon,
 } from "@/lib/api";
 import { FREE_DELIVERY_MINIMUM, cartItemKey, clearCart, formatMoney, getCartTotals, useCart } from "@/lib/cart";
+import { loadProducts } from "@/lib/products";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -59,6 +61,7 @@ export const Route = createFileRoute("/checkout")({
     ],
     links: [{ rel: "canonical", href: "https://zekrasweets.com/checkout" }],
   }),
+  loader: () => loadProducts(),
   component: Checkout,
 });
 
@@ -96,6 +99,7 @@ const fieldClass =
 
 function Checkout() {
   const cart = useCart();
+  const products = Route.useLoaderData();
   const [form, setForm] = useState<CheckoutForm>(initialForm);
   const [deliveryLocations, setDeliveryLocations] = useState<DeliveryLocation[]>([]);
   const [pickupLocations, setPickupLocations] = useState<PickupLocation[]>([]);
@@ -520,6 +524,13 @@ function Checkout() {
 
             <CheckoutSummary mode={form.mode} selectedLocation={selectedLocation} coupon={appliedCoupon} />
           </div>
+        )}
+        {cart.items.length > 0 && (
+          <ProductRecommendations
+            products={products}
+            title="This is one of our popular products"
+            subtitle="Quick add recommendations are shown before completing checkout."
+          />
         )}
       </section>
     </SiteLayout>
