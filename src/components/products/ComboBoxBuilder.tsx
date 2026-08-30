@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { ArrowRight, Check, Gift, ShoppingBag } from "lucide-react";
+import { ArrowRight, Gift } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { assetUrl, productImageError, type Product, type ProductSizeOption } from "@/lib/api";
@@ -24,7 +24,6 @@ export function ComboBoxBuilder({ products }: { products: Product[] }) {
   const [choices, setChoices] = useState(() =>
     COMBO_SLOTS.map((slot) => ({ productId: cookies[slot]?.id || "", sizeKey: "" })),
   );
-  const [added, setAdded] = useState(false);
 
   if (cookies.length < 3) return null;
 
@@ -77,12 +76,6 @@ export function ComboBoxBuilder({ products }: { products: Product[] }) {
         isFreeGift: true,
       });
     }
-  };
-
-  const addCombo = () => {
-    addComboItems();
-    setAdded(true);
-    window.setTimeout(() => setAdded(false), 1600);
   };
 
   const checkoutCombo = async () => {
@@ -164,24 +157,14 @@ export function ComboBoxBuilder({ products }: { products: Product[] }) {
               );
             })}
 
-            <div className="grid gap-2 sm:grid-cols-2">
-              <button
-                type="button"
-                onClick={addCombo}
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-gold-soft/55 bg-cream/10 px-6 text-sm font-bold text-cream transition-colors hover:bg-cream/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
-              >
-                {added ? <Check className="h-4 w-4" /> : <ShoppingBag className="h-4 w-4" />}
-                {added ? "Combo added" : "Add combo box"}
-              </button>
-              <button
-                type="button"
-                onClick={() => void checkoutCombo()}
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-gradient-gold px-6 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
-              >
-                Buy combo now
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => void checkoutCombo()}
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-gradient-gold px-6 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
+            >
+              Buy combo now
+              <ArrowRight className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </div>
