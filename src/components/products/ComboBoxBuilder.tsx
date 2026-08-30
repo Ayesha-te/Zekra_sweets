@@ -1,4 +1,5 @@
-import { Check, Gift, ShoppingBag } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { ArrowRight, Check, Gift, ShoppingBag } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { assetUrl, productImageError, type Product, type ProductSizeOption } from "@/lib/api";
@@ -9,6 +10,7 @@ const COMBO_SLOTS = [0, 1, 2] as const;
 
 export function ComboBoxBuilder({ products }: { products: Product[] }) {
   const cart = useCart();
+  const navigate = useNavigate();
   const cookies = useMemo(
     () => products.filter((product) => product.category.toLowerCase() === "cookies"),
     [products],
@@ -52,7 +54,7 @@ export function ComboBoxBuilder({ products }: { products: Product[] }) {
     );
   };
 
-  const addCombo = () => {
+  const addComboItems = () => {
     resolvedChoices.forEach(({ product, size }) => {
       cart.addItem({
         ...product,
@@ -75,9 +77,17 @@ export function ComboBoxBuilder({ products }: { products: Product[] }) {
         isFreeGift: true,
       });
     }
+  };
 
+  const addCombo = () => {
+    addComboItems();
     setAdded(true);
     window.setTimeout(() => setAdded(false), 1600);
+  };
+
+  const checkoutCombo = async () => {
+    addComboItems();
+    await navigate({ to: "/checkout" });
   };
 
   return (
@@ -154,14 +164,24 @@ export function ComboBoxBuilder({ products }: { products: Product[] }) {
               );
             })}
 
-            <button
-              type="button"
-              onClick={addCombo}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-gradient-gold px-6 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
-            >
-              {added ? <Check className="h-4 w-4" /> : <ShoppingBag className="h-4 w-4" />}
-              {added ? "Combo added" : "Add combo box"}
-            </button>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={addCombo}
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-gold-soft/55 bg-cream/10 px-6 text-sm font-bold text-cream transition-colors hover:bg-cream/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
+              >
+                {added ? <Check className="h-4 w-4" /> : <ShoppingBag className="h-4 w-4" />}
+                {added ? "Combo added" : "Add combo box"}
+              </button>
+              <button
+                type="button"
+                onClick={() => void checkoutCombo()}
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-gradient-gold px-6 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
+              >
+                Buy combo now
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
