@@ -51,8 +51,9 @@ export function PromoPopup() {
             Free delivery on orders from Ajman, Dubai and Sharjah.
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-foreground/75">
-            Enjoy Zekra Sweets at home with the delivery offer shown in our promo post. Order your
-            favourites online and add the featured Khari Puff treat to your bakery box.
+            Fresh cookies, crispy puffs, and bakery favourites are just a few clicks away. Order
+            online today, enjoy the delivery offer from our promo post, and make your box extra
+            special with the featured Khari Puff treat.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Link
