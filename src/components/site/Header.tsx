@@ -6,10 +6,8 @@ import logo from "@/assets/log.png";
 
 const nav = [
   { to: "/", label: "Home" },
-  { to: "/about", label: "About" },
   { to: "/products", label: "Products" },
   { to: "/history", label: "Track Order" },
-  { to: "/gallery", label: "Gallery" },
   { to: "/contact", label: "Contact" },
 ] as const;
 
