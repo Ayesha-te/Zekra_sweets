@@ -7,12 +7,27 @@ import { formatMoney, useCart } from "@/lib/cart";
 import { productDisplayName, productDisplayPrice, productSizeOptions } from "@/lib/products";
 
 const COMBO_SLOTS = [0, 1, 2] as const;
+const PREMIUM_COMBO_COOKIE_NAMES = [
+  "premium almond cookies",
+  "premium chocolate cookies",
+  "premium tuti fruity butter cookies",
+  "premium banana cookies",
+  "premium banana butter cookies",
+  "premium jeera cookies",
+];
 
 export function ComboBoxBuilder({ products }: { products: Product[] }) {
   const cart = useCart();
   const navigate = useNavigate();
   const cookies = useMemo(
-    () => products.filter((product) => product.category.toLowerCase() === "cookies"),
+    () =>
+      products.filter(
+        (product) =>
+          product.category.toLowerCase() === "cookies" &&
+          PREMIUM_COMBO_COOKIE_NAMES.some((name) =>
+            productDisplayName(product).toLowerCase().startsWith(name),
+          ),
+      ),
     [products],
   );
   const khariPuff = useMemo(
