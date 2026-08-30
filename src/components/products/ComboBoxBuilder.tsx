@@ -93,8 +93,9 @@ export function ComboBoxBuilder({ products }: { products: Product[] }) {
               3 Cookie Combo Box
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-cream/78">
-              Pick any three cookie flavours and choose the size for each one. The Khari Puff packet
-              is added to your bag free, and you only pay for the three selected cookies.
+              Build your dream cookie box with any three flavours you love, choose the perfect size
+              for each pack, and get a crispy Khari Puff packet absolutely free. More variety, more
+              crunch, and one sweet reason to order today.
             </p>
             <div className="mt-5 rounded-2xl bg-cream/10 p-4">
               <div className="text-xs uppercase tracking-[0.2em] text-gold-soft">Combo total</div>

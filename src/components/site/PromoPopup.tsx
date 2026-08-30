@@ -1,30 +1,20 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import promoImage from "@/assets/ChatGPT Image Aug 30, 2026, 06_50_53 PM.png";
 
-const PROMO_POPUP_KEY = "zekra-delivery-promo-seen-v1";
-
 export function PromoPopup() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    try {
-      if (window.sessionStorage.getItem(PROMO_POPUP_KEY)) return;
-      const timeout = window.setTimeout(() => setOpen(true), 350);
-      return () => window.clearTimeout(timeout);
-    } catch {
-      setOpen(true);
-    }
-  }, []);
+    setOpen(false);
+    const timeout = window.setTimeout(() => setOpen(true), 350);
+    return () => window.clearTimeout(timeout);
+  }, [pathname]);
 
   const close = () => {
-    try {
-      window.sessionStorage.setItem(PROMO_POPUP_KEY, "true");
-    } catch {
-      // The popup can close even if session storage is unavailable.
-    }
     setOpen(false);
   };
 
