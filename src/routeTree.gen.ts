@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as GalleryRouteImport } from './routes/gallery'
@@ -26,6 +27,11 @@ import { Route as CategoriesCategoryRouteImport } from './routes/categories.$cat
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReviewsRoute = ReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductsRoute = ProductsRouteImport.update({
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/gallery': typeof GalleryRoute
   '/history': typeof HistoryRoute
   '/products': typeof ProductsRoute
+  '/reviews': typeof ReviewsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/categories/$category': typeof CategoriesCategoryRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -115,6 +122,7 @@ export interface FileRoutesByTo {
   '/gallery': typeof GalleryRoute
   '/history': typeof HistoryRoute
   '/products': typeof ProductsRoute
+  '/reviews': typeof ReviewsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/categories/$category': typeof CategoriesCategoryRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -131,6 +139,7 @@ export interface FileRoutesById {
   '/gallery': typeof GalleryRoute
   '/history': typeof HistoryRoute
   '/products': typeof ProductsRoute
+  '/reviews': typeof ReviewsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/categories/$category': typeof CategoriesCategoryRoute
   '/products_/$slug': typeof ProductsSlugRoute
@@ -148,6 +157,7 @@ export interface FileRouteTypes {
     | '/gallery'
     | '/history'
     | '/products'
+    | '/reviews'
     | '/sitemap.xml'
     | '/categories/$category'
     | '/products/$slug'
@@ -163,6 +173,7 @@ export interface FileRouteTypes {
     | '/gallery'
     | '/history'
     | '/products'
+    | '/reviews'
     | '/sitemap.xml'
     | '/categories/$category'
     | '/products/$slug'
@@ -178,6 +189,7 @@ export interface FileRouteTypes {
     | '/gallery'
     | '/history'
     | '/products'
+    | '/reviews'
     | '/sitemap.xml'
     | '/categories/$category'
     | '/products_/$slug'
@@ -194,6 +206,7 @@ export interface RootRouteChildren {
   GalleryRoute: typeof GalleryRoute
   HistoryRoute: typeof HistoryRoute
   ProductsRoute: typeof ProductsRoute
+  ReviewsRoute: typeof ReviewsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   CategoriesCategoryRoute: typeof CategoriesCategoryRoute
   ProductsSlugRoute: typeof ProductsSlugRoute
@@ -206,6 +219,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reviews': {
+      id: '/reviews'
+      path: '/reviews'
+      fullPath: '/reviews'
+      preLoaderRoute: typeof ReviewsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/products': {
@@ -306,6 +326,7 @@ const rootRouteChildren: RootRouteChildren = {
   GalleryRoute: GalleryRoute,
   HistoryRoute: HistoryRoute,
   ProductsRoute: ProductsRoute,
+  ReviewsRoute: ReviewsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   CategoriesCategoryRoute: CategoriesCategoryRoute,
   ProductsSlugRoute: ProductsSlugRoute,

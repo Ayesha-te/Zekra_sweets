@@ -24,6 +24,7 @@ const sitemapLinks = [
   ["About", "/about"],
   ["Gallery", "/gallery"],
   ["Products", "/products"],
+  ["Reviews", "/reviews"],
   ["Track Order", "/history"],
   ["Contact", "/contact"],
   ["Delivery", "/delivery"],

@@ -62,6 +62,22 @@ export type PickupLocation = { id: string; name: string; address: string; contac
 
 export type ValidatedCoupon = { code: string; percentageOff: number };
 
+export type CustomerReview = {
+  id: string;
+  name: string;
+  rating: number;
+  message: string;
+  createdAt: string;
+};
+
+export type CreateReviewPayload = {
+  name?: string;
+  email?: string;
+  orderId?: string;
+  rating: number;
+  message: string;
+};
+
 export const API_BASE = import.meta.env.VITE_API_URL || "https://api.zekrasweets.com";
 
 export function assetUrl(path: string) {
@@ -273,4 +289,16 @@ export function fetchOrderHistory(contact: string) {
   return apiFetch<CustomerOrderHistoryResponse>(
     `/api/orders/history?contact=${encodeURIComponent(contact)}`,
   );
+}
+
+export function fetchReviews() {
+  return apiFetch<CustomerReview[]>("/api/reviews");
+}
+
+export function createReview(payload: CreateReviewPayload) {
+  return apiFetch<CustomerReview>("/api/reviews", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
 }
