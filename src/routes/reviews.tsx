@@ -27,6 +27,7 @@ export const Route = createFileRoute("/reviews")({
 function Reviews() {
   const [reviews, setReviews] = useState<CustomerReview[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -42,8 +43,14 @@ function Reviews() {
 
   useEffect(() => {
     fetchReviews()
-      .then(setReviews)
-      .catch(() => setReviews([]))
+      .then((items) => {
+        setReviews(items);
+        setLoadError("");
+      })
+      .catch(() => {
+        setReviews([]);
+        setLoadError("Reviews could not be loaded right now. Please refresh in a moment.");
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -144,6 +151,10 @@ function Reviews() {
           {loading ? (
             <p className="rounded-3xl border border-gold-soft/45 bg-cream/60 p-6 text-sm text-foreground/70">
               Loading reviews...
+            </p>
+          ) : loadError ? (
+            <p className="rounded-3xl border border-gold-soft/45 bg-cream/60 p-6 text-sm font-semibold text-destructive">
+              {loadError}
             </p>
           ) : reviews.length === 0 ? (
             <p className="rounded-3xl border border-gold-soft/45 bg-cream/60 p-6 text-sm text-foreground/70">
