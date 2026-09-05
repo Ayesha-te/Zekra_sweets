@@ -731,6 +731,10 @@ function CheckoutConfirmation({ confirmation }: { confirmation: Confirmation }) 
     });
   }, [confirmation.reference, confirmation.total]);
 
+  useEffect(() => {
+    trackMetaPurchaseOnce(confirmation.reference, confirmation.total);
+  }, [confirmation.reference, confirmation.total]);
+
   return (
     <SiteLayout>
       <section className="mx-auto max-w-3xl px-4 sm:px-6">
@@ -806,4 +810,34 @@ function normalizeFulfillmentMode(value: string | null | undefined): Fulfillment
 
 function roundMoney(value: number) {
   return Number(value.toFixed(2));
+}
+
+const META_PURCHASE_TRACKED_KEY = "zekra_meta_purchase_tracked";
+
+function trackMetaPurchaseOnce(orderReferenceValue: string, total: number) {
+  const fbq = (window as typeof window & { fbq?: (...args: unknown[]) => void }).fbq;
+  if (!fbq || !orderReferenceValue) return;
+
+  let tracked: string[] = [];
+  try {
+    tracked = JSON.parse(window.localStorage.getItem(META_PURCHASE_TRACKED_KEY) || "[]");
+  } catch {
+    tracked = [];
+  }
+
+  if (tracked.includes(orderReferenceValue)) return;
+
+  fbq("track", "Purchase", {
+    value: total,
+    currency: "AED",
+  });
+
+  try {
+    window.localStorage.setItem(
+      META_PURCHASE_TRACKED_KEY,
+      JSON.stringify([...tracked, orderReferenceValue].slice(-50)),
+    );
+  } catch {
+    // localStorage unavailable (private browsing, quota) - tracking still fired once for this render.
+  }
 }
