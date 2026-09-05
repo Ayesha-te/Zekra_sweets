@@ -721,6 +721,10 @@ function CheckoutPaymentLoading() {
 
 function CheckoutConfirmation({ confirmation }: { confirmation: Confirmation }) {
   useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, []);
+
+  useEffect(() => {
     const gtag = (window as typeof window & { gtag?: (...args: unknown[]) => void }).gtag;
     if (!gtag) return;
 
