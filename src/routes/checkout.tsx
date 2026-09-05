@@ -827,10 +827,17 @@ function trackMetaPurchaseOnce(orderReferenceValue: string, total: number) {
 
   if (tracked.includes(orderReferenceValue)) return;
 
-  fbq("track", "Purchase", {
+  const eventParams: { value: number; currency: string; test_event_code?: string } = {
     value: total,
     currency: "AED",
-  });
+  };
+
+  const testEventCode = new URLSearchParams(window.location.search).get("fb_test_event_code");
+  if (testEventCode) {
+    eventParams.test_event_code = testEventCode;
+  }
+
+  fbq("track", "Purchase", eventParams);
 
   try {
     window.localStorage.setItem(
