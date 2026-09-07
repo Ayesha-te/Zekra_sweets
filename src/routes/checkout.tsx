@@ -273,6 +273,7 @@ function Checkout() {
         unitPrice: item.product.price,
         sizeId: item.product.sizeId,
         sizeLabel: item.product.sizeLabel,
+        isFreeGift: item.product.isFreeGift,
       })),
       totals: {
         currency: "AED",
