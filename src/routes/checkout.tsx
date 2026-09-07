@@ -722,6 +722,10 @@ function CheckoutPaymentLoading() {
 
 function CheckoutConfirmation({ confirmation }: { confirmation: Confirmation }) {
   useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, []);
+
+  useEffect(() => {
     const gtag = (window as typeof window & { gtag?: (...args: unknown[]) => void }).gtag;
     if (!gtag) return;
 
@@ -730,6 +734,10 @@ function CheckoutConfirmation({ confirmation }: { confirmation: Confirmation }) 
       value: confirmation.total,
       currency: "AED",
     });
+  }, [confirmation.reference, confirmation.total]);
+
+  useEffect(() => {
+    trackMetaPurchaseOnce(confirmation.reference, confirmation.total);
   }, [confirmation.reference, confirmation.total]);
 
   return (
@@ -807,4 +815,41 @@ function normalizeFulfillmentMode(value: string | null | undefined): Fulfillment
 
 function roundMoney(value: number) {
   return Number(value.toFixed(2));
+}
+
+const META_PURCHASE_TRACKED_KEY = "zekra_meta_purchase_tracked";
+
+function trackMetaPurchaseOnce(orderReferenceValue: string, total: number) {
+  const fbq = (window as typeof window & { fbq?: (...args: unknown[]) => void }).fbq;
+  if (!fbq || !orderReferenceValue) return;
+
+  let tracked: string[] = [];
+  try {
+    tracked = JSON.parse(window.localStorage.getItem(META_PURCHASE_TRACKED_KEY) || "[]");
+  } catch {
+    tracked = [];
+  }
+
+  if (tracked.includes(orderReferenceValue)) return;
+
+  const eventParams: { value: number; currency: string; test_event_code?: string } = {
+    value: total,
+    currency: "AED",
+  };
+
+  const testEventCode = new URLSearchParams(window.location.search).get("fb_test_event_code");
+  if (testEventCode) {
+    eventParams.test_event_code = testEventCode;
+  }
+
+  fbq("track", "Purchase", eventParams);
+
+  try {
+    window.localStorage.setItem(
+      META_PURCHASE_TRACKED_KEY,
+      JSON.stringify([...tracked, orderReferenceValue].slice(-50)),
+    );
+  } catch {
+    // localStorage unavailable (private browsing, quota) - tracking still fired once for this render.
+  }
 }

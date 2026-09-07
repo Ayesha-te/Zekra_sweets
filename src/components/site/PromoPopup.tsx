@@ -1,18 +1,34 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import promoImage from "@/assets/ChatGPT Image Aug 30, 2026, 06_50_53 PM.png";
 
+const PROMO_SEEN_KEY = "zekra_promo_seen";
+
 export function PromoPopup() {
-  const pathname = useRouterState({ select: (state) => state.location.pathname });
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    setOpen(false);
-    const timeout = window.setTimeout(() => setOpen(true), 350);
+    let alreadySeen = false;
+    try {
+      alreadySeen = window.sessionStorage.getItem(PROMO_SEEN_KEY) === "1";
+    } catch {
+      alreadySeen = false;
+    }
+
+    if (alreadySeen) return;
+
+    const timeout = window.setTimeout(() => {
+      setOpen(true);
+      try {
+        window.sessionStorage.setItem(PROMO_SEEN_KEY, "1");
+      } catch {
+        // sessionStorage unavailable (private browsing) - popup may reappear on next page, which is acceptable.
+      }
+    }, 350);
     return () => window.clearTimeout(timeout);
-  }, [pathname]);
+  }, []);
 
   const close = () => {
     setOpen(false);
