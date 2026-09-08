@@ -13,6 +13,13 @@ export type Product = {
   isFreeGift?: boolean;
   comboProductIds?: string[];
   comboSize?: number | null;
+  comboSelectionItems?: Array<{
+    productId: string;
+    name: string;
+    sizeId?: string;
+    sizeLabel?: string;
+    unitPrice: number;
+  }>;
   preparationHours?: number;
   tag?: string;
   description?: string;
@@ -148,6 +155,13 @@ export type CreateOrderPayload = {
     sizeLabel?: string;
     isFreeGift?: boolean;
     comboSelections?: string[];
+    comboSelectionItems?: Array<{
+      productId: string;
+      name: string;
+      sizeId?: string;
+      sizeLabel?: string;
+      unitPrice: number;
+    }>;
   }>;
   totals: {
     currency: "AED";

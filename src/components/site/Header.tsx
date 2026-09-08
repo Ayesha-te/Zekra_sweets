@@ -77,7 +77,7 @@ export function Header() {
             to="/cookie-combo"
             className="hidden items-center gap-2 rounded-full bg-gradient-gold px-6 py-3 text-[15px] font-semibold text-primary-foreground shadow-glow transition-transform hover:scale-105 lg:inline-flex"
           >
-            AED 22 Combo
+            Cookie Combo
           </Link>
           <button
             aria-label="Toggle navigation"
@@ -114,7 +114,7 @@ export function Header() {
               onClick={() => setOpen(false)}
               className="mt-2 flex items-center justify-center gap-2 rounded-2xl bg-gradient-gold px-4 py-3 text-sm font-semibold text-primary-foreground"
             >
-              AED 22 Cookie Combo
+              Cookie Combo
             </Link>
           </div>
         </div>

@@ -278,6 +278,7 @@ function Checkout() {
         sizeLabel: item.product.sizeLabel,
         isFreeGift: item.product.isFreeGift,
         comboSelections: item.product.comboSelections,
+        comboSelectionItems: item.product.comboSelectionItems,
       })),
       totals: {
         currency: "AED",

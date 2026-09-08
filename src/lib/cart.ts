@@ -17,6 +17,13 @@ export type CartProduct = Pick<
   sizeLabel?: string;
   isFreeGift?: boolean;
   comboSelections?: string[];
+  comboSelectionItems?: Array<{
+    productId: string;
+    name: string;
+    sizeId?: string;
+    sizeLabel?: string;
+    unitPrice: number;
+  }>;
 };
 
 export type CartItem = {
@@ -73,6 +80,18 @@ function normalizeProduct(product: Product): CartProduct {
     comboSelections: Array.isArray(customProduct.comboSelections)
       ? customProduct.comboSelections.map((selection) => String(selection).trim()).filter(Boolean).slice(0, 3)
       : undefined,
+    comboSelectionItems: Array.isArray(customProduct.comboSelectionItems)
+      ? customProduct.comboSelectionItems
+          .map((selection) => ({
+            productId: String(selection.productId || "").trim(),
+            name: String(selection.name || "").trim(),
+            sizeId: typeof selection.sizeId === "string" ? selection.sizeId : undefined,
+            sizeLabel: typeof selection.sizeLabel === "string" ? selection.sizeLabel : undefined,
+            unitPrice: Number(selection.unitPrice) || 0,
+          }))
+          .filter((selection) => selection.productId && selection.name)
+          .slice(0, 3)
+      : undefined,
   };
 }
 
@@ -106,6 +125,18 @@ function normalizeItems(value: unknown): CartItem[] {
           isFreeGift: product.isFreeGift === true,
           comboSelections: Array.isArray(product.comboSelections)
             ? product.comboSelections.map((selection) => String(selection).trim()).filter(Boolean).slice(0, 3)
+            : undefined,
+          comboSelectionItems: Array.isArray(product.comboSelectionItems)
+            ? product.comboSelectionItems
+                .map((selection) => ({
+                  productId: String(selection.productId || "").trim(),
+                  name: String(selection.name || "").trim(),
+                  sizeId: typeof selection.sizeId === "string" ? selection.sizeId : undefined,
+                  sizeLabel: typeof selection.sizeLabel === "string" ? selection.sizeLabel : undefined,
+                  unitPrice: Number(selection.unitPrice) || 0,
+                }))
+                .filter((selection) => selection.productId && selection.name)
+                .slice(0, 3)
             : undefined,
         },
         quantity: normalizeQuantity(Number(candidate.quantity)),
@@ -231,6 +262,12 @@ export function removeCartItem(productId: string) {
 }
 
 export function cartItemKey(product: CartProduct) {
+  if (product.comboSelectionItems?.length) {
+    const comboKey = product.comboSelectionItems
+      .map((selection) => `${selection.productId}:${selection.sizeId || selection.sizeLabel || ""}`)
+      .join("|");
+    return `${product.id}::${product.sizeId || "combo"}::${comboKey}`;
+  }
   const size = product.sizeId || product.sizeLabel;
   return size ? `${product.id}::${size}` : product.id;
 }

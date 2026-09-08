@@ -25,8 +25,7 @@ import {
 } from "@/lib/products";
 import { buildSeoHead, productSlug } from "@/lib/seo";
 
-const COMBO_PRODUCT_ID = "cookie-combo-aed-22";
-const COMBO_PRICE = 22;
+const COMBO_PRODUCT_ID = "cookie-combo";
 const COMBO_REQUIRED_SELECTIONS = 3;
 const PREMIUM_COMBO_COOKIE_NAMES = [
   "premium almond cookies",
@@ -41,9 +40,9 @@ export const Route = createFileRoute("/cookie-combo")({
   loader: () => loadProducts(),
   head: () =>
     buildSeoHead({
-      title: "3 Cookie Combo - AED 22 | Zekra Sweets",
+      title: "3 Cookie Combo | Zekra Sweets",
       description:
-        "Build your AED 22 Zekra Sweets cookie combo: choose any 3 cookie flavours, get a Khari Puff packet free, and checkout online.",
+        "Build your Zekra Sweets cookie combo: choose any 3 cookie flavours, get a Khari Puff packet free, and checkout online.",
       path: "/cookie-combo",
       robots: "index, follow",
     }),
@@ -56,6 +55,7 @@ function CookieComboLanding() {
   const cart = useCart();
   const selectorRef = useRef<HTMLElement | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [sizeKeys, setSizeKeys] = useState<Record<string, string>>({});
   const [added, setAdded] = useState(false);
 
   const cookies = useMemo(() => comboCookies(products), [products]);
@@ -63,7 +63,18 @@ function CookieComboLanding() {
   const selections = selectedIds
     .map((id) => cookies.find((cookie) => cookie.id === id))
     .filter((product): product is Product => Boolean(product));
-  const selectedNames = selections.map(productDisplayName);
+  const selectedItems = selections.map((product) => {
+    const size = selectedSizeFor(product, sizeKeys[product.id]);
+    return {
+      product,
+      size,
+      name: productDisplayName(product),
+      unitPrice: size?.price ?? productDisplayPrice(product),
+    };
+  });
+  const selectedNames = selectedItems.map((item) => item.name);
+  const comboTotal = roundMoney(selectedItems.reduce((sum, item) => sum + item.unitPrice, 0));
+  const comboPriceLabel = selectedItems.length === COMBO_REQUIRED_SELECTIONS ? formatMoney(comboTotal) : "Calculated from your 3 choices";
   const heroImages = [...selections, ...cookies].slice(0, 3);
   const recommended = useMemo(() => recommendedProducts(products, new Set([COMBO_PRODUCT_ID, ...selectedIds])), [products, selectedIds]);
   const upsells = useMemo(() => upsellProducts(products, new Set([COMBO_PRODUCT_ID, ...selectedIds])), [products, selectedIds]);
@@ -72,13 +83,13 @@ function CookieComboLanding() {
 
   useEffect(() => {
     trackMetaOnce("ViewContent", "zekra_cookie_combo_viewed", {
-      content_name: "3 Cookie Combo - AED 22",
+      content_name: "3 Cookie Combo",
       content_ids: [COMBO_PRODUCT_ID],
       content_type: "product",
-      value: COMBO_PRICE,
+      value: comboTotal,
       currency: "AED",
     });
-  }, []);
+  }, [comboTotal]);
 
   const scrollToSelector = () => {
     selectorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -103,23 +114,30 @@ function CookieComboLanding() {
     cart.addItem({
       id: COMBO_PRODUCT_ID,
       name: `3 Cookie Combo - ${selectedNames.join(", ")}`,
-      displayName: "3 Cookie Combo - AED 22",
+      displayName: "3 Cookie Combo",
       imageUrl: imageProduct?.imageUrl || "/favicon.png",
-      imageAlt: "Zekra Sweets AED 22 cookie combo",
-      price: COMBO_PRICE,
+      imageAlt: "Zekra Sweets cookie combo",
+      price: comboTotal,
       originalPrice: null,
       category: "Cookies",
-      tag: "AED 22 Combo",
-      sizeId: "combo-aed-22",
+      tag: "Cookie Combo",
+      sizeId: "cookie-combo",
       sizeLabel: "3 flavours + free Khari Puff",
       comboSelections: selectedNames,
+      comboSelectionItems: selectedItems.map((item) => ({
+        productId: item.product.id,
+        name: item.name,
+        sizeId: item.size?.id,
+        sizeLabel: item.size?.label,
+        unitPrice: item.unitPrice,
+      })),
     });
 
     if (khariPuff) {
       cart.addItem({
         ...khariPuff,
         id: `${khariPuff.id}-combo-gift`,
-        name: `${productDisplayName(khariPuff)} - Free with AED 22 Cookie Combo`,
+        name: `${productDisplayName(khariPuff)} - Free with Cookie Combo`,
         price: 0,
         originalPrice: null,
         sizeId: "combo-free",
@@ -130,10 +148,10 @@ function CookieComboLanding() {
 
     setAdded(true);
     trackMeta("AddToCart", {
-      content_name: "3 Cookie Combo - AED 22",
+      content_name: "3 Cookie Combo",
       content_ids: [COMBO_PRODUCT_ID, ...selectedIds],
       content_type: "product_group",
-      value: COMBO_PRICE,
+      value: comboTotal,
       currency: "AED",
     });
   };
@@ -155,8 +173,8 @@ function CookieComboLanding() {
 
   const whatsappHref = `${WHATSAPP_LINK}?text=${encodeURIComponent(
     selectedNames.length === COMBO_REQUIRED_SELECTIONS
-      ? `Hi Zekra Sweets, I'd like to order the AED 22 Cookie Combo with these flavours: ${selectedNames.join(", ")}.`
-      : "Hi Zekra Sweets, I'd like to order the AED 22 Cookie Combo.",
+      ? `Hi Zekra Sweets, I'd like to order the Cookie Combo (${formatMoney(comboTotal)}) with these flavours: ${selectedNames.join(", ")}.`
+      : "Hi Zekra Sweets, I'd like to order the Cookie Combo.",
   )}`;
 
   return (
@@ -181,7 +199,7 @@ function CookieComboLanding() {
             Free Khari Puff included
           </div>
           <h1 className="mt-4 font-display text-4xl leading-[1.05] sm:text-6xl">
-            3 Cookie Combo - <span className="text-gradient-gold">AED 22</span>
+            3 Cookie Combo - <span className="text-gradient-gold">{comboPriceLabel}</span>
           </h1>
           <p className="mt-4 max-w-xl text-base leading-relaxed text-foreground/75 sm:text-lg">
             Choose any 3 cookie flavours + get a Khari Puff packet FREE.
@@ -192,7 +210,7 @@ function CookieComboLanding() {
           </div>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <button type="button" onClick={scrollToSelector} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-gradient-gold px-6 text-sm font-extrabold text-primary-foreground shadow-glow">
-              Build My AED 22 Box <ArrowRight className="h-4 w-4" />
+              Build My Box <ArrowRight className="h-4 w-4" />
             </button>
             <a href={whatsappHref} target="_blank" rel="noreferrer" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-gold-soft/60 bg-cream px-6 text-sm font-bold text-foreground">
               <MessageCircle className="h-4 w-4" /> Order on WhatsApp
@@ -214,7 +232,7 @@ function CookieComboLanding() {
           </div>
           <div className="mt-3 rounded-2xl bg-cocoa px-4 py-3 text-cream">
             <div className="text-xs uppercase tracking-[0.2em] text-gold-soft">Combo total</div>
-            <div className="font-display text-3xl">{formatMoney(COMBO_PRICE)}</div>
+            <div className="font-display text-3xl">{comboPriceLabel}</div>
           </div>
         </div>
       </section>
@@ -239,6 +257,8 @@ function CookieComboLanding() {
             {cookies.map((product) => {
               const selected = selectedIds.includes(product.id);
               const disabled = !selected && selectedIds.length >= COMBO_REQUIRED_SELECTIONS;
+              const sizes = sizeOptionsFor(product);
+              const selectedSize = selectedSizeFor(product, sizeKeys[product.id]);
               return (
                 <button
                   key={product.id}
@@ -253,7 +273,25 @@ function CookieComboLanding() {
                   <img src={assetUrl(product.imageUrl)} onError={productImageError} alt={product.imageAlt || product.name} className="h-[108px] w-[92px] rounded-xl object-cover" />
                   <span className="min-w-0">
                     <span className="block font-display text-lg leading-tight">{productDisplayName(product)}</span>
-                    <span className="mt-1 block text-xs font-semibold text-caramel">{firstSizeLabel(product)}</span>
+                    <span className="mt-1 block text-xs font-semibold text-caramel">{selectedSize ? `${selectedSize.label} - ${formatMoney(selectedSize.price)}` : `${formatMoney(productDisplayPrice(product))} separately`}</span>
+                    {sizes.length > 1 && (
+                      <select
+                        value={optionKey(selectedSize || sizes[0])}
+                        onClick={(event) => event.stopPropagation()}
+                        onChange={(event) => {
+                          event.stopPropagation();
+                          setAdded(false);
+                          setSizeKeys((current) => ({ ...current, [product.id]: event.target.value }));
+                        }}
+                        className="mt-2 min-h-9 w-full rounded-xl border border-gold-soft/55 bg-cream px-2 text-xs font-bold text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                      >
+                        {sizes.map((size) => (
+                          <option key={optionKey(size)} value={optionKey(size)}>
+                            {size.label} - {formatMoney(size.price)}
+                          </option>
+                        ))}
+                      </select>
+                    )}
                     <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-primary">
                       {selected ? <Check className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
                       {selected ? "Selected" : disabled ? "3 already selected" : "Tap to select"}
@@ -269,11 +307,11 @@ function CookieComboLanding() {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="text-sm font-bold">{selectedNames.length ? selectedNames.join(", ") : "Choose 3 flavours to continue"}</div>
-              <p className="mt-1 text-xs text-muted-foreground">Final combo price includes a free Khari Puff packet.</p>
+              <p className="mt-1 text-xs text-muted-foreground">Combo total is the sum of your selected cookie variants and includes a free Khari Puff packet.</p>
             </div>
             <button type="button" onClick={addCombo} disabled={selectedIds.length !== COMBO_REQUIRED_SELECTIONS} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-gradient-gold px-6 text-sm font-extrabold text-primary-foreground shadow-glow disabled:cursor-not-allowed disabled:opacity-50">
               {added ? <Check className="h-4 w-4" /> : <ShoppingBag className="h-4 w-4" />}
-              {added ? "Combo Added" : "Add Combo to Cart - AED 22"}
+              {added ? "Combo Added" : `Add Combo to Cart - ${formatMoney(comboTotal)}`}
             </button>
           </div>
           {added && (
@@ -342,7 +380,7 @@ function CookieComboLanding() {
           onClick={stickyMode === "build" ? scrollToSelector : stickyMode === "add" ? addCombo : () => void checkoutNow()}
           className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-gradient-gold px-5 text-sm font-extrabold text-primary-foreground shadow-glow"
         >
-          {stickyMode === "checkout" ? "Checkout Now" : stickyMode === "add" ? "Add to Cart - AED 22" : "Build My Box - AED 22"}
+          {stickyMode === "checkout" ? "Checkout Now" : stickyMode === "add" ? `Add to Cart - ${formatMoney(comboTotal)}` : "Build My Box"}
           <ArrowRight className="h-4 w-4" />
         </button>
       </div>
@@ -409,13 +447,27 @@ function findKhariPuff(products: Product[]) {
   );
 }
 
-function firstSize(product: Product): ProductSizeOption | undefined {
-  return productSizeOptions(product)[0];
+function sizeOptionsFor(product: Product): ProductSizeOption[] {
+  const sizes = productSizeOptions(product);
+  if (sizes.length > 0) return sizes;
+  return [{ label: "Regular", price: productDisplayPrice(product), originalPrice: product.originalPrice }];
 }
 
-function firstSizeLabel(product: Product) {
-  const size = firstSize(product);
-  return size ? `${size.label} usually ${formatMoney(size.price)}` : `${formatMoney(productDisplayPrice(product))} separately`;
+function selectedSizeFor(product: Product, sizeKey = "") {
+  const sizes = sizeOptionsFor(product);
+  return sizes.find((size) => optionKey(size) === sizeKey) || sizes[0];
+}
+
+function firstSize(product: Product): ProductSizeOption | undefined {
+  return sizeOptionsFor(product)[0];
+}
+
+function optionKey(size: ProductSizeOption) {
+  return size.id || `${size.label}-${size.price}`;
+}
+
+function roundMoney(value: number) {
+  return Number(value.toFixed(2));
 }
 
 function recommendedProducts(products: Product[], excludedIds: Set<string>) {
@@ -457,7 +509,7 @@ function trackMetaOnce(event: string, key: string, params: Record<string, unknow
 
 const faqItems = [
   {
-    question: "What's included in the AED 22 combo?",
+    question: "What's included in the cookie combo?",
     answer: "You choose 3 cookie flavours and receive one Khari Puff packet free with the combo.",
   },
   {
