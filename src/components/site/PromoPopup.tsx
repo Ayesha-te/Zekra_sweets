@@ -73,11 +73,11 @@ export function PromoPopup() {
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Link
-              to="/products"
+              to="/cookie-combo"
               onClick={close}
               className="inline-flex min-h-12 items-center justify-center rounded-full bg-gradient-gold px-6 text-sm font-bold text-primary-foreground shadow-glow"
             >
-              Shop the offer
+              Shop now
             </Link>
             <button
               type="button"
