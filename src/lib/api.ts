@@ -147,6 +147,7 @@ export type CreateOrderPayload = {
     sizeId?: string;
     sizeLabel?: string;
     isFreeGift?: boolean;
+    comboSelections?: string[];
   }>;
   totals: {
     currency: "AED";

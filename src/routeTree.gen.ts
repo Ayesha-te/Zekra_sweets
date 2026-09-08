@@ -16,6 +16,7 @@ import { Route as HistoryRouteImport } from './routes/history'
 import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as DeliveryRouteImport } from './routes/delivery'
+import { Route as CookieComboRouteImport } from './routes/cookie-combo'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CartRouteImport } from './routes/cart'
@@ -57,6 +58,11 @@ const FaqRoute = FaqRouteImport.update({
 const DeliveryRoute = DeliveryRouteImport.update({
   id: '/delivery',
   path: '/delivery',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookieComboRoute = CookieComboRouteImport.update({
+  id: '/cookie-combo',
+  path: '/cookie-combo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/cookie-combo': typeof CookieComboRoute
   '/delivery': typeof DeliveryRoute
   '/faq': typeof FaqRoute
   '/gallery': typeof GalleryRoute
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/cookie-combo': typeof CookieComboRoute
   '/delivery': typeof DeliveryRoute
   '/faq': typeof FaqRoute
   '/gallery': typeof GalleryRoute
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/cookie-combo': typeof CookieComboRoute
   '/delivery': typeof DeliveryRoute
   '/faq': typeof FaqRoute
   '/gallery': typeof GalleryRoute
@@ -152,6 +161,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/cookie-combo'
     | '/delivery'
     | '/faq'
     | '/gallery'
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/cookie-combo'
     | '/delivery'
     | '/faq'
     | '/gallery'
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/cookie-combo'
     | '/delivery'
     | '/faq'
     | '/gallery'
@@ -201,6 +213,7 @@ export interface RootRouteChildren {
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
+  CookieComboRoute: typeof CookieComboRoute
   DeliveryRoute: typeof DeliveryRoute
   FaqRoute: typeof FaqRoute
   GalleryRoute: typeof GalleryRoute
@@ -263,6 +276,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DeliveryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cookie-combo': {
+      id: '/cookie-combo'
+      path: '/cookie-combo'
+      fullPath: '/cookie-combo'
+      preLoaderRoute: typeof CookieComboRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -321,6 +341,7 @@ const rootRouteChildren: RootRouteChildren = {
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
+  CookieComboRoute: CookieComboRoute,
   DeliveryRoute: DeliveryRoute,
   FaqRoute: FaqRoute,
   GalleryRoute: GalleryRoute,
