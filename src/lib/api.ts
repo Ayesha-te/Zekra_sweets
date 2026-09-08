@@ -124,7 +124,7 @@ function freshApiPath(path: string, options: RequestInit) {
 export type FulfillmentMode = "delivery" | "pickup";
 
 export type CreateOrderPayload = {
-  paymentMethod?: "card" | "cash_on_pickup";
+  paymentMethod?: "card" | "cash_on_pickup" | "no_payment_required";
   customer: {
     name: string;
     phone: string;

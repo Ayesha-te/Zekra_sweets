@@ -190,6 +190,8 @@ function Checkout() {
         ? "Select delivery location"
         : form.mode === "pickup" && !selectedPickupLocation
           ? "Select pickup location"
+        : payableTotal <= 0
+          ? "Place order - No payment required"
         : form.paymentMethod === "cash_on_pickup"
           ? `Place order - Pay ${formatMoney(payableTotal)} on pickup`
           : `Pay with card - ${formatMoney(payableTotal)}`;
@@ -250,8 +252,9 @@ function Checkout() {
 
     const orderTotals = getCartTotals(cart.items, deliveryLocation ? deliveryLocation.charge : 0);
 
+    const finalPaymentMethod = payableTotal <= 0 ? "no_payment_required" : form.paymentMethod;
     const payload: CreateOrderPayload = {
-      paymentMethod: form.paymentMethod,
+      paymentMethod: finalPaymentMethod,
       customer: {
         name: form.name.trim(),
         phone: form.phone.trim(),
@@ -285,11 +288,11 @@ function Checkout() {
 
     setSubmitting(true);
     try {
-      if (form.mode === "pickup" && form.paymentMethod === "cash_on_pickup") {
+      if (finalPaymentMethod === "cash_on_pickup" || finalPaymentMethod === "no_payment_required") {
         const response = await createOrder(payload);
         const reference = response.id || response.orderId || response.orderNumber || response.number;
         if (!reference) throw new Error("The order was created but no reference was returned.");
-        setConfirmation({ reference, total: payableTotal, mode: "pickup", paymentStatus: "cash_on_pickup" });
+        setConfirmation({ reference, total: payableTotal, mode: form.mode, paymentStatus: finalPaymentMethod });
         clearCart();
         setForm(initialForm);
       } else {
