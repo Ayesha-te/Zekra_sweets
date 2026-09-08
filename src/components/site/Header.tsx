@@ -6,6 +6,7 @@ import logo from "@/assets/log.png";
 
 const nav = [
   { to: "/", label: "Home" },
+  { to: "/cookie-combo", label: "Cookie Combo" },
   { to: "/products", label: "Products" },
   { to: "/reviews", label: "Reviews" },
   { to: "/history", label: "Track Order" },
@@ -73,10 +74,10 @@ export function Header() {
             )}
           </Link>
           <Link
-            to="/products"
+            to="/cookie-combo"
             className="hidden items-center gap-2 rounded-full bg-gradient-gold px-6 py-3 text-[15px] font-semibold text-primary-foreground shadow-glow transition-transform hover:scale-105 lg:inline-flex"
           >
-            Products
+            AED 22 Combo
           </Link>
           <button
             aria-label="Toggle navigation"
@@ -109,11 +110,11 @@ export function Header() {
               <ShoppingBag className="h-4 w-4" /> Bag ({cart.count})
             </Link>
             <Link
-              to="/products"
+              to="/cookie-combo"
               onClick={() => setOpen(false)}
               className="mt-2 flex items-center justify-center gap-2 rounded-2xl bg-gradient-gold px-4 py-3 text-sm font-semibold text-primary-foreground"
             >
-              Products
+              AED 22 Cookie Combo
             </Link>
           </div>
         </div>
