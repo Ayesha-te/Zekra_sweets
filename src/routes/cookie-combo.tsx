@@ -208,7 +208,7 @@ function CookieComboLanding() {
                 src={assetUrl(product.imageUrl)}
                 onError={productImageError}
                 alt={product.imageAlt || product.name}
-                className={`h-40 w-full rounded-2xl object-cover ${index === 1 ? "mt-5" : ""}`}
+                className="aspect-square w-full rounded-2xl object-cover"
               />
             ))}
           </div>
