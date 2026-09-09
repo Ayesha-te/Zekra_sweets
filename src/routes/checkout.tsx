@@ -457,9 +457,7 @@ function Checkout() {
                           ? "Loading..."
                           : "Select location"}
                     </div>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Free above {formatMoney(FREE_DELIVERY_MINIMUM)} across the UAE.
-                    </p>
+                   
                   </div>
                 </div>
               )}
