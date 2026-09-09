@@ -242,6 +242,10 @@ export function productJsonLd(product: Product) {
       url: absoluteUrl(productPath(product)),
       price: productDisplayPrice(product).toFixed(2),
       priceCurrency: "AED",
+      availability:
+        product.isActive === false
+          ? "https://schema.org/OutOfStock"
+          : "https://schema.org/InStock",
     },
   };
 }
