@@ -7,8 +7,10 @@ import {
   ShieldCheck,
   ShoppingBag,
   Sparkles,
+  Star,
   Video,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import heroVideo from "@/assets/bg-hero.mp4";
 import heroPoster from "@/assets/bg-hero-poster.jpg";
@@ -21,7 +23,7 @@ import craftImg from "@/assets/craft.jpg";
 import khaariImg from "@/assets/khaari.jpg";
 import { ProductCard } from "@/components/products/ProductCard";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { assetUrl, productImageError } from "@/lib/api";
+import { assetUrl, fetchReviews, productImageError, type CustomerReview } from "@/lib/api";
 import { WHATSAPP_LINK } from "@/lib/contact";
 import { loadProducts } from "@/lib/products";
 import { buildSeoHead, productSlug } from "@/lib/seo";
@@ -41,6 +43,8 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const products = Route.useLoaderData();
+  const [reviews, setReviews] = useState<CustomerReview[]>([]);
+  const [reviewsLoaded, setReviewsLoaded] = useState(false);
   const featured = products.filter((product) => product.tag).slice(0, 4);
   const selection = (featured.length ? featured : products).slice(0, 4);
   const categories = Array.from(new Set(products.map((product) => product.category)))
@@ -49,6 +53,25 @@ function Home() {
       product: products.find((item) => item.category === category)!,
     }))
     .slice(0, 4);
+  const reviewPreview = reviews.slice(0, 4);
+
+  useEffect(() => {
+    let mounted = true;
+    fetchReviews()
+      .then((items) => {
+        if (mounted) setReviews(items.filter((review) => review.message?.trim()).slice(0, 4));
+      })
+      .catch(() => {
+        if (mounted) setReviews([]);
+      })
+      .finally(() => {
+        if (mounted) setReviewsLoaded(true);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <SiteLayout>
@@ -260,34 +283,53 @@ function Home() {
               <span className="text-xs uppercase tracking-[0.25em] text-caramel">Social proof</span>
               <h2 className="mt-3 font-display text-3xl sm:text-4xl">Loved by Zekra Customers</h2>
             </div>
-            <a
-              href={WHATSAPP_LINK}
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              to="/reviews"
               className="inline-flex min-h-11 w-fit items-center gap-2 rounded-full border border-gold-soft/60 bg-cream px-4 text-sm font-bold text-foreground transition-colors hover:bg-secondary"
             >
               Share feedback <MessageCircle className="h-4 w-4 text-primary" />
-            </a>
+            </Link>
           </div>
 
           <div className="mt-6 grid gap-3 md:grid-cols-4">
-            {socialProofItems.map((item) => (
-              <article key={item.title} className="overflow-hidden rounded-2xl border border-gold-soft/45 bg-background/70">
-                <img src={item.image} alt={item.alt} className="h-32 w-full object-cover" />
-                <div className="p-4">
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-caramel">
-                    <item.icon className="h-3.5 w-3.5 text-primary" />
-                    {item.label}
-                  </div>
-                  <h3 className="mt-2 font-display text-lg leading-tight">{item.title}</h3>
-                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{item.description}</p>
-                </div>
-              </article>
-            ))}
+            {reviewPreview.length > 0
+              ? reviewPreview.map((review) => <HomeReviewCard key={review.id} review={review} />)
+              : socialProofItems.map((item) => (
+                  <article key={item.title} className="overflow-hidden rounded-2xl border border-gold-soft/45 bg-background/70">
+                    <img src={item.image} alt={item.alt} className="h-32 w-full object-cover" />
+                    <div className="p-4">
+                      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-caramel">
+                        <item.icon className="h-3.5 w-3.5 text-primary" />
+                        {item.label}
+                      </div>
+                      <h3 className="mt-2 font-display text-lg leading-tight">{reviewsLoaded ? item.title : "Loading customer feedback"}</h3>
+                      <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{item.description}</p>
+                    </div>
+                  </article>
+                ))}
           </div>
         </div>
       </section>
     </SiteLayout>
+  );
+}
+
+function HomeReviewCard({ review }: { review: CustomerReview }) {
+  return (
+    <article className="rounded-2xl border border-gold-soft/45 bg-background/70 p-4">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <div className="truncate font-display text-lg">{review.name}</div>
+          <div className="mt-1 text-xs uppercase tracking-[0.16em] text-caramel">Customer feedback</div>
+        </div>
+        <div className="flex shrink-0 gap-0.5 text-primary" aria-label={`${review.rating} star review`}>
+          {[1, 2, 3, 4, 5].map((value) => (
+            <Star key={value} className={`h-3.5 w-3.5 ${value <= review.rating ? "fill-current" : ""}`} />
+          ))}
+        </div>
+      </div>
+      <p className="mt-4 line-clamp-5 text-sm leading-relaxed text-foreground/75">{review.message}</p>
+    </article>
   );
 }
 
