@@ -184,41 +184,6 @@ function Home() {
         </section>
       )}
 
-      <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6">
-        <div className="glass grid overflow-hidden rounded-[2rem] lg:grid-cols-2" data-reveal>
-          <img
-            src={interiorImg}
-            alt="Zekra Sweets bakery interior"
-            loading="lazy"
-            className="h-full min-h-72 w-full object-cover"
-          />
-          <div className="p-7 sm:p-10">
-            <span className="text-xs uppercase tracking-[0.28em] text-caramel">Our story</span>
-            <h2 className="mt-3 font-display text-4xl">
-              A warm Ajman <span className="text-gradient-gold">bakery counter.</span>
-            </h2>
-            <p className="mt-4 leading-relaxed text-foreground/75">
-              Zekra Sweets brings its bakery selection online so you can browse available products,
-              compare sizes and build your order with ease.
-            </p>
-            <div className="mt-6 flex gap-3">
-              <Link
-                to="/about"
-                className="rounded-xl bg-cocoa px-5 py-3 text-sm font-bold text-cream"
-              >
-                Read our story
-              </Link>
-              <Link
-                to="/gallery"
-                className="rounded-xl border border-gold-soft/60 px-5 py-3 text-sm font-bold"
-              >
-                View gallery
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6" data-reveal>
         <div className="flex items-end justify-between gap-4">
           <div>
