@@ -12,11 +12,13 @@ import {
 
 import heroVideo from "@/assets/bg-hero.mp4";
 import heroPoster from "@/assets/bg-hero-poster.jpg";
+import galleryOneImg from "@/assets/1.jpeg";
+import galleryTwoImg from "@/assets/2.jpg";
+import galleryThreeImg from "@/assets/3.jpeg";
 import almondImg from "@/assets/almond-cookies.jpg";
 import interiorImg from "@/assets/bakery-interior.jpg";
 import craftImg from "@/assets/craft.jpg";
 import khaariImg from "@/assets/khaari.jpg";
-import ruskImg from "@/assets/rusk.jpg";
 import { ProductCard } from "@/components/products/ProductCard";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { assetUrl, productImageError } from "@/lib/api";
@@ -194,26 +196,23 @@ function Home() {
               Inside <span className="text-gradient-gold">Zekra.</span>
             </h2>
           </div>
-          <Link to="/gallery" className="text-sm font-bold text-primary">
-            View gallery →
-          </Link>
         </div>
         <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-4">
           <img
-            src={interiorImg}
-            alt="Zekra Sweets bakery interior"
+            src={galleryOneImg}
+            alt="Zekra Sweets gallery preview 1"
             loading="lazy"
             className="aspect-[4/3] w-full rounded-2xl object-cover sm:rounded-3xl"
           />
           <img
-            src={craftImg}
-            alt="Bakery preparation"
+            src={galleryTwoImg}
+            alt="Zekra Sweets gallery preview 2"
             loading="lazy"
             className="aspect-[4/3] w-full rounded-2xl object-cover sm:rounded-3xl"
           />
           <img
-            src={ruskImg}
-            alt="Rusk from the bakery selection"
+            src={galleryThreeImg}
+            alt="Zekra Sweets gallery preview 3"
             loading="lazy"
             className="aspect-[4/3] w-full rounded-2xl object-cover sm:rounded-3xl"
           />
