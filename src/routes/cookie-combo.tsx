@@ -3,7 +3,6 @@ import {
   ArrowRight,
   Check,
   CreditCard,
-  Gift,
   MessageCircle,
   PackageCheck,
   ShieldCheck,
@@ -195,8 +194,8 @@ function CookieComboLanding() {
       <section className="mx-auto grid max-w-6xl gap-6 px-4 py-6 md:grid-cols-[1fr_0.85fr] md:items-center md:py-10">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full bg-cocoa px-3 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-gold-soft">
-            <Gift className="h-3.5 w-3.5" />
-            Free Khari Puff included
+            <PackageCheck className="h-3.5 w-3.5" />
+            100% Eggless
           </div>
           <h1 className="mt-4 font-display text-4xl leading-[1.05] sm:text-6xl">
             3 Cookie Combo - <span className="text-gradient-gold">{comboPriceLabel}</span>
@@ -204,6 +203,13 @@ function CookieComboLanding() {
           <p className="mt-4 max-w-xl text-base leading-relaxed text-foreground/75 sm:text-lg">
             Choose any 3 cookie flavours + get a Khari Puff packet FREE.
           </p>
+          <div className="mt-3 flex w-fit flex-wrap items-center gap-x-2 gap-y-1 rounded-full border border-gold-soft/55 bg-cream/80 px-4 py-2 text-xs font-extrabold text-foreground shadow-glass sm:text-sm">
+            <span>100% Eggless</span>
+            <span className="text-caramel">•</span>
+            <span>Freshly Made</span>
+            <span className="text-caramel">•</span>
+            <span>Free Khari Puff</span>
+          </div>
           <div className="mt-4 inline-flex items-center gap-2 rounded-2xl border border-gold-soft/55 bg-secondary px-4 py-3 text-sm font-bold text-secondary-foreground">
             <Truck className="h-4 w-4 text-primary" />
             FREE Delivery in Dubai, Sharjah & Ajman

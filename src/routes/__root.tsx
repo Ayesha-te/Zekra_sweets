@@ -6,6 +6,7 @@ import {
   Scripts,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
@@ -233,6 +234,26 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+
+  useEffect(() => {
+    const styleId = "zekra-checkout-chat-hide";
+    let style = document.getElementById(styleId) as HTMLStyleElement | null;
+    if (!style) {
+      style = document.createElement("style");
+      style.id = styleId;
+      style.textContent = `
+        html[data-zekra-checkout] #zanderio-widget-host {
+          display: none !important;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    document.documentElement.toggleAttribute("data-zekra-checkout", pathname === "/checkout");
+    return () => {
+      document.documentElement.removeAttribute("data-zekra-checkout");
+    };
+  }, [pathname]);
 
   useEffect(() => {
     const moveChatbotLeft = () => {

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { MessageCircle, ShoppingBag } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { PromoPopup } from "./PromoPopup";
@@ -12,6 +12,9 @@ import { trackEvent } from "@/lib/analytics";
 export function SiteLayout({ children }: { children: ReactNode }) {
   useReveal();
   const cart = useCart();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const isCheckout = pathname === "/checkout";
+  const whatsappMobilePosition = isCheckout ? "bottom-24" : cart.count > 0 ? "bottom-20" : "bottom-5";
   return (
     <div className="relative min-h-screen overflow-x-clip bg-background text-foreground">
       <a
@@ -47,7 +50,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
         target="_blank"
         rel="noreferrer"
         aria-label={`Chat with Zekra Sweets on WhatsApp at ${BUSINESS_PHONE_DISPLAY}`}
-        className={`fixed right-5 z-50 inline-flex h-14 w-14 items-center justify-center gap-2 rounded-full bg-[#25D366] text-white shadow-[0_16px_36px_oklch(0.45_0.16_145_/_0.38)] transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#25D366] sm:bottom-6 sm:right-6 sm:w-auto sm:px-5 ${cart.count > 0 ? "bottom-20" : "bottom-5"}`}
+        className={`fixed right-5 z-50 inline-flex h-14 w-14 items-center justify-center gap-2 rounded-full bg-[#25D366] text-white shadow-[0_16px_36px_oklch(0.45_0.16_145_/_0.38)] transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#25D366] sm:bottom-6 sm:right-6 sm:w-auto sm:px-5 ${whatsappMobilePosition}`}
       >
         <MessageCircle className="h-5 w-5" />
         <span className="hidden text-sm font-semibold sm:inline">WhatsApp</span>

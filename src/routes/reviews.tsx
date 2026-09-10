@@ -1,8 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Send, Star } from "lucide-react";
+import { Camera, MessageCircle, Send, ShieldCheck, Star, Video } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
+import almondImg from "@/assets/almond-cookies.jpg";
+import craftImg from "@/assets/craft.jpg";
+import interiorImg from "@/assets/bakery-interior.jpg";
+import khaariImg from "@/assets/khaari.jpg";
 import { createReview, CustomerReview, fetchReviews } from "@/lib/api";
 
 export const Route = createFileRoute("/reviews")({
@@ -157,15 +161,41 @@ function Reviews() {
               {loadError}
             </p>
           ) : reviews.length === 0 ? (
-            <p className="rounded-3xl border border-gold-soft/45 bg-cream/60 p-6 text-sm text-foreground/70">
-              No reviews yet. Be the first to share your experience with Zekra Sweets.
-            </p>
+            <ReviewsEmptyState />
           ) : (
             reviews.map((review) => <ReviewCard key={review.id} review={review} />)
           )}
         </div>
       </section>
     </SiteLayout>
+  );
+}
+
+function ReviewsEmptyState() {
+  return (
+    <section className="rounded-3xl border border-gold-soft/45 bg-cream/70 p-5 shadow-glass">
+      <span className="text-xs uppercase tracking-[0.25em] text-caramel">Social proof</span>
+      <h2 className="mt-3 font-display text-3xl">Loved by Zekra Customers</h2>
+      <p className="mt-3 text-sm leading-relaxed text-foreground/70">
+        Genuine customer feedback will appear here after it is submitted and verified. Until then,
+        these spaces are prepared for real customer notes, order photos, creator videos, and
+        WhatsApp feedback.
+      </p>
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        {reviewProofItems.map((item) => (
+          <article key={item.title} className="overflow-hidden rounded-2xl border border-gold-soft/45 bg-background/70">
+            <img src={item.image} alt={item.alt} className="h-28 w-full object-cover" />
+            <div className="p-4">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-caramel">
+                <item.icon className="h-3.5 w-3.5 text-primary" />
+                {item.label}
+              </div>
+              <h3 className="mt-2 font-display text-lg leading-tight">{item.title}</h3>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -191,3 +221,34 @@ function ReviewCard({ review }: { review: CustomerReview }) {
     </article>
   );
 }
+
+const reviewProofItems = [
+  {
+    label: "Feedback",
+    title: "Verified customer notes",
+    image: almondImg,
+    alt: "Zekra Sweets almond cookies",
+    icon: MessageCircle,
+  },
+  {
+    label: "Order photos",
+    title: "Fresh order moments",
+    image: khaariImg,
+    alt: "Zekra Sweets khari puff",
+    icon: Camera,
+  },
+  {
+    label: "Media",
+    title: "Influencer and review videos",
+    image: interiorImg,
+    alt: "Zekra Sweets bakery interior",
+    icon: Video,
+  },
+  {
+    label: "WhatsApp",
+    title: "Customer chat feedback",
+    image: craftImg,
+    alt: "Zekra Sweets preparation detail",
+    icon: ShieldCheck,
+  },
+];

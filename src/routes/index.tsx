@@ -1,17 +1,21 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
+  Camera,
   Clock3,
   MessageCircle,
   ShieldCheck,
   ShoppingBag,
   Sparkles,
+  Video,
 } from "lucide-react";
 
 import heroVideo from "@/assets/bg-hero.mp4";
 import heroPoster from "@/assets/bg-hero-poster.jpg";
+import almondImg from "@/assets/almond-cookies.jpg";
 import interiorImg from "@/assets/bakery-interior.jpg";
 import craftImg from "@/assets/craft.jpg";
+import khaariImg from "@/assets/khaari.jpg";
 import ruskImg from "@/assets/rusk.jpg";
 import { ProductCard } from "@/components/products/ProductCard";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -286,34 +290,74 @@ function Home() {
       </section>
 
       <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6" data-reveal>
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-3xl border border-gold-soft/45 bg-cream/65 p-6">
-            <span className="text-xs uppercase tracking-[0.25em] text-caramel">Customer notes</span>
-            <h2 className="mt-3 font-display text-3xl">Reviews coming soon.</h2>
-            <p className="mt-3 text-sm text-foreground/70">
-              We will show verified customer feedback here when it is available.
-            </p>
-          </div>
-          <div className="rounded-3xl bg-cocoa p-6 text-cream">
-            <span className="text-xs uppercase tracking-[0.25em] text-gold-soft">
-              Quick answers
-            </span>
-            <h2 className="mt-3 font-display text-3xl">Need help choosing?</h2>
-            <p className="mt-3 text-sm text-cream/75">
-              Product pages show current sizes and prices. For anything else, contact the bakery
-              directly.
-            </p>
+        <div className="rounded-[2rem] border border-gold-soft/45 bg-cream/70 p-5 shadow-glass sm:p-7">
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <span className="text-xs uppercase tracking-[0.25em] text-caramel">Social proof</span>
+              <h2 className="mt-3 font-display text-3xl sm:text-4xl">Loved by Zekra Customers</h2>
+            </div>
             <a
               href={WHATSAPP_LINK}
               target="_blank"
               rel="noreferrer"
-              className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl bg-gradient-gold px-4 text-sm font-bold text-primary-foreground"
+              className="inline-flex min-h-11 w-fit items-center gap-2 rounded-full border border-gold-soft/60 bg-cream px-4 text-sm font-bold text-foreground transition-colors hover:bg-secondary"
             >
-              Ask on WhatsApp <ArrowRight className="h-4 w-4" />
+              Share feedback <MessageCircle className="h-4 w-4 text-primary" />
             </a>
+          </div>
+
+          <div className="mt-6 grid gap-3 md:grid-cols-4">
+            {socialProofItems.map((item) => (
+              <article key={item.title} className="overflow-hidden rounded-2xl border border-gold-soft/45 bg-background/70">
+                <img src={item.image} alt={item.alt} className="h-32 w-full object-cover" />
+                <div className="p-4">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-caramel">
+                    <item.icon className="h-3.5 w-3.5 text-primary" />
+                    {item.label}
+                  </div>
+                  <h3 className="mt-2 font-display text-lg leading-tight">{item.title}</h3>
+                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{item.description}</p>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>
     </SiteLayout>
   );
 }
+
+const socialProofItems = [
+  {
+    label: "Feedback",
+    title: "Verified customer notes",
+    description: "Ready for genuine customer feedback collected after real Zekra orders.",
+    image: almondImg,
+    alt: "Zekra Sweets almond cookies prepared for customers",
+    icon: MessageCircle,
+  },
+  {
+    label: "Order photos",
+    title: "Fresh order moments",
+    description: "Use real packed-order and customer photos from the bakery as they become available.",
+    image: khaariImg,
+    alt: "Zekra Sweets khari puff product photo",
+    icon: Camera,
+  },
+  {
+    label: "Media",
+    title: "Influencer and review videos",
+    description: "A premium space for authentic tasting clips, creator videos, and review media.",
+    image: interiorImg,
+    alt: "Zekra Sweets bakery interior",
+    icon: Video,
+  },
+  {
+    label: "WhatsApp",
+    title: "Customer chat feedback",
+    description: "Designed for real WhatsApp feedback screenshots with customer permission.",
+    image: craftImg,
+    alt: "Zekra Sweets bakery preparation detail",
+    icon: ShieldCheck,
+  },
+];
