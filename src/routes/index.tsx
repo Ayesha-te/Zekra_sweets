@@ -24,7 +24,6 @@ import khaariImg from "@/assets/khaari.jpg";
 import { ProductCard } from "@/components/products/ProductCard";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { assetUrl, fetchReviews, productImageError, type CustomerReview } from "@/lib/api";
-import { WHATSAPP_LINK } from "@/lib/contact";
 import { loadProducts } from "@/lib/products";
 import { buildSeoHead, productSlug } from "@/lib/seo";
 
@@ -93,29 +92,29 @@ function Home() {
           <div className="relative z-10 flex items-end p-6 pb-10 text-cream sm:p-10 lg:p-14">
             <div className="max-w-3xl">
               <span className="inline-flex items-center gap-2 rounded-full border border-cream/20 bg-cocoa/35 px-4 py-2 text-xs font-medium text-gold-soft backdrop-blur-sm">
-                <Sparkles className="h-3.5 w-3.5" /> Artisan bakery serving all over the UAE
+                <Sparkles className="h-3.5 w-3.5" /> Handmade cookies & traditional sweets
               </span>
-              <h1 className="mt-5 font-display text-6xl font-extrabold leading-[0.9] sm:text-7xl lg:text-8xl">
-                Zekra <span className="text-gradient-gold">Sweets</span>
+              <h1 className="mt-5 font-display text-5xl font-extrabold leading-[0.92] sm:text-7xl lg:text-8xl">
+                Fresh Handmade Cookies & Sweets, Delivered Across{" "}
+                <span className="text-gradient-gold">Dubai, Sharjah & Ajman</span>
               </h1>
-              <p className="mt-5 max-w-xl text-base leading-relaxed text-cream/85 sm:text-lg">
-                Browse our current online selection and choose the size that suits your table.
+              <p className="mt-5 max-w-2xl text-base font-bold leading-relaxed text-cream/90 sm:text-lg">
+                Free delivery • No minimum order • Cash on Delivery & Card Payment
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
-                  to="/products"
+                  to="/"
+                  hash="bestsellers"
                   className="inline-flex min-h-12 items-center gap-2 rounded-full bg-gradient-gold px-6 text-sm font-bold text-primary-foreground shadow-glow"
                 >
-                  Shop current selection <ArrowRight className="h-4 w-4" />
+                  SHOP BESTSELLERS <ArrowRight className="h-4 w-4" />
                 </Link>
-                <a
-                  href={WHATSAPP_LINK}
-                  target="_blank"
-                  rel="noreferrer"
+                <Link
+                  to="/products"
                   className="inline-flex min-h-12 items-center gap-2 rounded-full border border-cream/25 bg-cream/10 px-6 text-sm font-bold backdrop-blur-sm"
                 >
-                  <MessageCircle className="h-4 w-4" /> Ask us
-                </a>
+                  VIEW ALL PRODUCTS
+                </Link>
               </div>
             </div>
           </div>
@@ -149,7 +148,7 @@ function Home() {
         </div>
       </section>
 
-      <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6" data-reveal>
+      <section id="bestsellers" className="mx-auto mt-20 max-w-7xl scroll-mt-28 px-4 sm:px-6" data-reveal>
         <div className="flex items-end justify-between gap-4">
           <div>
             <span className="text-xs uppercase tracking-[0.28em] text-caramel">
