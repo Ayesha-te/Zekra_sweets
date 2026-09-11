@@ -29,6 +29,7 @@ const sitemapLinks = [
   ["Contact", "/contact"],
   ["Delivery", "/delivery"],
   ["FAQ", "/faq"],
+  ["Return & Refund", "/return-policy"],
 ] as const;
 
 const categoryLinks = [
