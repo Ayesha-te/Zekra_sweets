@@ -5,7 +5,6 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { ProductRecommendations } from "@/components/products/ProductRecommendations";
 import { assetUrl, productImageError } from "@/lib/api";
 import {
-  FREE_DELIVERY_MINIMUM,
   cartItemKey,
   formatMoney,
   useCart,
@@ -196,8 +195,6 @@ function CartItemRow({ item }: { item: CartItem }) {
 
 function CartTotals() {
   const cart = useCart();
-  const remaining = Math.max(0, FREE_DELIVERY_MINIMUM - cart.subtotal);
-  const progress = Math.min(100, (cart.subtotal / FREE_DELIVERY_MINIMUM) * 100);
 
   return (
     <aside className="glass h-fit rounded-[2rem] p-5 lg:sticky lg:top-28" data-reveal>
@@ -215,31 +212,6 @@ function CartTotals() {
         <SummaryRow label="Subtotal" value={formatMoney(cart.subtotal)} />
         <SummaryRow label="Delivery" value="Calculated at checkout" />
         <SummaryRow label="Items total" value={formatMoney(cart.subtotal)} strong />
-      </div>
-
-      <div className="mt-4 rounded-2xl bg-secondary px-4 py-3 text-xs leading-relaxed text-secondary-foreground">
-        <p>
-          {remaining > 0
-            ? `Add ${formatMoney(remaining)} more to reach free delivery.`
-            : "Your order has reached the free-delivery minimum."}
-        </p>
-        <div
-          className="mt-2 h-2 overflow-hidden rounded-full bg-cream"
-          role="progressbar"
-          aria-label="Progress toward free delivery"
-          aria-valuemin={0}
-          aria-valuemax={FREE_DELIVERY_MINIMUM}
-          aria-valuenow={Math.min(cart.subtotal, FREE_DELIVERY_MINIMUM)}
-        >
-          <div
-            className="h-full rounded-full bg-gradient-gold transition-[width]"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-        <p className="mt-2 text-muted-foreground">
-          Free delivery applies from {formatMoney(FREE_DELIVERY_MINIMUM)}; other delivery charges
-          are calculated at checkout.
-        </p>
       </div>
 
       <div className="mt-6 grid gap-2">
