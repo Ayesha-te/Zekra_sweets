@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowRight,
+  ChevronLeft,
   Check,
   CreditCard,
   MessageCircle,
@@ -184,10 +185,17 @@ function CookieComboLanding() {
             <img src="/favicon.png" alt="Zekra Sweets" className="h-11 w-11 rounded-full border border-gold-soft/50 object-cover" />
             <span className="font-display text-xl font-extrabold">Zekra <span className="text-gradient-gold">Sweets</span></span>
           </Link>
-          <Link to="/cart" className="relative grid h-11 w-11 place-items-center rounded-full border border-gold-soft/55 bg-cream text-foreground">
-            <ShoppingBag className="h-5 w-5" />
-            {cart.count > 0 && <span className="absolute -right-1 -top-1 grid min-h-5 min-w-5 place-items-center rounded-full bg-cocoa px-1 text-[10px] font-bold text-cream">{cart.count}</span>}
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/" className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full border border-gold-soft/55 bg-cream px-3 text-sm font-bold text-foreground transition-colors hover:bg-secondary sm:px-4">
+              <ChevronLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Back to Website</span>
+              <span className="sm:hidden">Back</span>
+            </Link>
+            <Link to="/cart" className="relative grid h-11 w-11 place-items-center rounded-full border border-gold-soft/55 bg-cream text-foreground">
+              <ShoppingBag className="h-5 w-5" />
+              {cart.count > 0 && <span className="absolute -right-1 -top-1 grid min-h-5 min-w-5 place-items-center rounded-full bg-cocoa px-1 text-[10px] font-bold text-cream">{cart.count}</span>}
+            </Link>
+          </div>
         </div>
       </header>
 
