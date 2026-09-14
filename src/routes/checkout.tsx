@@ -642,6 +642,15 @@ function CheckoutSummary({
             <div className="min-w-0">
               <div className="truncate text-sm font-semibold">{item.product.name}</div>
               {item.product.sizeLabel && <div className="text-xs font-semibold text-caramel">Size: {item.product.sizeLabel}</div>}
+              {comboSelectionDetails(item.product).length > 0 && (
+                <div className="mt-1 text-xs font-semibold text-caramel">
+                  {comboSelectionDetails(item.product).map((selection) => (
+                    <div key={`${selection.name}-${selection.sizeLabel || "regular"}`}>
+                      {selection.name}{selection.sizeLabel ? ` - ${selection.sizeLabel}` : ""}
+                    </div>
+                  ))}
+                </div>
+              )}
               <div className="mt-0.5 text-xs text-muted-foreground">
                 {item.quantity} x {formatMoney(item.product.price)}
               </div>
@@ -678,6 +687,19 @@ function CheckoutSummary({
       </div>
     </aside>
   );
+}
+
+function comboSelectionDetails(product: {
+  comboSelectionItems?: Array<{ name: string; sizeLabel?: string }>;
+}) {
+  return Array.isArray(product.comboSelectionItems)
+    ? product.comboSelectionItems
+        .map((selection) => ({
+          name: String(selection.name || "").trim(),
+          sizeLabel: String(selection.sizeLabel || "").trim(),
+        }))
+        .filter((selection) => selection.name)
+    : [];
 }
 
 function EmptyCheckout() {

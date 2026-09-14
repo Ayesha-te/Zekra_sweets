@@ -363,6 +363,18 @@ function OrderHistoryCard({
             )}
             <div className="min-w-0 py-1">
               <div className="line-clamp-2 text-sm font-semibold leading-snug">{item.name}</div>
+              {item.sizeLabel && (
+                <div className="mt-1 text-xs font-semibold text-caramel">Size: {item.sizeLabel}</div>
+              )}
+              {comboSelectionDetails(item).length > 0 && (
+                <div className="mt-1 text-xs font-semibold text-caramel">
+                  {comboSelectionDetails(item).map((selection) => (
+                    <div key={`${selection.name}-${selection.sizeLabel || "regular"}`}>
+                      {selection.name}{selection.sizeLabel ? ` - ${selection.sizeLabel}` : ""}
+                    </div>
+                  ))}
+                </div>
+              )}
               <div className="mt-1 text-xs text-muted-foreground">
                 {item.quantity} x {formatMoney(Number(item.unitPrice || 0))}
                 {item.category ? ` - ${item.category}` : ""}
@@ -396,6 +408,19 @@ function OrderHistoryCard({
       </div>
     </article>
   );
+}
+
+function comboSelectionDetails(item: {
+  comboSelectionItems?: Array<{ name: string; sizeLabel?: string }>;
+}) {
+  return Array.isArray(item.comboSelectionItems)
+    ? item.comboSelectionItems
+        .map((selection) => ({
+          name: String(selection.name || "").trim(),
+          sizeLabel: String(selection.sizeLabel || "").trim(),
+        }))
+        .filter((selection) => selection.name)
+    : [];
 }
 
 const trackingSteps = [
