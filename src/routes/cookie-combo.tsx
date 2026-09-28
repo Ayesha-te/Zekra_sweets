@@ -27,14 +27,6 @@ import { buildSeoHead, productSlug } from "@/lib/seo";
 
 const COMBO_PRODUCT_ID = "cookie-combo";
 const COMBO_REQUIRED_SELECTIONS = 3;
-const PREMIUM_COMBO_COOKIE_NAMES = [
-  "premium almond cookies",
-  "premium chocolate cookies",
-  "premium tuti fruity butter cookies",
-  "premium banana cookies",
-  "premium banana butter cookies",
-  "premium jeera cookies",
-];
 
 export const Route = createFileRoute("/cookie-combo")({
   loader: () => loadProducts(),
@@ -445,13 +437,11 @@ function ProductLinkCard({ product }: { product: Product }) {
 }
 
 function comboCookies(products: Product[]) {
-  const premium = products.filter(
+  return products.filter(
     (product) =>
       product.isActive !== false &&
-      product.category.toLowerCase() === "cookies" &&
-      PREMIUM_COMBO_COOKIE_NAMES.some((name) => productDisplayName(product).toLowerCase().startsWith(name)),
+      product.category.toLowerCase() === "cookies",
   );
-  return (premium.length >= COMBO_REQUIRED_SELECTIONS ? premium : products.filter((product) => product.isActive !== false && product.category.toLowerCase() === "cookies")).slice(0, 9);
 }
 
 function findKhariPuff(products: Product[]) {
