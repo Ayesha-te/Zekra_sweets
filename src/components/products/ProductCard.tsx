@@ -117,9 +117,9 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
 
         <div className="mt-3 flex min-h-10 items-end justify-between gap-2">
           <div>
-            {product.isComboPack && (
+            {product.isComboPack && (product.comboSize || product.comboProductIds?.length || 0) > 1 && (
               <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-primary">
-                {product.name} · {product.comboSize || product.comboProductIds?.length || 0} items
+                Combo · {product.comboSize || product.comboProductIds?.length} packs
               </div>
             )}
             {isSale && (

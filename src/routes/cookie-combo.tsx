@@ -15,7 +15,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { assetUrl, productImageError, type Product, type ProductSizeOption } from "@/lib/api";
 import { WHATSAPP_LINK } from "@/lib/contact";
-import { cartItemKey, formatMoney, getCartTotals, useCart } from "@/lib/cart";
+import { FREE_DELIVERY_MINIMUM, cartItemKey, formatMoney, getCartTotals, useCart } from "@/lib/cart";
 import {
   loadProducts,
   productDisplayName,
@@ -212,7 +212,7 @@ function CookieComboLanding() {
           </div>
           <div className="mt-4 inline-flex items-center gap-2 rounded-2xl border border-gold-soft/55 bg-secondary px-4 py-3 text-sm font-bold text-secondary-foreground">
             <Truck className="h-4 w-4 text-primary" />
-            FREE Delivery in Dubai, Sharjah & Ajman
+            FREE Delivery in Dubai, Sharjah & Ajman on orders of AED {FREE_DELIVERY_MINIMUM}+
           </div>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <button type="button" onClick={scrollToSelector} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-gradient-gold px-6 text-sm font-extrabold text-primary-foreground shadow-glow">
@@ -345,7 +345,7 @@ function CookieComboLanding() {
           ["100% Eggless", PackageCheck],
           ["Freshly prepared", Sparkles],
           ["Secure checkout", ShieldCheck],
-          ["Free delivery in Dubai, Sharjah & Ajman", Truck],
+          [`Free delivery over AED ${FREE_DELIVERY_MINIMUM}`, Truck],
         ].map(([label, Icon]) => (
           <div key={String(label)} className="rounded-2xl border border-gold-soft/45 bg-cream/75 p-4">
             <Icon className="h-5 w-5 text-primary" />
@@ -526,7 +526,7 @@ const faqItems = [
   },
   {
     question: "Where is delivery free?",
-    answer: "The site advertises free delivery in Dubai, Sharjah and Ajman. Other locations keep the existing checkout delivery charge rules.",
+    answer: `Delivery is free in Dubai, Sharjah and Ajman on orders of AED ${FREE_DELIVERY_MINIMUM} or more. Smaller orders pay the delivery charge shown at checkout. Tip: pick one 250g pack in your combo to reach free delivery.`,
   },
   {
     question: "How do I place an order?",

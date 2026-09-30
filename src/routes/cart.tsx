@@ -2,11 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { FreeDeliveryProgress } from "@/components/site/FreeDeliveryProgress";
 import { ProductRecommendations } from "@/components/products/ProductRecommendations";
 import { assetUrl, productImageError } from "@/lib/api";
 import {
+  FREE_DELIVERY_MINIMUM,
   cartItemKey,
   formatMoney,
+  getFreeDeliveryProgress,
   useCart,
   type CartItem,
 } from "@/lib/cart";
@@ -208,9 +211,18 @@ function CartTotals() {
         </span>
       </div>
 
+      <FreeDeliveryProgress subtotal={cart.subtotal} className="mt-5" />
+
       <div className="mt-6 space-y-3 text-sm">
         <SummaryRow label="Subtotal" value={formatMoney(cart.subtotal)} />
-        <SummaryRow label="Delivery" value="Calculated at checkout" />
+        <SummaryRow
+          label="Delivery"
+          value={
+            getFreeDeliveryProgress(cart.subtotal).qualifies
+              ? "Free"
+              : `Free over ${formatMoney(FREE_DELIVERY_MINIMUM)}`
+          }
+        />
         <SummaryRow label="Items total" value={formatMoney(cart.subtotal)} strong />
       </div>
 

@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { MapPin, ShoppingBag, Store } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { buildSeoHead } from "@/lib/seo";
+import { FREE_DELIVERY_MINIMUM } from "@/lib/cart";
 
 export const Route = createFileRoute("/delivery")({
   head: () =>
@@ -33,8 +34,9 @@ function DeliveryPage() {
             <MapPin className="h-6 w-6 text-caramel" aria-hidden />
             <h2 className="mt-4 font-display text-2xl">Delivery</h2>
             <p className="mt-2 text-sm leading-7 text-foreground/70">
-              Select an available delivery location at checkout. Its delivery charge is shown in AED
-              and included in the total before the order is placed.
+              Delivery is free in Dubai, Sharjah and Ajman on orders of AED {FREE_DELIVERY_MINIMUM}{" "}
+              or more. For smaller orders, the delivery charge for your location is shown in AED and
+              included in the total before you place the order.
             </p>
           </article>
           <article className="rounded-2xl border border-gold-soft/50 bg-cream/70 p-6 shadow-glass">

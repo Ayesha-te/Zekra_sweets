@@ -18,6 +18,7 @@ import {
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { FreeDeliveryProgress } from "@/components/site/FreeDeliveryProgress";
 import { ProductRecommendations } from "@/components/products/ProductRecommendations";
 import {
   assetUrl,
@@ -411,7 +412,7 @@ function Checkout() {
                     active={form.mode === "delivery"}
                     icon={Truck}
                     title="Delivery"
-                    detail="Included delivery charges"
+                    detail={`Free on orders of ${formatMoney(FREE_DELIVERY_MINIMUM)}+`}
                     onClick={() => updateMode("delivery")}
                   />
                   <ModeButton
@@ -439,7 +440,7 @@ function Checkout() {
                       </option>
                       {deliveryLocations.map((location) => (
                         <option key={location.id} value={location.id}>
-                          {location.name} - {formatMoney(location.charge)}
+                          {location.name} - {qualifiesForFreeDelivery ? "Free delivery" : formatMoney(location.charge)}
                         </option>
                       ))}
                     </select>
@@ -457,8 +458,8 @@ function Checkout() {
                           ? "Loading..."
                           : "Select location"}
                     </div>
-                   
                   </div>
+                  <FreeDeliveryProgress subtotal={totals.subtotal} className="sm:col-span-2" />
                 </div>
               )}
 
@@ -661,6 +662,10 @@ function CheckoutSummary({
           </div>
         ))}
       </div>
+
+      {mode === "delivery" && (
+        <FreeDeliveryProgress subtotal={totals.subtotal} showShopLink={false} className="mt-5" />
+      )}
 
       <div className="mt-6 space-y-3 border-t border-gold-soft/45 pt-5 text-sm">
         <SummaryRow label="Subtotal" value={formatMoney(totals.subtotal)} />

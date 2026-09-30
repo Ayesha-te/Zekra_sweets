@@ -25,6 +25,7 @@ import { ProductCard } from "@/components/products/ProductCard";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { assetUrl, fetchReviews, productImageError, type CustomerReview } from "@/lib/api";
 import { loadProducts } from "@/lib/products";
+import { FREE_DELIVERY_MINIMUM } from "@/lib/cart";
 import { buildSeoHead, productSlug } from "@/lib/seo";
 
 export const Route = createFileRoute("/")({
@@ -99,7 +100,7 @@ function Home() {
                 <span className="text-gradient-gold">Dubai, Sharjah & Ajman</span>
               </h1>
               <p className="mt-5 max-w-2xl text-base font-bold leading-relaxed text-cream/90 sm:text-lg">
-                Free delivery • No minimum order • Cash on Delivery & Card Payment
+                Free delivery on orders of AED {FREE_DELIVERY_MINIMUM}+ • Secure card payment • Cash on pickup
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
@@ -124,16 +125,16 @@ function Home() {
       <section className="mx-auto mt-8 max-w-7xl px-4 sm:px-6" data-reveal>
         <div className="grid overflow-hidden rounded-3xl border border-gold-soft/45 bg-cream/65 sm:grid-cols-3">
           {[
-            [ShoppingBag, "Real selection", "Products and sizes come directly from the live shop."],
+            [ShoppingBag, "100% eggless", "Handmade fresh in our Ajman bakery, never mass-produced."],
             [
               Clock3,
-              "Choose your size",
-              "Review available size options before adding to your bag.",
+              "Two pack sizes",
+              "Pick 150g to try a flavour or 250g for the whole family.",
             ],
             [
               ShieldCheck,
-              "Clear checkout",
-              "Review your order and delivery details before payment.",
+              `Free delivery over AED ${FREE_DELIVERY_MINIMUM}`,
+              "Dubai, Sharjah & Ajman. Pay securely by card, or cash on pickup.",
             ],
           ].map(([Icon, title, text], index) => (
             <div
@@ -250,12 +251,16 @@ function Home() {
           <div className="mt-6 divide-y divide-gold-soft/40">
             {[
               [
-                "Where can I see available sizes?",
-                "Each current product page lists its available size options and prices.",
+                "Is delivery free?",
+                `Yes, delivery is free in Dubai, Sharjah and Ajman on orders of AED ${FREE_DELIVERY_MINIMUM} or more. Smaller orders pay a small delivery charge, shown before you pay.`,
               ],
               [
-                "Can I review my order first?",
-                "Your cart and checkout show your selected products, quantities and totals before you place the order.",
+                "How can I pay?",
+                "Delivery orders are paid securely by card online. For pickup orders you can pay by card or cash when you collect.",
+              ],
+              [
+                "Are your cookies eggless?",
+                "Yes, our cookies are 100% eggless and handmade fresh in our Ajman bakery.",
               ],
               [
                 "How can I ask about a product?",
@@ -290,7 +295,7 @@ function Home() {
             </Link>
           </div>
 
-          <div className="mt-6 grid gap-3 md:grid-cols-4">
+          <div className="mt-6 grid gap-3 md:grid-cols-4" aria-busy={!reviewsLoaded}>
             {reviewPreview.length > 0
               ? reviewPreview.map((review) => <HomeReviewCard key={review.id} review={review} />)
               : socialProofItems.map((item) => (
@@ -301,7 +306,7 @@ function Home() {
                         <item.icon className="h-3.5 w-3.5 text-primary" />
                         {item.label}
                       </div>
-                      <h3 className="mt-2 font-display text-lg leading-tight">{reviewsLoaded ? item.title : "Loading customer feedback"}</h3>
+                      <h3 className="mt-2 font-display text-lg leading-tight">{item.title}</h3>
                       <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{item.description}</p>
                     </div>
                   </article>
@@ -334,33 +339,33 @@ function HomeReviewCard({ review }: { review: CustomerReview }) {
 
 const socialProofItems = [
   {
-    label: "Feedback",
-    title: "Verified customer notes",
-    description: "Ready for genuine customer feedback collected after real Zekra orders.",
+    label: "Eggless",
+    title: "100% eggless cookies",
+    description: "Every cookie is made without eggs, so the whole family can enjoy them.",
     image: almondImg,
     alt: "Zekra Sweets almond cookies prepared for customers",
     icon: MessageCircle,
   },
   {
-    label: "Order photos",
-    title: "Fresh order moments",
-    description: "Use real packed-order and customer photos from the bakery as they become available.",
+    label: "Fresh",
+    title: "Baked fresh to order",
+    description: "Your order is prepared fresh in our bakery and packed with care.",
     image: khaariImg,
     alt: "Zekra Sweets khari puff product photo",
     icon: Camera,
   },
   {
-    label: "Media",
-    title: "Influencer and review videos",
-    description: "A premium space for authentic tasting clips, creator videos, and review media.",
+    label: "Local",
+    title: "Made in Ajman",
+    description: "A home-grown UAE bakery delivering across Dubai, Sharjah and Ajman.",
     image: interiorImg,
     alt: "Zekra Sweets bakery interior",
     icon: Video,
   },
   {
     label: "WhatsApp",
-    title: "Customer chat feedback",
-    description: "Designed for real WhatsApp feedback screenshots with customer permission.",
+    title: "Questions? Just message us",
+    description: "Chat with the bakery on WhatsApp before or after you order.",
     image: craftImg,
     alt: "Zekra Sweets bakery preparation detail",
     icon: ShieldCheck,

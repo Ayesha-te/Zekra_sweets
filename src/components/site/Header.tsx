@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu, ShoppingBag, X, Truck } from "lucide-react";
-import { formatMoney, useCart } from "@/lib/cart";
+import { FREE_DELIVERY_MINIMUM, formatMoney, useCart } from "@/lib/cart";
 import logo from "@/assets/log.png";
 
 const nav = [
@@ -23,7 +23,7 @@ export function Header() {
       <div className="mx-auto mb-2 flex min-h-8 max-w-7xl flex-col items-center justify-center gap-0.5 rounded-full border border-gold-soft/45 bg-cocoa px-4 py-1.5 text-center text-xs font-semibold leading-tight text-cream shadow-glass backdrop-blur-sm sm:flex-row sm:gap-2 sm:text-sm">
         <span className="flex items-center gap-2">
           <Truck className="h-3.5 w-3.5 shrink-0 text-gold-soft" />
-          Free delivery in Ajman, Sharjah and Dubai
+          FREE delivery in Ajman, Sharjah & Dubai on orders of AED {FREE_DELIVERY_MINIMUM}+
         </span>
         <span className="hidden text-gold-soft/60 sm:inline">|</span>
         <span>AED 15/- charges for delivery in Abu Dhabi and Northern Emirates</span>

@@ -1,3 +1,5 @@
+import { FREE_DELIVERY_MINIMUM } from "@/lib/cart";
+
 export const CATEGORY_CONTENT = {
   cookies: {
     label: "Cookies",
@@ -41,6 +43,6 @@ export const FAQ_ITEMS = [
   {
     question: "Can I choose delivery or pickup?",
     answer:
-      "The checkout currently offers delivery and pickup. Delivery locations and charges are shown during checkout before an order is placed.",
+      `Yes. Delivery is free in Dubai, Sharjah and Ajman on orders of AED ${FREE_DELIVERY_MINIMUM} or more; smaller orders pay the delivery charge shown at checkout. You can also pick up from the bakery.`,
   },
 ] as const;

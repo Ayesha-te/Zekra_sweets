@@ -43,7 +43,9 @@ export type CartTotals = {
 };
 
 const STORAGE_KEY = "zekra-sweets-cart-v1";
-export const FREE_DELIVERY_MINIMUM = 50;
+// Orders at or above this subtotal (AED) get free delivery.
+// Keep in sync with FREE_DELIVERY_MINIMUM in the backend (sweets-backend/server.js or its env).
+export const FREE_DELIVERY_MINIMUM = 25;
 const serverSnapshot: CartSnapshot = { items: [] };
 
 let cartState: CartSnapshot = { items: [] };
@@ -289,6 +291,12 @@ export function getCartTotals(items: CartItem[], deliveryCharge = 0): CartTotals
     deliveryEstimate,
     total: subtotal + deliveryEstimate,
   };
+}
+
+export function getFreeDeliveryProgress(subtotal: number) {
+  const remaining = Math.max(0, Number((FREE_DELIVERY_MINIMUM - subtotal).toFixed(2)));
+  const percent = Math.min(100, Math.max(0, (subtotal / FREE_DELIVERY_MINIMUM) * 100));
+  return { remaining, percent, qualifies: remaining <= 0 };
 }
 
 export function formatMoney(value: number) {

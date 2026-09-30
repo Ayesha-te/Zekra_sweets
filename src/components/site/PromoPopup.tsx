@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { FREE_DELIVERY_MINIMUM } from "@/lib/cart";
 
 import promoImage from "@/assets/ChatGPT Image Aug 30, 2026, 06_50_53 PM.png";
 
@@ -64,7 +65,7 @@ export function PromoPopup() {
             Limited delivery offer
           </span>
           <h2 id="delivery-promo-title" className="mt-3 font-display text-3xl leading-tight sm:text-4xl">
-            Free delivery on orders from Ajman, Dubai and Sharjah.
+            Free delivery on orders of AED {FREE_DELIVERY_MINIMUM}+ in Ajman, Dubai and Sharjah.
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-foreground/75">
             Fresh cookies, crispy puffs, and bakery favourites are just a few clicks away. Order
