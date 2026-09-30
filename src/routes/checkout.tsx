@@ -36,7 +36,7 @@ import {
   type StripeCheckoutSessionStatus,
   type ValidatedCoupon,
 } from "@/lib/api";
-import { FREE_DELIVERY_MINIMUM, cartItemKey, clearCart, formatMoney, getCartTotals, useCart } from "@/lib/cart";
+import { FREE_DELIVERY_MINIMUM, cartItemKey, clearCart, formatMoney, getCartTotals, isFreeDeliveryLocation, useCart } from "@/lib/cart";
 import { loadProducts } from "@/lib/products";
 
 export const Route = createFileRoute("/checkout")({
@@ -179,10 +179,11 @@ function Checkout() {
   const selectedPickupLocation = pickupLocations.find((location) => location.id === form.locationId);
   const locationsLoading = form.mode === "delivery" ? deliveryLocationsLoading : pickupLocationsLoading;
   const deliveryCharge = form.mode === "delivery" && selectedLocation ? selectedLocation.charge : 0;
-  const totals = getCartTotals(cart.items, deliveryCharge);
+  const locationGetsFreeDelivery = !selectedLocation || isFreeDeliveryLocation(selectedLocation);
+  const totals = getCartTotals(cart.items, deliveryCharge, locationGetsFreeDelivery);
   const discount = appliedCoupon ? roundMoney(totals.subtotal * appliedCoupon.percentageOff / 100) : 0;
   const payableTotal = roundMoney(totals.total - discount);
-  const qualifiesForFreeDelivery = totals.subtotal >= FREE_DELIVERY_MINIMUM;
+  const qualifiesForFreeDelivery = locationGetsFreeDelivery && totals.subtotal >= FREE_DELIVERY_MINIMUM;
   const submitText = submitting
     ? form.paymentMethod !== "card" ? "Placing order..." : "Opening secure payment..."
     : form.mode === "delivery" && locationsLoading
@@ -259,7 +260,11 @@ function Checkout() {
       return;
     }
 
-    const orderTotals = getCartTotals(cart.items, deliveryLocation ? deliveryLocation.charge : 0);
+    const orderTotals = getCartTotals(
+      cart.items,
+      deliveryLocation ? deliveryLocation.charge : 0,
+      !deliveryLocation || isFreeDeliveryLocation(deliveryLocation),
+    );
 
     const finalPaymentMethod = payableTotal <= 0 ? "no_payment_required" : form.paymentMethod;
     const payload: CreateOrderPayload = {
@@ -448,7 +453,7 @@ function Checkout() {
                       </option>
                       {deliveryLocations.map((location) => (
                         <option key={location.id} value={location.id}>
-                          {location.name} - {qualifiesForFreeDelivery ? "Free delivery" : formatMoney(location.charge)}
+                          {location.name} - {isFreeDeliveryLocation(location) && totals.subtotal >= FREE_DELIVERY_MINIMUM ? "Free delivery" : formatMoney(location.charge)}
                         </option>
                       ))}
                     </select>
@@ -467,7 +472,14 @@ function Checkout() {
                           : "Select location"}
                     </div>
                   </div>
-                  <FreeDeliveryProgress subtotal={totals.subtotal} className="sm:col-span-2" />
+                  {locationGetsFreeDelivery ? (
+                    <FreeDeliveryProgress subtotal={totals.subtotal} className="sm:col-span-2" />
+                  ) : (
+                    <p className="rounded-2xl border border-gold-soft/55 bg-cream/60 px-4 py-3 text-sm text-muted-foreground sm:col-span-2">
+                      Free delivery is available in Dubai, Sharjah and Ajman only. Delivery to{" "}
+                      {selectedLocation?.name} is {selectedLocation ? formatMoney(selectedLocation.charge) : ""}.
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -621,8 +633,9 @@ function CheckoutSummary({
 }) {
   const cart = useCart();
   const deliveryCharge = mode === "delivery" && selectedLocation ? selectedLocation.charge : 0;
-  const totals = getCartTotals(cart.items, deliveryCharge);
-  const qualifiesForFreeDelivery = totals.subtotal >= FREE_DELIVERY_MINIMUM;
+  const locationGetsFreeDelivery = !selectedLocation || isFreeDeliveryLocation(selectedLocation);
+  const totals = getCartTotals(cart.items, deliveryCharge, locationGetsFreeDelivery);
+  const qualifiesForFreeDelivery = locationGetsFreeDelivery && totals.subtotal >= FREE_DELIVERY_MINIMUM;
   const discount = coupon ? roundMoney(totals.subtotal * coupon.percentageOff / 100) : 0;
 
   return (
@@ -671,7 +684,7 @@ function CheckoutSummary({
         ))}
       </div>
 
-      {mode === "delivery" && (
+      {mode === "delivery" && locationGetsFreeDelivery && (
         <FreeDeliveryProgress subtotal={totals.subtotal} showShopLink={false} className="mt-5" />
       )}
 

@@ -46,6 +46,14 @@ const STORAGE_KEY = "zekra-sweets-cart-v1";
 // Orders at or above this subtotal (AED) get free delivery.
 // Keep in sync with FREE_DELIVERY_MINIMUM in the backend (sweets-backend/server.js or its env).
 export const FREE_DELIVERY_MINIMUM = 25;
+
+// Free delivery only applies in these areas; every other location always pays its charge.
+// Keep in sync with freeDeliveryAreaPattern in the backend (sweets-backend/server.js).
+const FREE_DELIVERY_AREA_PATTERN = /\b(dubai|sharjah|ajman)\b/i;
+
+export function isFreeDeliveryLocation(location?: { id?: string; name?: string } | null) {
+  return Boolean(location) && FREE_DELIVERY_AREA_PATTERN.test(`${location?.id || ""} ${location?.name || ""}`);
+}
 const serverSnapshot: CartSnapshot = { items: [] };
 
 let cartState: CartSnapshot = { items: [] };
@@ -279,11 +287,17 @@ export function clearCart() {
   commit([]);
 }
 
-export function getCartTotals(items: CartItem[], deliveryCharge = 0): CartTotals {
+export function getCartTotals(
+  items: CartItem[],
+  deliveryCharge = 0,
+  freeDeliveryEligible = true,
+): CartTotals {
   const count = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const deliveryEstimate =
-    count > 0 && subtotal < FREE_DELIVERY_MINIMUM ? Math.max(0, deliveryCharge) : 0;
+    count > 0 && (subtotal < FREE_DELIVERY_MINIMUM || !freeDeliveryEligible)
+      ? Math.max(0, deliveryCharge)
+      : 0;
 
   return {
     count,
