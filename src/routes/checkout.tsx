@@ -74,7 +74,7 @@ type CheckoutForm = {
   locationId: string;
   address: string;
   notes: string;
-  paymentMethod: "card" | "cash_on_pickup";
+  paymentMethod: "card" | "cash_on_pickup" | "cash_on_delivery";
 };
 
 type Confirmation = {
@@ -184,7 +184,7 @@ function Checkout() {
   const payableTotal = roundMoney(totals.total - discount);
   const qualifiesForFreeDelivery = totals.subtotal >= FREE_DELIVERY_MINIMUM;
   const submitText = submitting
-    ? form.paymentMethod === "cash_on_pickup" ? "Placing order..." : "Opening secure payment..."
+    ? form.paymentMethod !== "card" ? "Placing order..." : "Opening secure payment..."
     : form.mode === "delivery" && locationsLoading
       ? "Loading delivery locations..."
       : form.mode === "delivery" && !selectedLocation
@@ -195,6 +195,8 @@ function Checkout() {
           ? "Place order - No payment required"
         : form.paymentMethod === "cash_on_pickup"
           ? `Place order - Pay ${formatMoney(payableTotal)} on pickup`
+        : form.paymentMethod === "cash_on_delivery"
+          ? `Place order - Pay ${formatMoney(payableTotal)} on delivery`
           : `Pay with card - ${formatMoney(payableTotal)}`;
 
   async function applyCoupon() {
@@ -213,7 +215,13 @@ function Checkout() {
   };
 
   const updateMode = (mode: FulfillmentMode) => {
-    setForm((current) => ({ ...current, mode, locationId: "", paymentMethod: mode === "delivery" ? "card" : current.paymentMethod }));
+    setForm((current) => ({
+      ...current,
+      mode,
+      locationId: "",
+      paymentMethod:
+        current.paymentMethod === "card" ? "card" : mode === "delivery" ? "cash_on_delivery" : "cash_on_pickup",
+    }));
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -291,7 +299,7 @@ function Checkout() {
 
     setSubmitting(true);
     try {
-      if (finalPaymentMethod === "cash_on_pickup" || finalPaymentMethod === "no_payment_required") {
+      if (finalPaymentMethod !== "card") {
         const response = await createOrder(payload);
         const reference = response.id || response.orderId || response.orderNumber || response.number;
         if (!reference) throw new Error("The order was created but no reference was returned.");
@@ -497,11 +505,11 @@ function Checkout() {
 
               <div className="mt-6 rounded-3xl border border-gold-soft/55 bg-cream/60 p-4">
                 <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-caramel">Payment method</h3>
-                <div className={`mt-3 grid gap-3 ${form.mode === "pickup" ? "sm:grid-cols-2" : ""}`}>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   <ModeButton active={form.paymentMethod === "card"} icon={CreditCard} title="Card" detail="Pay securely with Stripe" onClick={() => updateField("paymentMethod", "card")} />
                   {form.mode === "pickup" && <ModeButton active={form.paymentMethod === "cash_on_pickup"} icon={Banknote} title="Cash on Pickup" detail="Pay when collecting your order" onClick={() => updateField("paymentMethod", "cash_on_pickup")} />}
+                  {form.mode === "delivery" && <ModeButton active={form.paymentMethod === "cash_on_delivery"} icon={Banknote} title="Cash on Delivery" detail="Pay the driver when your order arrives" onClick={() => updateField("paymentMethod", "cash_on_delivery")} />}
                 </div>
-                {form.mode === "delivery" && <p className="mt-3 text-xs text-muted-foreground">Delivery orders are paid by card.</p>}
               </div>
 
               <div className="mt-6 rounded-3xl border border-gold-soft/55 bg-cream/60 p-4">
@@ -778,7 +786,7 @@ function CheckoutConfirmation({ confirmation }: { confirmation: Confirmation }) 
             <CheckCircle2 className="h-9 w-9 text-primary" />
           </div>
           <span className="mt-6 inline-flex rounded-full bg-cream/70 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-caramel">
-            {confirmation.paymentStatus === "paid" ? "Payment received" : confirmation.paymentStatus === "cash_on_pickup" ? "Cash on pickup" : "Order received"}
+            {confirmation.paymentStatus === "paid" ? "Payment received" : confirmation.paymentStatus === "cash_on_pickup" ? "Cash on pickup" : confirmation.paymentStatus === "cash_on_delivery" ? "Cash on delivery" : "Order received"}
           </span>
           <h1 className="mt-4 font-display text-4xl leading-tight sm:text-5xl">
             Thank you for ordering.

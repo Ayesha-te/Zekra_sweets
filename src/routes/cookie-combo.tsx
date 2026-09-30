@@ -534,6 +534,6 @@ const faqItems = [
   },
   {
     question: "What payment methods are available?",
-    answer: "Card payment is available through Stripe. Pickup orders can also use cash on pickup.",
+    answer: "Pay securely by card online, or pay cash on delivery. Pickup orders can pay by card or cash on pickup.",
   },
 ];

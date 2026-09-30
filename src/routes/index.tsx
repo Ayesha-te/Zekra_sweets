@@ -100,7 +100,7 @@ function Home() {
                 <span className="text-gradient-gold">Dubai, Sharjah & Ajman</span>
               </h1>
               <p className="mt-5 max-w-2xl text-base font-bold leading-relaxed text-cream/90 sm:text-lg">
-                Free delivery on orders of AED {FREE_DELIVERY_MINIMUM}+ • Secure card payment • Cash on pickup
+                Free delivery on orders of AED {FREE_DELIVERY_MINIMUM}+ • Cash on Delivery & Card Payment
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
@@ -134,7 +134,7 @@ function Home() {
             [
               ShieldCheck,
               `Free delivery over AED ${FREE_DELIVERY_MINIMUM}`,
-              "Dubai, Sharjah & Ajman. Pay securely by card, or cash on pickup.",
+              "Dubai, Sharjah & Ajman. Pay by card or cash on delivery.",
             ],
           ].map(([Icon, title, text], index) => (
             <div
@@ -256,7 +256,7 @@ function Home() {
               ],
               [
                 "How can I pay?",
-                "Delivery orders are paid securely by card online. For pickup orders you can pay by card or cash when you collect.",
+                "Pay securely by card online, or pay cash to the driver when your order arrives. Pickup orders can pay by card or cash when collecting.",
               ],
               [
                 "Are your cookies eggless?",
