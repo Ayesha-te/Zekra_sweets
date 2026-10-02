@@ -36,7 +36,7 @@ import {
   type StripeCheckoutSessionStatus,
   type ValidatedCoupon,
 } from "@/lib/api";
-import { FREE_DELIVERY_MINIMUM, cartItemKey, clearCart, formatMoney, getCartTotals, isFreeDeliveryLocation, useCart } from "@/lib/cart";
+import { FREE_DELIVERY_MINIMUM, VAT_RATE, cartItemKey, clearCart, formatMoney, getCartTotals, isFreeDeliveryLocation, useCart } from "@/lib/cart";
 import { loadProducts } from "@/lib/products";
 
 export const Route = createFileRoute("/checkout")({
@@ -182,7 +182,8 @@ function Checkout() {
   const locationGetsFreeDelivery = !selectedLocation || isFreeDeliveryLocation(selectedLocation);
   const totals = getCartTotals(cart.items, deliveryCharge, locationGetsFreeDelivery);
   const discount = appliedCoupon ? roundMoney(totals.subtotal * appliedCoupon.percentageOff / 100) : 0;
-  const payableTotal = roundMoney(totals.total - discount);
+  const payableTotals = checkoutTotals(totals.subtotal, totals.deliveryEstimate, discount);
+  const payableTotal = payableTotals.total;
   const qualifiesForFreeDelivery = locationGetsFreeDelivery && totals.subtotal >= FREE_DELIVERY_MINIMUM;
   const submitText = submitting
     ? form.paymentMethod !== "card" ? "Placing order..." : "Opening secure payment..."
@@ -265,6 +266,8 @@ function Checkout() {
       deliveryLocation ? deliveryLocation.charge : 0,
       !deliveryLocation || isFreeDeliveryLocation(deliveryLocation),
     );
+    const orderDiscount = appliedCoupon ? roundMoney(orderTotals.subtotal * appliedCoupon.percentageOff / 100) : 0;
+    const finalOrderTotals = checkoutTotals(orderTotals.subtotal, orderTotals.deliveryEstimate, orderDiscount);
 
     const finalPaymentMethod = payableTotal <= 0 ? "no_payment_required" : form.paymentMethod;
     const payload: CreateOrderPayload = {
@@ -298,7 +301,8 @@ function Checkout() {
         currency: "AED",
         subtotal: roundMoney(orderTotals.subtotal),
         delivery: roundMoney(orderTotals.deliveryEstimate),
-        total: roundMoney(orderTotals.total),
+        vat: roundMoney(finalOrderTotals.vat),
+        total: roundMoney(finalOrderTotals.total),
       },
     };
 
@@ -553,8 +557,10 @@ function Checkout() {
         {cart.items.length > 0 && (
           <ProductRecommendations
             products={products}
-            title="This is one of our popular products"
-            subtitle="Quick add recommendations are shown before completing checkout."
+            title="Add one more treat?"
+            subtitle="Five random picks you can add before completing checkout."
+            count={5}
+            randomize
           />
         )}
       </section>
@@ -637,6 +643,7 @@ function CheckoutSummary({
   const totals = getCartTotals(cart.items, deliveryCharge, locationGetsFreeDelivery);
   const qualifiesForFreeDelivery = locationGetsFreeDelivery && totals.subtotal >= FREE_DELIVERY_MINIMUM;
   const discount = coupon ? roundMoney(totals.subtotal * coupon.percentageOff / 100) : 0;
+  const finalTotals = checkoutTotals(totals.subtotal, totals.deliveryEstimate, discount);
 
   return (
     <aside className="glass h-fit rounded-[2rem] p-5 lg:sticky lg:top-28" data-reveal>
@@ -709,7 +716,8 @@ function CheckoutSummary({
           }
         />
         {coupon && <SummaryRow label={`Discount (${coupon.code}, ${coupon.percentageOff}%)`} value={`-${formatMoney(discount)}`} />}
-        <SummaryRow label="Total" value={formatMoney(totals.total - discount)} strong />
+        <SummaryRow label="VAT (5%)" value={formatMoney(finalTotals.vat)} />
+        <SummaryRow label="Final total" value={formatMoney(finalTotals.total)} strong />
       </div>
     </aside>
   );
@@ -866,6 +874,16 @@ function normalizeFulfillmentMode(value: string | null | undefined): Fulfillment
 
 function roundMoney(value: number) {
   return Number(value.toFixed(2));
+}
+
+function checkoutTotals(subtotal: number, delivery: number, discount = 0) {
+  const taxableTotal = Math.max(0, roundMoney(subtotal - discount + delivery));
+  const vat = roundMoney(taxableTotal * VAT_RATE);
+  return {
+    taxableTotal,
+    vat,
+    total: roundMoney(taxableTotal + vat),
+  };
 }
 
 const META_PURCHASE_TRACKED_KEY = "zekra_meta_purchase_tracked";

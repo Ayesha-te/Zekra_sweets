@@ -9,17 +9,21 @@ export function ProductRecommendations({
   products,
   title = "You may also like this",
   subtitle = "Popular picks customers often add before checkout.",
+  count = 4,
+  randomize = false,
 }: {
   products: Product[];
   title?: string;
   subtitle?: string;
+  count?: number;
+  randomize?: boolean;
 }) {
   const cart = useCart();
-  const cartIds = new Set(cart.items.map((item) => item.product.id.replace(/-combo-gift$/, "")));
-  const recommended = products
-    .filter((product) => product.isActive !== false && !cartIds.has(product.id))
-    .sort((a, b) => scoreProduct(b) - scoreProduct(a))
-    .slice(0, 4);
+  const recommended = useMemo(() => {
+    const cartIds = new Set(cart.items.map((item) => item.product.id.replace(/-combo-gift$/, "")));
+    const candidates = products.filter((product) => product.isActive !== false && !cartIds.has(product.id));
+    return (randomize ? shuffleProducts(candidates) : candidates.sort((a, b) => scoreProduct(b) - scoreProduct(a))).slice(0, count);
+  }, [products, cart.items, count, randomize]);
 
   if (recommended.length === 0) return null;
 
@@ -39,6 +43,13 @@ export function ProductRecommendations({
       </div>
     </section>
   );
+}
+
+function shuffleProducts(products: Product[]) {
+  return products
+    .map((product) => ({ product, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ product }) => product);
 }
 
 function RecommendationCard({ product }: { product: Product }) {

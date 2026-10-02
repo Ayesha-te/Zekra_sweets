@@ -46,6 +46,7 @@ const STORAGE_KEY = "zekra-sweets-cart-v1";
 // Orders at or above this subtotal (AED) get free delivery.
 // Keep in sync with FREE_DELIVERY_MINIMUM in the backend (sweets-backend/server.js or its env).
 export const FREE_DELIVERY_MINIMUM = 25;
+export const VAT_RATE = 0.05;
 
 // Free delivery only applies in these areas; every other location always pays its charge.
 // Keep in sync with freeDeliveryAreaPattern in the backend (sweets-backend/server.js).
@@ -298,12 +299,11 @@ export function getCartTotals(
     count > 0 && (subtotal < FREE_DELIVERY_MINIMUM || !freeDeliveryEligible)
       ? Math.max(0, deliveryCharge)
       : 0;
-
   return {
     count,
     subtotal,
     deliveryEstimate,
-    total: subtotal + deliveryEstimate,
+    total: Number((subtotal + deliveryEstimate).toFixed(2)),
   };
 }
 
