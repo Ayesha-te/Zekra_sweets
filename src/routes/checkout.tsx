@@ -558,7 +558,6 @@ function Checkout() {
           <ProductRecommendations
             products={products}
             title="Add one more treat?"
-            subtitle="Five random picks you can add before completing checkout."
             count={5}
             randomize
           />

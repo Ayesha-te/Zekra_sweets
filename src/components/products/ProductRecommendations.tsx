@@ -8,13 +8,11 @@ import { productDisplayName, productDisplayPrice, productSizeOptions } from "@/l
 export function ProductRecommendations({
   products,
   title = "You may also like this",
-  subtitle = "Popular picks customers often add before checkout.",
   count = 4,
   randomize = false,
 }: {
   products: Product[];
   title?: string;
-  subtitle?: string;
   count?: number;
   randomize?: boolean;
 }) {
@@ -34,9 +32,8 @@ export function ProductRecommendations({
           <span className="text-xs uppercase tracking-[0.24em] text-caramel">Add this to your order</span>
           <h2 className="mt-1 font-display text-2xl">{title}</h2>
         </div>
-        <p className="max-w-sm text-sm text-muted-foreground">{subtitle}</p>
       </div>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {recommended.map((product) => (
           <RecommendationCard key={product.id} product={product} />
         ))}
@@ -72,41 +69,43 @@ function RecommendationCard({ product }: { product: Product }) {
   };
 
   return (
-    <article className="grid grid-cols-[72px_minmax(0,1fr)] gap-3 rounded-2xl border border-gold-soft/45 bg-cream p-3">
+    <article className="grid min-h-[192px] grid-cols-[72px_minmax(0,1fr)] items-stretch gap-3 rounded-2xl border border-gold-soft/45 bg-cream p-3">
       <img
         src={assetUrl(product.imageUrl)}
         onError={productImageError}
         alt={product.imageAlt || product.name}
-        className="h-[72px] w-[72px] rounded-xl object-cover"
+        className="h-[72px] w-[72px] self-start rounded-xl object-cover"
       />
-      <div className="min-w-0">
-        <div className="truncate font-display text-base leading-tight">{productDisplayName(product)}</div>
-        <div className="mt-1 text-xs font-semibold text-caramel">Popular product</div>
-        {sizes.length > 1 && (
-          <select
-            value={sizeKey}
-            onChange={(event) => setSizeKey(event.target.value)}
-            className="mt-2 min-h-9 w-full rounded-xl border border-border bg-cream px-2 text-xs font-semibold outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-          >
-            {sizes.map((option) => (
-              <option key={optionKey(option)} value={optionKey(option)}>
-                {option.label} - {formatMoney(option.price)}
-              </option>
-            ))}
-          </select>
-        )}
+      <div className="flex min-h-full min-w-0 flex-col">
+        <div className="line-clamp-2 min-h-10 font-display text-base leading-tight">{productDisplayName(product)}</div>
+        <div className="mt-1 min-h-4 text-xs font-semibold text-caramel">Popular product</div>
+        <div className="mt-2 min-h-9">
+          {sizes.length > 1 && (
+            <select
+              value={sizeKey}
+              onChange={(event) => setSizeKey(event.target.value)}
+              className="min-h-9 w-full rounded-xl border border-border bg-cream px-2 text-xs font-semibold outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+            >
+              {sizes.map((option) => (
+                <option key={optionKey(option)} value={optionKey(option)}>
+                  {option.label} - {formatMoney(option.price)}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
         <button
           type="button"
           onClick={add}
-          className="mt-2 inline-flex min-h-9 w-full items-center justify-center gap-1.5 rounded-xl bg-cocoa px-3 text-xs font-bold text-cream hover:bg-cocoa/90"
+          className="mt-auto inline-flex min-h-9 w-full items-center justify-center gap-1.5 rounded-xl bg-cocoa px-3 text-xs font-bold text-cream hover:bg-cocoa/90"
         >
           {added ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
           {added ? "Added" : formatMoney(size.price)}
         </button>
+        <span className="sr-only" aria-live="polite">
+          {added ? `${product.name} added to bag as ${cartItemKey({ ...product, sizeId: size.id, sizeLabel: size.label })}` : ""}
+        </span>
       </div>
-      <span className="sr-only" aria-live="polite">
-        {added ? `${product.name} added to bag as ${cartItemKey({ ...product, sizeId: size.id, sizeLabel: size.label })}` : ""}
-      </span>
     </article>
   );
 }
