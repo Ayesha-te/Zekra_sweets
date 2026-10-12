@@ -22,6 +22,8 @@ export type Product = {
   }>;
   preparationHours?: number;
   makingInfo?: string;
+  preOrderDays?: number;
+  preOrderInfo?: string;
   tag?: string;
   description?: string;
   urlSlug?: string;

@@ -85,6 +85,11 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
         <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-caramel">
           {product.category}
         </div>
+        {Number(product.preOrderDays) > 0 && (
+          <div className="mt-1 text-[11px] font-semibold text-primary">
+            Pre-order {product.preOrderDays} {Number(product.preOrderDays) === 1 ? "day" : "days"} before
+          </div>
+        )}
         <Link
           to="/products/$slug"
           params={{ slug: productSlug(product) }}
