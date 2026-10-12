@@ -21,6 +21,7 @@ export type Product = {
     unitPrice: number;
   }>;
   preparationHours?: number;
+  makingInfo?: string;
   tag?: string;
   description?: string;
   urlSlug?: string;

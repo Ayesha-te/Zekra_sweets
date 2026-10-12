@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound, redirect, useNavigate } from "@tanstack/react-router";
+import { MakingTimeNotice } from "@/components/products/MakingTimeNotice";
 import { ArrowLeft, Check, MessageCircle, Minus, Plus, ShoppingBag } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -223,6 +224,8 @@ function ProductPage() {
                 </span>
               )}
             </div>
+
+            <MakingTimeNotice products={[product]} className="mt-5" />
 
             {!product.isComboPack && <fieldset className="mt-6 min-w-0">
               <legend className="text-xs font-semibold uppercase tracking-[0.2em] text-caramel">

@@ -20,6 +20,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { FreeDeliveryProgress } from "@/components/site/FreeDeliveryProgress";
 import { ProductRecommendations } from "@/components/products/ProductRecommendations";
+import { MakingTimeNotice } from "@/components/products/MakingTimeNotice";
 import {
   assetUrl,
   productImageError,
@@ -33,6 +34,7 @@ import {
   type DeliveryLocation,
   type FulfillmentMode,
   type PickupLocation,
+  type Product,
   type StripeCheckoutSessionStatus,
   type ValidatedCoupon,
 } from "@/lib/api";
@@ -551,7 +553,7 @@ function Checkout() {
               </button>
             </form>
 
-            <CheckoutSummary mode={form.mode} selectedLocation={selectedLocation} coupon={appliedCoupon} />
+            <CheckoutSummary mode={form.mode} selectedLocation={selectedLocation} coupon={appliedCoupon} products={products} />
           </div>
         )}
         {cart.items.length > 0 && (
@@ -631,10 +633,12 @@ function CheckoutSummary({
   mode,
   selectedLocation,
   coupon,
+  products,
 }: {
   mode: FulfillmentMode;
   selectedLocation?: DeliveryLocation;
   coupon: ValidatedCoupon | null;
+  products: Product[];
 }) {
   const cart = useCart();
   const deliveryCharge = mode === "delivery" && selectedLocation ? selectedLocation.charge : 0;
@@ -693,6 +697,11 @@ function CheckoutSummary({
       {mode === "delivery" && locationGetsFreeDelivery && (
         <FreeDeliveryProgress subtotal={totals.subtotal} showShopLink={false} className="mt-5" />
       )}
+
+      <MakingTimeNotice
+        products={cart.items.map((item) => products.find((product) => product.id === item.product.id))}
+        className="mt-5"
+      />
 
       <div className="mt-6 space-y-3 border-t border-gold-soft/45 pt-5 text-sm">
         <SummaryRow label="Subtotal" value={formatMoney(totals.subtotal)} />

@@ -4,7 +4,8 @@ import { ArrowLeft, ArrowRight, Minus, Plus, ShoppingBag, Trash2, X } from "luci
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { FreeDeliveryProgress } from "@/components/site/FreeDeliveryProgress";
 import { ProductRecommendations } from "@/components/products/ProductRecommendations";
-import { assetUrl, productImageError } from "@/lib/api";
+import { MakingTimeNotice } from "@/components/products/MakingTimeNotice";
+import { assetUrl, productImageError, type Product } from "@/lib/api";
 import {
   FREE_DELIVERY_MINIMUM,
   cartItemKey,
@@ -97,7 +98,7 @@ function Cart() {
               </div>
             </div>
 
-            <CartTotals />
+            <CartTotals products={products} />
           </div>
         )}
         {cart.items.length > 0 && (
@@ -196,7 +197,7 @@ function CartItemRow({ item }: { item: CartItem }) {
   );
 }
 
-function CartTotals() {
+function CartTotals({ products }: { products: Product[] }) {
   const cart = useCart();
 
   return (
@@ -212,6 +213,11 @@ function CartTotals() {
       </div>
 
       <FreeDeliveryProgress subtotal={cart.subtotal} className="mt-5" />
+
+      <MakingTimeNotice
+        products={cart.items.map((item) => products.find((product) => product.id === item.product.id))}
+        className="mt-4"
+      />
 
       <div className="mt-6 space-y-3 text-sm">
         <SummaryRow label="Subtotal" value={formatMoney(cart.subtotal)} />
