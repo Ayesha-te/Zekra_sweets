@@ -156,12 +156,51 @@ function normalizeItems(value: unknown): CartItem[] {
     .filter((item): item is CartItem => Boolean(item));
 }
 
+function readCookie(name: string): string | null {
+  if (!isBrowser()) return null;
+  try {
+    const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+    return match ? decodeURIComponent(match[1]) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCookie(name: string, value: string, days = 30) {
+  if (!isBrowser()) return;
+  try {
+    const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+  } catch {
+    // Cookies unavailable too - nothing more we can do.
+  }
+}
+
+function clearCookie(name: string) {
+  if (!isBrowser()) return;
+  try {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+  } catch {
+    // ignore
+  }
+}
+
+// Some in-app browsers (Instagram/WhatsApp/Facebook webviews) clear or partition
+// localStorage between page loads, which made the cart appear empty after items
+// were added. A first-party cookie backs the cart up so it survives that.
 function readStorage(): CartSnapshot {
   if (!isBrowser()) return { items: [] };
 
+  let raw: string | null = null;
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { items: [] };
+    raw = window.localStorage.getItem(STORAGE_KEY);
+  } catch {
+    raw = null;
+  }
+  if (!raw) raw = readCookie(STORAGE_KEY);
+  if (!raw) return { items: [] };
+
+  try {
     const parsed = JSON.parse(raw) as Partial<CartSnapshot>;
     return { items: normalizeItems(parsed.items) };
   } catch {
@@ -171,15 +210,22 @@ function readStorage(): CartSnapshot {
 
 function writeStorage(snapshot: CartSnapshot) {
   if (!isBrowser()) return;
+  const payload = JSON.stringify(snapshot);
 
   try {
     if (snapshot.items.length === 0) {
       window.localStorage.removeItem(STORAGE_KEY);
     } else {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+      window.localStorage.setItem(STORAGE_KEY, payload);
     }
   } catch {
-    // Cart actions should keep working even when storage is unavailable.
+    // Cart actions should keep working even when localStorage is unavailable.
+  }
+
+  if (snapshot.items.length === 0) {
+    clearCookie(STORAGE_KEY);
+  } else {
+    writeCookie(STORAGE_KEY, payload);
   }
 }
 
