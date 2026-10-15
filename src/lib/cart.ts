@@ -45,12 +45,24 @@ export type CartTotals = {
 const STORAGE_KEY = "zekra-sweets-cart-v1";
 // Orders at or above this subtotal (AED) get free delivery.
 // Keep in sync with FREE_DELIVERY_MINIMUM in the backend (sweets-backend/server.js or its env).
-export const FREE_DELIVERY_MINIMUM = 25;
+export const FREE_DELIVERY_MINIMUM = 35;
 export const VAT_RATE = 0.05;
 
 // Free delivery only applies in these areas; every other location always pays its charge.
 // Keep in sync with freeDeliveryAreaPattern in the backend (sweets-backend/server.js).
 const FREE_DELIVERY_AREA_PATTERN = /\b(dubai|sharjah|ajman)\b/i;
+
+// Delivery is not offered in these areas. Keep in sync with unavailableDeliveryAreaPattern in the backend.
+const UNAVAILABLE_DELIVERY_AREA_PATTERN = /(abu[\s-]*dhabi|northern[\s-]*emirates?)/i;
+export const DELIVERY_UNAVAILABLE_MESSAGE =
+  "We are currently unavailable in this area for delivery. Please select another location.";
+
+export function isDeliveryUnavailableLocation(location?: { id?: string; name?: string } | null) {
+  return Boolean(location) && UNAVAILABLE_DELIVERY_AREA_PATTERN.test(`${location?.id || ""} ${location?.name || ""}`);
+}
+
+// Extra charge added to the bill for cash on delivery. Keep in sync with codCharge in the backend.
+export const COD_CHARGE = 10;
 
 export function isFreeDeliveryLocation(location?: { id?: string; name?: string } | null) {
   return Boolean(location) && FREE_DELIVERY_AREA_PATTERN.test(`${location?.id || ""} ${location?.name || ""}`);

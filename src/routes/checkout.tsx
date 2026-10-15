@@ -38,7 +38,7 @@ import {
   type StripeCheckoutSessionStatus,
   type ValidatedCoupon,
 } from "@/lib/api";
-import { FREE_DELIVERY_MINIMUM, VAT_RATE, cartItemKey, clearCart, formatMoney, getCartTotals, isFreeDeliveryLocation, useCart } from "@/lib/cart";
+import { COD_CHARGE, DELIVERY_UNAVAILABLE_MESSAGE, FREE_DELIVERY_MINIMUM, VAT_RATE, isDeliveryUnavailableLocation, cartItemKey, clearCart, formatMoney, getCartTotals, isFreeDeliveryLocation, useCart } from "@/lib/cart";
 import { loadProducts } from "@/lib/products";
 
 export const Route = createFileRoute("/checkout")({
@@ -183,8 +183,10 @@ function Checkout() {
   const deliveryCharge = form.mode === "delivery" && selectedLocation ? selectedLocation.charge : 0;
   const locationGetsFreeDelivery = !selectedLocation || isFreeDeliveryLocation(selectedLocation);
   const totals = getCartTotals(cart.items, deliveryCharge, locationGetsFreeDelivery);
+  const deliveryUnavailable = form.mode === "delivery" && isDeliveryUnavailableLocation(selectedLocation);
+  const codFee = form.mode === "delivery" && form.paymentMethod === "cash_on_delivery" ? COD_CHARGE : 0;
   const discount = appliedCoupon ? roundMoney(totals.subtotal * appliedCoupon.percentageOff / 100) : 0;
-  const payableTotals = checkoutTotals(totals.subtotal, totals.deliveryEstimate, discount);
+  const payableTotals = checkoutTotals(totals.subtotal, totals.deliveryEstimate + codFee, discount);
   const payableTotal = payableTotals.total;
   const qualifiesForFreeDelivery = locationGetsFreeDelivery && totals.subtotal >= FREE_DELIVERY_MINIMUM;
   const submitText = submitting
@@ -254,6 +256,11 @@ function Checkout() {
       return;
     }
 
+    if (form.mode === "delivery" && isDeliveryUnavailableLocation(deliveryLocation)) {
+      setError(DELIVERY_UNAVAILABLE_MESSAGE);
+      return;
+    }
+
     if (form.mode === "delivery" && !form.address.trim()) {
       setError("Please add a delivery address or switch to pickup.");
       return;
@@ -269,7 +276,8 @@ function Checkout() {
       !deliveryLocation || isFreeDeliveryLocation(deliveryLocation),
     );
     const orderDiscount = appliedCoupon ? roundMoney(orderTotals.subtotal * appliedCoupon.percentageOff / 100) : 0;
-    const finalOrderTotals = checkoutTotals(orderTotals.subtotal, orderTotals.deliveryEstimate, orderDiscount);
+    const orderCodFee = deliveryLocation && form.paymentMethod === "cash_on_delivery" ? COD_CHARGE : 0;
+    const finalOrderTotals = checkoutTotals(orderTotals.subtotal, orderTotals.deliveryEstimate + orderCodFee, orderDiscount);
 
     const finalPaymentMethod = payableTotal <= 0 ? "no_payment_required" : form.paymentMethod;
     const payload: CreateOrderPayload = {
@@ -303,6 +311,7 @@ function Checkout() {
         currency: "AED",
         subtotal: roundMoney(orderTotals.subtotal),
         delivery: roundMoney(orderTotals.deliveryEstimate),
+        ...(orderCodFee > 0 ? { codCharge: orderCodFee } : {}),
         vat: roundMoney(finalOrderTotals.vat),
         total: roundMoney(finalOrderTotals.total),
       },
@@ -478,7 +487,12 @@ function Checkout() {
                           : "Select location"}
                     </div>
                   </div>
-                  {locationGetsFreeDelivery ? (
+                  {deliveryUnavailable ? (
+                    <p role="alert" className="flex gap-3 rounded-2xl border border-destructive/25 bg-destructive/5 px-4 py-3 text-sm text-destructive sm:col-span-2">
+                      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span>{DELIVERY_UNAVAILABLE_MESSAGE}</span>
+                    </p>
+                  ) : locationGetsFreeDelivery ? (
                     <FreeDeliveryProgress subtotal={totals.subtotal} className="sm:col-span-2" />
                   ) : (
                     <p className="rounded-2xl border border-gold-soft/55 bg-cream/60 px-4 py-3 text-sm text-muted-foreground sm:col-span-2">
@@ -545,7 +559,7 @@ function Checkout() {
 
               <button
                 type="submit"
-                disabled={submitting || locationsLoading}
+                disabled={submitting || locationsLoading || deliveryUnavailable}
                 className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-gold px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 disabled:pointer-events-none disabled:opacity-60"
               >
                 <CreditCard className="h-4 w-4" />
@@ -553,7 +567,7 @@ function Checkout() {
               </button>
             </form>
 
-            <CheckoutSummary mode={form.mode} selectedLocation={selectedLocation} coupon={appliedCoupon} products={products} />
+            <CheckoutSummary mode={form.mode} selectedLocation={selectedLocation} coupon={appliedCoupon} products={products} codFee={codFee} />
           </div>
         )}
         {cart.items.length > 0 && (
@@ -634,7 +648,9 @@ function CheckoutSummary({
   selectedLocation,
   coupon,
   products,
+  codFee = 0,
 }: {
+  codFee?: number;
   mode: FulfillmentMode;
   selectedLocation?: DeliveryLocation;
   coupon: ValidatedCoupon | null;
@@ -646,7 +662,7 @@ function CheckoutSummary({
   const totals = getCartTotals(cart.items, deliveryCharge, locationGetsFreeDelivery);
   const qualifiesForFreeDelivery = locationGetsFreeDelivery && totals.subtotal >= FREE_DELIVERY_MINIMUM;
   const discount = coupon ? roundMoney(totals.subtotal * coupon.percentageOff / 100) : 0;
-  const finalTotals = checkoutTotals(totals.subtotal, totals.deliveryEstimate, discount);
+  const finalTotals = checkoutTotals(totals.subtotal, totals.deliveryEstimate + codFee, discount);
 
   return (
     <aside className="glass h-fit rounded-[2rem] p-5 lg:sticky lg:top-28" data-reveal>
@@ -723,6 +739,7 @@ function CheckoutSummary({
               : "AED 0.00"
           }
         />
+        {codFee > 0 && <SummaryRow label="Cash on delivery charge" value={formatMoney(codFee)} />}
         {coupon && <SummaryRow label={`Discount (${coupon.code}, ${coupon.percentageOff}%)`} value={`-${formatMoney(discount)}`} />}
         <SummaryRow label="VAT (5%)" value={formatMoney(finalTotals.vat)} />
         <SummaryRow label="Final total" value={formatMoney(finalTotals.total)} strong />

@@ -25,8 +25,6 @@ export function Header() {
           <Truck className="h-3.5 w-3.5 shrink-0 text-gold-soft" />
           FREE delivery in Ajman, Sharjah & Dubai on orders of AED {FREE_DELIVERY_MINIMUM}+
         </span>
-        <span className="hidden text-gold-soft/60 sm:inline">|</span>
-        <span>AED 15/- charges for delivery in Abu Dhabi and Northern Emirates</span>
       </div>
 
       <div className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-gold-soft/55 bg-cream/82 px-5 py-3.5 shadow-glass backdrop-blur-sm transition-shadow duration-200 sm:px-6">

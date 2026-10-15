@@ -170,6 +170,7 @@ export type CreateOrderPayload = {
     currency: "AED";
     subtotal: number;
     delivery: number;
+    codCharge?: number;
     vat?: number;
     total: number;
   };
@@ -274,6 +275,7 @@ export type CustomerOrderHistoryItem = {
     currency?: string;
     subtotal: number;
     deliveryFee: number;
+    codCharge?: number;
     vat?: number;
     total: number;
   };
