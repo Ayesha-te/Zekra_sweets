@@ -396,6 +396,9 @@ function OrderHistoryCard({
           <span>
             Delivery {formatHistoryMoney(order.totals.deliveryFee, order.totals.currency)}
           </span>
+          {Number(order.totals.serviceFee) > 0 && (
+            <span>Service fee {formatHistoryMoney(Number(order.totals.serviceFee), order.totals.currency)}</span>
+          )}
           {Number(order.totals.codCharge) > 0 && (
             <span>COD charge {formatHistoryMoney(Number(order.totals.codCharge), order.totals.currency)}</span>
           )}

@@ -171,6 +171,7 @@ export type CreateOrderPayload = {
     subtotal: number;
     delivery: number;
     codCharge?: number;
+    serviceFee?: number;
     vat?: number;
     total: number;
   };
@@ -276,6 +277,7 @@ export type CustomerOrderHistoryItem = {
     subtotal: number;
     deliveryFee: number;
     codCharge?: number;
+    serviceFee?: number;
     vat?: number;
     total: number;
   };

@@ -38,7 +38,7 @@ import {
   type StripeCheckoutSessionStatus,
   type ValidatedCoupon,
 } from "@/lib/api";
-import { COD_CHARGE, DELIVERY_UNAVAILABLE_MESSAGE, FREE_DELIVERY_MINIMUM, VAT_RATE, isDeliveryUnavailableLocation, cartItemKey, clearCart, formatMoney, getCartTotals, isFreeDeliveryLocation, useCart } from "@/lib/cart";
+import { COD_CHARGE, DELIVERY_UNAVAILABLE_MESSAGE, SERVICE_FEE, FREE_DELIVERY_MINIMUM, VAT_RATE, isDeliveryUnavailableLocation, cartItemKey, clearCart, formatMoney, getCartTotals, isFreeDeliveryLocation, useCart } from "@/lib/cart";
 import { loadProducts } from "@/lib/products";
 
 export const Route = createFileRoute("/checkout")({
@@ -739,6 +739,7 @@ function CheckoutSummary({
               : "AED 0.00"
           }
         />
+        <SummaryRow label="Service fee" value={formatMoney(SERVICE_FEE)} />
         {codFee > 0 && <SummaryRow label="Cash on delivery charge" value={formatMoney(codFee)} />}
         {coupon && <SummaryRow label={`Discount (${coupon.code}, ${coupon.percentageOff}%)`} value={`-${formatMoney(discount)}`} />}
         <SummaryRow label="VAT (5%)" value={formatMoney(finalTotals.vat)} />
@@ -902,7 +903,7 @@ function roundMoney(value: number) {
 }
 
 function checkoutTotals(subtotal: number, delivery: number, discount = 0) {
-  const taxableTotal = Math.max(0, roundMoney(subtotal - discount + delivery));
+  const taxableTotal = Math.max(0, roundMoney(subtotal - discount + delivery + SERVICE_FEE));
   const vat = roundMoney(taxableTotal * VAT_RATE);
   return {
     taxableTotal,
