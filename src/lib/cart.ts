@@ -203,6 +203,39 @@ function clearCookie(name: string) {
 // Some in-app browsers (Instagram/WhatsApp/Facebook webviews) clear or partition
 // localStorage between page loads, which made the cart appear empty after items
 // were added. A first-party cookie backs the cart up so it survives that.
+// The free Khaari Puff packet is only valid while the combo that earned it is still in the cart.
+// It must not be left behind when the combo is removed, and its quantity can never exceed the
+// number of combos in the cart (otherwise customers could raise the free packets themselves).
+const COMBO_ITEM_ID = "cookie-combo";
+
+function enforceFreeGiftRules(items: CartItem[]): CartItem[] {
+  if (!items.some((item) => item.product.isFreeGift)) return items;
+
+  const comboQuantity = items
+    .filter((item) => !item.product.isFreeGift && item.product.id === COMBO_ITEM_ID)
+    .reduce((sum, item) => sum + item.quantity, 0);
+  // The "build your box" builder on /products adds 3 separate cookie packs plus the gift.
+  const looseCookieQuantity = items
+    .filter(
+      (item) =>
+        !item.product.isFreeGift &&
+        item.product.id !== COMBO_ITEM_ID &&
+        String(item.product.category || "").toLowerCase() === "cookies",
+    )
+    .reduce((sum, item) => sum + item.quantity, 0);
+
+  let giftsAllowed = comboQuantity + Math.floor(looseCookieQuantity / 3);
+
+  return items
+    .map((item) => {
+      if (!item.product.isFreeGift) return item;
+      const quantity = Math.min(item.quantity, giftsAllowed);
+      giftsAllowed -= quantity;
+      return { ...item, quantity };
+    })
+    .filter((item) => item.quantity > 0);
+}
+
 function readStorage(): CartSnapshot {
   if (!isBrowser()) return { items: [] };
 
@@ -217,7 +250,7 @@ function readStorage(): CartSnapshot {
 
   try {
     const parsed = JSON.parse(raw) as Partial<CartSnapshot>;
-    return { items: normalizeItems(parsed.items) };
+    return { items: enforceFreeGiftRules(normalizeItems(parsed.items)) };
   } catch {
     return { items: [] };
   }
@@ -286,7 +319,7 @@ function getServerSnapshot() {
 }
 
 function commit(items: CartItem[]) {
-  cartState = { items: items.filter((item) => item.quantity > 0) };
+  cartState = { items: enforceFreeGiftRules(items.filter((item) => item.quantity > 0)) };
   loadedFromStorage = true;
   writeStorage(cartState);
   emit();

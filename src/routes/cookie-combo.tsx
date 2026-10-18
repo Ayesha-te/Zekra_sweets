@@ -66,7 +66,21 @@ function CookieComboLanding() {
   });
   const selectedNames = selectedItems.map((item) => item.name);
   const comboTotal = roundMoney(selectedItems.reduce((sum, item) => sum + item.unitPrice, 0));
-  const comboPriceLabel = selectedItems.length === COMBO_REQUIRED_SELECTIONS ? formatMoney(comboTotal) : "Calculated from your 3 choices";
+  // Lowest possible combo price (3 cheapest cookie packs) so visitors see a price before choosing.
+  const cheapestComboTotal = useMemo(() => {
+    const cheapest = cookies
+      .map((cookie) => Math.min(...sizeOptionsFor(cookie).map((size) => size.price)))
+      .filter((price) => Number.isFinite(price))
+      .sort((a, b) => a - b)
+      .slice(0, COMBO_REQUIRED_SELECTIONS);
+    return cheapest.length === COMBO_REQUIRED_SELECTIONS ? roundMoney(cheapest.reduce((sum, price) => sum + price, 0)) : null;
+  }, [cookies]);
+  const comboPriceLabel =
+    selectedItems.length === COMBO_REQUIRED_SELECTIONS
+      ? formatMoney(comboTotal)
+      : cheapestComboTotal !== null
+        ? `From ${formatMoney(cheapestComboTotal)}`
+        : "Calculated from your 3 choices";
   const heroImages = [...selections, ...cookies].slice(0, 3);
   const recommended = useMemo(() => recommendedProducts(products, new Set([COMBO_PRODUCT_ID, ...selectedIds])), [products, selectedIds]);
   const upsells = useMemo(() => upsellProducts(products, new Set([COMBO_PRODUCT_ID, ...selectedIds])), [products, selectedIds]);
@@ -314,6 +328,13 @@ function CookieComboLanding() {
             <div>
               <div className="text-sm font-bold">{selectedNames.length ? selectedNames.join(", ") : "Choose 3 flavours to continue"}</div>
               <p className="mt-1 text-xs text-muted-foreground">Combo total is the sum of your selected cookie variants and includes a free Khari Puff packet.</p>
+              {selectedIds.length === COMBO_REQUIRED_SELECTIONS && (
+                <p className="mt-2 text-xs font-bold text-primary">
+                  {comboTotal >= FREE_DELIVERY_MINIMUM
+                    ? "This combo qualifies for FREE delivery in Dubai, Sharjah & Ajman."
+                    : `Add ${formatMoney(roundMoney(FREE_DELIVERY_MINIMUM - comboTotal))} more (for example a 250g pack or an extra snack) to get FREE delivery in Dubai, Sharjah & Ajman. Otherwise delivery is charged at checkout.`}
+                </p>
+              )}
             </div>
             <button type="button" onClick={addCombo} disabled={selectedIds.length !== COMBO_REQUIRED_SELECTIONS} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-gradient-gold px-6 text-sm font-extrabold text-primary-foreground shadow-glow disabled:cursor-not-allowed disabled:opacity-50">
               {added ? <Check className="h-4 w-4" /> : <ShoppingBag className="h-4 w-4" />}
