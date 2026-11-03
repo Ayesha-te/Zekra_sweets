@@ -63,13 +63,13 @@ export function PromoPopup() {
         </div>
         <div className="flex flex-col justify-center p-6 sm:p-8">
           <span className="text-xs font-bold uppercase tracking-[0.24em] text-caramel">
-            Limited-time Diwali offer
+            Limited-time Diwali offer - 100% Eggless
           </span>
           <h2 id="delivery-promo-title" className="mt-3 font-display text-3xl leading-tight sm:text-4xl">
             Buy 1, Get 1 Free on every product.
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-foreground/75">
-            Valid till {DIWALI_OFFER_END_LABEL}. Pick any product, choose the quantity, and the same
+            All our cookies are 100% eggless. Valid till {DIWALI_OFFER_END_LABEL}. Pick any product, choose the quantity, and the same
             quantity comes free. Free delivery on orders of AED {FREE_DELIVERY_MINIMUM}+ in Ajman,
             Dubai and Sharjah.
           </p>

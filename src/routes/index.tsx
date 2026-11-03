@@ -93,10 +93,10 @@ function Home() {
           <div className="relative z-10 flex items-end p-6 pb-10 text-cream sm:p-10 lg:p-14">
             <div className="max-w-3xl">
               <span className="inline-flex items-center gap-2 rounded-full border border-cream/20 bg-cocoa/35 px-4 py-2 text-xs font-medium text-gold-soft backdrop-blur-sm">
-                <Sparkles className="h-3.5 w-3.5" /> Handmade cookies & traditional sweets
+                <Sparkles className="h-3.5 w-3.5" /> 100% Eggless handmade cookies & traditional sweets
               </span>
               <h1 className="mt-5 font-display text-5xl font-extrabold leading-[0.92] sm:text-7xl lg:text-8xl">
-                Fresh Handmade Cookies & Sweets, Delivered Across{" "}
+                Fresh <span className="text-gradient-gold">100% Eggless</span> Handmade Cookies & Sweets, Delivered Across{" "}
                 <span className="text-gradient-gold">Dubai, Sharjah & Ajman</span>
               </h1>
               <p className="mt-5 max-w-2xl text-base font-bold leading-relaxed text-cream/90 sm:text-lg">
