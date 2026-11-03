@@ -64,13 +64,23 @@ export function productDisplayOriginalPrice(product: Product) {
   return lowestSize.originalPrice ?? null;
 }
 
+// Magic Fries snacks always come after our own bakery products on every page (same order otherwise).
+function isMagicFries(product: Product) {
+  return /magic\s*fries/i.test(`${product.name} ${product.displayName || ""}`);
+}
+
+function withSnacksLast(products: Product[]) {
+  return [...products.filter((product) => !isMagicFries(product)), ...products.filter(isMagicFries)];
+}
+
 export async function loadProducts() {
   if (cachedProducts && Date.now() < productsCacheExpiresAt) return cachedProducts;
   if (pendingProducts) return pendingProducts;
 
   pendingProducts = apiFetch<Product[]>("/api/products", { cache: "no-store" })
-    .then((products) => {
-      if (products.length === 0) return fallbackProducts;
+    .then((loaded) => {
+      if (loaded.length === 0) return fallbackProducts;
+      const products = withSnacksLast(loaded);
       cachedProducts = products;
       productsCacheExpiresAt = Date.now() + PRODUCT_CACHE_TTL_MS;
       return products;

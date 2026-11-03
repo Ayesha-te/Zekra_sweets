@@ -140,6 +140,8 @@ function OrderHistory() {
     let skippedCount = 0;
 
     order.items.forEach((item) => {
+      // Free items (Buy 1, Get 1 Free) are added automatically for each paid item, never re-ordered as paid.
+      if (Number(item.unitPrice) <= 0) return;
       const product = item.productId ? productById.get(item.productId) : undefined;
       const quantity = Math.max(1, Math.floor(Number(item.quantity || 1)));
 

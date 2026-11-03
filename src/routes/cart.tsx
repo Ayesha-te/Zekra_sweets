@@ -164,7 +164,7 @@ function CartItemRow({ item }: { item: CartItem }) {
         <div className="mt-4 flex flex-wrap items-center gap-3">
           {item.product.isFreeGift ? (
             <span className="inline-flex h-11 items-center rounded-full border border-gold-soft/60 bg-cream/70 px-4 text-sm font-bold">
-              {item.quantity} x included free
+              {item.quantity} x FREE - Diwali offer
             </span>
           ) : (
           <div className="inline-flex h-11 items-center overflow-hidden rounded-full border border-gold-soft/60 bg-cream/70">
@@ -185,13 +185,15 @@ function CartItemRow({ item }: { item: CartItem }) {
             </button>
           </div>
           )}
-          <button
-            onClick={() => cart.removeItem(cartItemKey(item.product))}
-            className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/25"
-          >
-            <X className="h-3.5 w-3.5" />
-            Remove
-          </button>
+          {!item.product.isFreeGift && (
+            <button
+              onClick={() => cart.removeItem(cartItemKey(item.product))}
+              className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/25"
+            >
+              <X className="h-3.5 w-3.5" />
+              Remove
+            </button>
+          )}
         </div>
       </div>
 

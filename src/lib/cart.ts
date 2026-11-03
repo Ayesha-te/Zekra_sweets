@@ -203,37 +203,52 @@ function clearCookie(name: string) {
 // Some in-app browsers (Instagram/WhatsApp/Facebook webviews) clear or partition
 // localStorage between page loads, which made the cart appear empty after items
 // were added. A first-party cookie backs the cart up so it survives that.
-// The free Khaari Puff packet is only valid while the combo that earned it is still in the cart.
-// It must not be left behind when the combo is removed, and its quantity can never exceed the
-// number of combos in the cart (otherwise customers could raise the free packets themselves).
-const COMBO_ITEM_ID = "cookie-combo";
+// ---------------------------------------------------------------------------
+// Diwali offer: Buy 1, Get 1 Free on every product (valid until DIWALI_OFFER_ENDS_AT).
+// Every paid line in the cart automatically gets a matching free line with the same
+// quantity. Free lines are always rebuilt from the paid lines, so they can never be
+// raised, kept after the paid item is removed, or used after the offer has ended.
+// Keep the end time in sync with diwaliOfferEndsAt in the backend (sweets-backend/server.js).
+// ---------------------------------------------------------------------------
+export const DIWALI_OFFER_ENDS_AT = Date.parse("2026-11-09T23:59:59+04:00");
+export const DIWALI_OFFER_END_LABEL = "Monday, 9th November";
+const FREE_ITEM_SUFFIX = "-combo-gift";
+// Retired offer: old carts may still hold this line, it is dropped.
+const RETIRED_COOKIE_COMBO_ID = "cookie-combo";
 
-function enforceFreeGiftRules(items: CartItem[]): CartItem[] {
-  if (!items.some((item) => item.product.isFreeGift)) return items;
+export function isDiwaliOfferActive(now = Date.now()) {
+  return now <= DIWALI_OFFER_ENDS_AT;
+}
 
-  const comboQuantity = items
-    .filter((item) => !item.product.isFreeGift && item.product.id === COMBO_ITEM_ID)
-    .reduce((sum, item) => sum + item.quantity, 0);
-  // The "build your box" builder on /products adds 3 separate cookie packs plus the gift.
-  const looseCookieQuantity = items
-    .filter(
-      (item) =>
-        !item.product.isFreeGift &&
-        item.product.id !== COMBO_ITEM_ID &&
-        String(item.product.category || "").toLowerCase() === "cookies",
-    )
-    .reduce((sum, item) => sum + item.quantity, 0);
+export function freeItemId(productId: string) {
+  return `${productId}${FREE_ITEM_SUFFIX}`;
+}
 
-  let giftsAllowed = comboQuantity + Math.floor(looseCookieQuantity / 3);
+function applyOfferRules(items: CartItem[]): CartItem[] {
+  const paidItems = items.filter(
+    (item) =>
+      !item.product.isFreeGift &&
+      item.product.id !== RETIRED_COOKIE_COMBO_ID &&
+      !item.product.comboSelectionItems?.length,
+  );
+  if (!isDiwaliOfferActive()) return paidItems;
 
-  return items
-    .map((item) => {
-      if (!item.product.isFreeGift) return item;
-      const quantity = Math.min(item.quantity, giftsAllowed);
-      giftsAllowed -= quantity;
-      return { ...item, quantity };
-    })
-    .filter((item) => item.quantity > 0);
+  const result: CartItem[] = [];
+  for (const item of paidItems) {
+    result.push(item);
+    result.push({
+      product: {
+        ...item.product,
+        id: freeItemId(item.product.id),
+        name: `${item.product.name} - FREE (Diwali offer)`,
+        price: 0,
+        originalPrice: null,
+        isFreeGift: true,
+      },
+      quantity: item.quantity,
+    });
+  }
+  return result;
 }
 
 function readStorage(): CartSnapshot {
@@ -250,7 +265,7 @@ function readStorage(): CartSnapshot {
 
   try {
     const parsed = JSON.parse(raw) as Partial<CartSnapshot>;
-    return { items: enforceFreeGiftRules(normalizeItems(parsed.items)) };
+    return { items: applyOfferRules(normalizeItems(parsed.items)) };
   } catch {
     return { items: [] };
   }
@@ -319,7 +334,7 @@ function getServerSnapshot() {
 }
 
 function commit(items: CartItem[]) {
-  cartState = { items: enforceFreeGiftRules(items.filter((item) => item.quantity > 0)) };
+  cartState = { items: applyOfferRules(items.filter((item) => item.quantity > 0)) };
   loadedFromStorage = true;
   writeStorage(cartState);
   emit();
@@ -344,6 +359,38 @@ export function addCartItem(product: Product, quantity = 1) {
   }
 
   commit([...cartState.items, { product: normalizeProduct(product), quantity: amount }]);
+}
+
+// The cart key a product (with its chosen size) would get.
+export function cartKeyForProduct(product: Product) {
+  return cartItemKey(normalizeProduct(product));
+}
+
+// Sets (not adds) the paid quantity of one product/size. Used by the Diwali offer page "Save" button.
+export function setCartItemQuantity(product: Product, quantity: number) {
+  initializeCart();
+
+  const normalized = normalizeProduct(product);
+  const key = cartItemKey(normalized);
+  if (quantity <= 0) {
+    removeCartItem(key);
+    return;
+  }
+
+  const amount = normalizeQuantity(quantity);
+  const exists = cartState.items.some((item) => !item.product.isFreeGift && cartItemKey(item.product) === key);
+  if (exists) {
+    commit(
+      cartState.items.map((item) =>
+        !item.product.isFreeGift && cartItemKey(item.product) === key
+          ? { ...item, quantity: amount, product: normalized }
+          : item,
+      ),
+    );
+    return;
+  }
+
+  commit([...cartState.items, { product: normalized, quantity: amount }]);
 }
 
 export function updateCartQuantity(productId: string, quantity: number) {
@@ -387,7 +434,7 @@ export function getCartTotals(
   deliveryCharge = 0,
   freeDeliveryEligible = true,
 ): CartTotals {
-  const count = items.reduce((sum, item) => sum + item.quantity, 0);
+  const count = items.reduce((sum, item) => sum + (item.product.isFreeGift ? 0 : item.quantity), 0);
   const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const deliveryEstimate =
     count > 0 && (subtotal < FREE_DELIVERY_MINIMUM || !freeDeliveryEligible)
@@ -424,6 +471,7 @@ export function useCart() {
     ...cart,
     ...totals,
     addItem: addCartItem,
+    setItemQuantity: setCartItemQuantity,
     updateQuantity: updateCartQuantity,
     removeItem: removeCartItem,
     clear: clearCart,

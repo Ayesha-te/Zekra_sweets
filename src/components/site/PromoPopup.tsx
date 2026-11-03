@@ -1,16 +1,17 @@
 import { Link } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { FREE_DELIVERY_MINIMUM } from "@/lib/cart";
+import { DIWALI_OFFER_END_LABEL, FREE_DELIVERY_MINIMUM, isDiwaliOfferActive } from "@/lib/cart";
 
-import promoImage from "@/assets/ChatGPT Image Aug 30, 2026, 06_50_53 PM.png";
+import promoImage from "@/assets/diwali-offer-poster.jpg";
 
-const PROMO_SEEN_KEY = "zekra_promo_seen";
+const PROMO_SEEN_KEY = "zekra_promo_seen_diwali";
 
 export function PromoPopup() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    if (!isDiwaliOfferActive()) return;
     let alreadySeen = false;
     try {
       alreadySeen = window.sessionStorage.getItem(PROMO_SEEN_KEY) === "1";
@@ -56,29 +57,29 @@ export function PromoPopup() {
         <div className="bg-cocoa p-3">
           <img
             src={promoImage}
-            alt="Free delivery promotional offer with Khari Puff packet from Zekra Sweets"
+            alt="Zekra Sweets Diwali offer: Buy 1, Get 1 Free on every product, valid till Monday 9th November"
             className="h-full max-h-[74vh] w-full rounded-[1.4rem] object-contain"
           />
         </div>
         <div className="flex flex-col justify-center p-6 sm:p-8">
           <span className="text-xs font-bold uppercase tracking-[0.24em] text-caramel">
-            Limited delivery offer
+            Limited-time Diwali offer
           </span>
           <h2 id="delivery-promo-title" className="mt-3 font-display text-3xl leading-tight sm:text-4xl">
-            Free delivery on orders of AED {FREE_DELIVERY_MINIMUM}+ in Ajman, Dubai and Sharjah.
+            Buy 1, Get 1 Free on every product.
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-foreground/75">
-            Fresh cookies, crispy puffs, and bakery favourites are just a few clicks away. Order
-            online today, enjoy the delivery offer from our promo post, and make your box extra
-            special with the featured Khari Puff treat.
+            Valid till {DIWALI_OFFER_END_LABEL}. Pick any product, choose the quantity, and the same
+            quantity comes free. Free delivery on orders of AED {FREE_DELIVERY_MINIMUM}+ in Ajman,
+            Dubai and Sharjah.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Link
-              to="/cookie-combo"
+              to="/diwali-offer"
               onClick={close}
               className="inline-flex min-h-12 items-center justify-center rounded-full bg-gradient-gold px-6 text-sm font-bold text-primary-foreground shadow-glow"
             >
-              Shop now
+              Shop the Diwali offer
             </Link>
             <button
               type="button"
