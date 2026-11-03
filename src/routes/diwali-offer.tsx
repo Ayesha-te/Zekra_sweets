@@ -124,7 +124,8 @@ function DiwaliOfferPage() {
                           <div className="font-display text-base leading-tight">{item.product.name.split("|", 1)[0].trim()}</div>
                           {item.product.sizeLabel && <div className="text-xs text-muted-foreground">{item.product.sizeLabel}</div>}
                           <div className="mt-1 text-sm font-bold">
-                            {item.quantity} paid{offerActive ? <span className="text-primary"> + {item.quantity} FREE</span> : null}
+                            Qty {item.quantity}
+                            {offerActive ? <span className="ml-2 text-primary">+{item.quantity} FREE</span> : null}
                           </div>
                         </div>
                         <div className="text-right">
@@ -218,14 +219,14 @@ function OfferProductCard({
   };
 
   return (
-    <article className={`overflow-hidden rounded-2xl border bg-cream/80 ${saved ? "border-primary" : "border-gold-soft/45"}`}>
+    <article className={`flex h-full flex-col overflow-hidden rounded-2xl border bg-cream/80 ${saved ? "border-primary" : "border-gold-soft/45"}`}>
       <img
         src={assetUrl(product.imageUrl)}
         onError={productImageError}
         alt={product.imageAlt || product.name}
-        className="aspect-[4/3] w-full object-cover"
+        className="aspect-[4/3] w-full shrink-0 object-cover"
       />
-      <div className="p-4">
+      <div className="flex flex-1 flex-col p-4">
         <h3 className="font-display text-lg leading-tight">{productDisplayName(product)}</h3>
         <div className="mt-1 text-sm font-semibold text-caramel">{formatMoney(unitPrice)}</div>
 
@@ -250,7 +251,7 @@ function OfferProductCard({
           </div>
         )}
 
-        <div className="mt-4 flex items-center justify-between gap-3">
+        <div className="mt-auto flex items-center justify-between gap-3 pt-4">
           <div className="inline-flex h-11 items-center overflow-hidden rounded-full border border-gold-soft/60 bg-cream">
             <button
               type="button"
@@ -270,10 +271,7 @@ function OfferProductCard({
               <Plus className="h-4 w-4" />
             </button>
           </div>
-          <div className="text-right text-sm font-bold">
-            {quantity}
-            {offerActive ? <span className="text-primary"> + {quantity} FREE</span> : null}
-          </div>
+          {offerActive && <div className="text-right text-sm font-bold text-primary">+{quantity} FREE</div>}
         </div>
 
         <button
