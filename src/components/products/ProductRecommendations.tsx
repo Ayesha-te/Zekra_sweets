@@ -19,7 +19,9 @@ export function ProductRecommendations({
   const cart = useCart();
   const recommended = useMemo(() => {
     const cartIds = new Set(cart.items.map((item) => item.product.id.replace(/-combo-gift$/, "")));
-    const candidates = products.filter((product) => product.isActive !== false && !cartIds.has(product.id));
+    const candidates = products.filter(
+      (product) => product.isActive !== false && product.inStock !== false && !cartIds.has(product.id),
+    );
     return (randomize ? shuffleProducts(candidates) : candidates.sort((a, b) => scoreProduct(b) - scoreProduct(a))).slice(0, count);
   }, [products, cart.items, count, randomize]);
 

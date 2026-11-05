@@ -23,6 +23,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
   const price = selectedSize?.price ?? productDisplayPrice(product);
   const originalPrice = selectedSize?.originalPrice ?? productDisplayOriginalPrice(product);
   const isSale = originalPrice != null && originalPrice > price;
+  const outOfStock = product.inStock === false;
   const bagProduct = selectedSize
     ? {
         ...product,
@@ -40,7 +41,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
   }, [added]);
 
   const add = () => {
-    if (action) return;
+    if (action || outOfStock) return;
     setAction("add");
     cart.addItem(bagProduct);
     setAdded(true);
@@ -48,7 +49,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
   };
 
   const buy = async () => {
-    if (action) return;
+    if (action || outOfStock) return;
     setAction("buy");
     cart.addItem(bagProduct);
     await navigate({ to: "/checkout" });
@@ -75,10 +76,16 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
           height={480}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.035] motion-reduce:transform-none"
         />
-        {product.tag && (
-          <span className="absolute left-3 top-3 rounded-full bg-cocoa px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.16em] text-gold-soft">
-            {product.tag}
+        {outOfStock ? (
+          <span className="absolute left-3 top-3 rounded-full bg-destructive px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.16em] text-destructive-foreground">
+            Out of stock
           </span>
+        ) : (
+          product.tag && (
+            <span className="absolute left-3 top-3 rounded-full bg-cocoa px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.16em] text-gold-soft">
+              {product.tag}
+            </span>
+          )
         )}
       </Link>
       <div className="p-3.5 sm:p-4">
@@ -146,26 +153,32 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
           </Link>
         </div>
 
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            onClick={add}
-            disabled={Boolean(action)}
-            aria-label={`Add ${product.name}${selectedSize ? `, ${selectedSize.label}` : ""} to bag`}
-            className="inline-flex min-h-11 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-gradient-gold px-1.5 text-[11px] font-bold text-primary-foreground shadow-glow disabled:cursor-wait disabled:opacity-65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 sm:px-2 sm:text-xs"
-          >
-            {added ? <Check className="h-3.5 w-3.5" /> : <ShoppingBag className="h-3.5 w-3.5" />}{" "}
-            {action === "add" ? "Adding..." : added ? "Added" : "Add to bag"}
-          </button>
-          <button
-            type="button"
-            onClick={() => void buy()}
-            disabled={Boolean(action)}
-            className="min-h-11 whitespace-nowrap rounded-xl bg-cocoa px-1.5 text-[11px] font-bold text-cream transition hover:bg-cocoa/90 disabled:cursor-wait disabled:opacity-65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 sm:px-2 sm:text-xs"
-          >
-            {action === "buy" ? "Opening..." : "Buy now"}
-          </button>
-        </div>
+        {outOfStock ? (
+          <div className="mt-3 grid min-h-11 place-items-center rounded-xl border border-destructive/30 bg-destructive/5 text-[11px] font-bold uppercase tracking-widest text-destructive">
+            Out of stock
+          </div>
+        ) : (
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={add}
+              disabled={Boolean(action)}
+              aria-label={`Add ${product.name}${selectedSize ? `, ${selectedSize.label}` : ""} to bag`}
+              className="inline-flex min-h-11 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-gradient-gold px-1.5 text-[11px] font-bold text-primary-foreground shadow-glow disabled:cursor-wait disabled:opacity-65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 sm:px-2 sm:text-xs"
+            >
+              {added ? <Check className="h-3.5 w-3.5" /> : <ShoppingBag className="h-3.5 w-3.5" />}{" "}
+              {action === "add" ? "Adding..." : added ? "Added" : "Add to bag"}
+            </button>
+            <button
+              type="button"
+              onClick={() => void buy()}
+              disabled={Boolean(action)}
+              className="min-h-11 whitespace-nowrap rounded-xl bg-cocoa px-1.5 text-[11px] font-bold text-cream transition hover:bg-cocoa/90 disabled:cursor-wait disabled:opacity-65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 sm:px-2 sm:text-xs"
+            >
+              {action === "buy" ? "Opening..." : "Buy now"}
+            </button>
+          </div>
+        )}
         <span className="sr-only" aria-live="polite">
           {added ? `${product.name} added to bag` : ""}
         </span>

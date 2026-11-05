@@ -16,6 +16,7 @@ export function ComboBoxBuilder({ products }: { products: Product[] }) {
       products.filter(
         (product) =>
           product.isActive !== false &&
+          product.inStock !== false &&
           product.category.toLowerCase() === "cookies",
       ),
     [products],

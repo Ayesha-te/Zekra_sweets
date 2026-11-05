@@ -73,6 +73,7 @@ function ProductPage() {
   const relatedProducts = products
     .filter((candidate) => candidate.id !== product.id && candidate.category === product.category)
     .slice(0, 3);
+  const outOfStock = product.inStock === false;
   const details = product as Product & {
     ingredients?: string;
     allergens?: string;
@@ -109,11 +110,13 @@ function ProductPage() {
   };
 
   const addToBag = () => {
+    if (outOfStock) return;
     cart.addItem(productForBag(), quantity);
     setAdded(true);
   };
 
   const buyNow = () => {
+    if (outOfStock) return;
     cart.addItem(productForBag(), quantity);
     void navigate({ to: "/checkout" });
   };
@@ -223,6 +226,11 @@ function ProductPage() {
                   {formatMoney(selectedSize.originalPrice)}
                 </span>
               )}
+              {outOfStock && (
+                <span className="rounded-full bg-destructive/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-destructive">
+                  Out of stock
+                </span>
+              )}
             </div>
 
             <MakingTimeNotice products={[product]} className="mt-5" />
@@ -308,32 +316,38 @@ function ProductPage() {
               </div>
             </div>
 
-            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <button
-                type="button"
-                onClick={addToBag}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-gold-soft/60 bg-cream/70 px-6 py-3.5 text-sm font-bold text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 sm:w-auto"
-              >
-                {added ? <Check className="h-4 w-4" /> : <ShoppingBag className="h-4 w-4" />}
-                {added ? "Added to bag" : "Add to bag"}
-              </button>
-              <button
-                type="button"
-                onClick={buyNow}
-                className="inline-flex w-full items-center justify-center rounded-full bg-cocoa px-6 py-3.5 text-sm font-bold text-cream shadow-glow transition-transform hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 sm:w-auto"
-              >
-                Buy now
-              </button>
-              <a
-                href={`https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-gold px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 sm:w-auto"
-              >
-                <MessageCircle className="h-4 w-4" />
-                Order on WhatsApp
-              </a>
-            </div>
+            {outOfStock ? (
+              <div className="mt-5 rounded-2xl border border-destructive/30 bg-destructive/5 px-5 py-4 text-sm font-semibold text-destructive">
+                This product is currently out of stock and can't be ordered right now.
+              </div>
+            ) : (
+              <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <button
+                  type="button"
+                  onClick={addToBag}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-gold-soft/60 bg-cream/70 px-6 py-3.5 text-sm font-bold text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 sm:w-auto"
+                >
+                  {added ? <Check className="h-4 w-4" /> : <ShoppingBag className="h-4 w-4" />}
+                  {added ? "Added to bag" : "Add to bag"}
+                </button>
+                <button
+                  type="button"
+                  onClick={buyNow}
+                  className="inline-flex w-full items-center justify-center rounded-full bg-cocoa px-6 py-3.5 text-sm font-bold text-cream shadow-glow transition-transform hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 sm:w-auto"
+                >
+                  Buy now
+                </button>
+                <a
+                  href={`https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-gold px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 sm:w-auto"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  Order on WhatsApp
+                </a>
+              </div>
+            )}
             <span className="sr-only" aria-live="polite">
               {added ? `${product.name} added to bag` : ""}
             </span>
