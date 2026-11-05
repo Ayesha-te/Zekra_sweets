@@ -48,8 +48,6 @@ const STORAGE_KEY = "zekra-sweets-cart-v1";
 export const FREE_DELIVERY_MINIMUM = 35;
 export const VAT_RATE = 0.05;
 
-// Flat service fee added to every order. Keep in sync with serviceFee in the backend.
-export const SERVICE_FEE = 4.5;
 
 // Free delivery only applies in these areas; every other location always pays its charge.
 // Keep in sync with freeDeliveryAreaPattern in the backend (sweets-backend/server.js).
