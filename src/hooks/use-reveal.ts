@@ -24,7 +24,9 @@ export function useReveal() {
           }
         }
       },
-      { threshold: 0.12, rootMargin: "0px 0px -60px 0px" },
+      // threshold 0: a ratio threshold never fires for tall elements (e.g. a cart with many
+      // items on a phone), which left them stuck at opacity 0.
+      { threshold: 0, rootMargin: "0px 0px -60px 0px" },
     );
 
     const observeRevealElement = (el: HTMLElement) => {
