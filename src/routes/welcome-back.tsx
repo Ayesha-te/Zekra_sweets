@@ -59,6 +59,7 @@ function WelcomeBackPage() {
   const cart = useCart();
   const [loyalty, setLoyalty] = useState<{ token: string; endsAt: number } | null>(null);
   const [windowOpen, setWindowOpen] = useState<boolean | null>(null);
+  const [windowEnds, setWindowEnds] = useState<string | null>(null);
   const [orderId, setOrderId] = useState("");
   const [email, setEmail] = useState("");
   const [checking, setChecking] = useState(false);
@@ -67,7 +68,7 @@ function WelcomeBackPage() {
 
   useEffect(() => {
     setLoyalty(getLoyaltyOffer());
-    fetchOffersStatus().then((status) => setWindowOpen(status.loyaltyOpen)).catch(() => setWindowOpen(null));
+    fetchOffersStatus().then((status) => { setWindowOpen(status.loyaltyOpen); setWindowEnds(status.loyaltyEndsAt); }).catch(() => setWindowOpen(null));
   }, []);
 
   const endLabel = loyalty
@@ -111,7 +112,11 @@ function WelcomeBackPage() {
           </h1>
           <p className="mt-3 font-display text-2xl sm:text-3xl">Buy 1, Get 1 Free on every product.</p>
           <p className="mt-2 text-sm font-semibold text-cream/80 sm:text-base">
-            {offerActive ? `Unlocked for you - valid till ${endLabel}.` : "Our thank-you to the customers who ordered before."}
+            {offerActive
+              ? `Unlocked for you - valid till ${endLabel}.`
+              : windowEnds
+                ? `For 15 days only - valid till ${new Intl.DateTimeFormat("en-GB", { dateStyle: "full", timeZone: "Asia/Dubai" }).format(new Date(windowEnds))}.`
+                : "Our thank-you to the customers who ordered before."}
           </p>
         </div>
 
