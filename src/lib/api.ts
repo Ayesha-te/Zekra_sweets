@@ -149,6 +149,7 @@ export type CreateOrderPayload = {
   };
   notes?: string;
   couponCode?: string;
+  loyaltyToken?: string;
   items: Array<{
     productId: string;
     name: string;
@@ -310,6 +311,26 @@ export function validateCoupon(code: string) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ code }),
+  });
+}
+
+export function verifyLoyaltyOrder(orderId: string, email: string) {
+  return apiFetch<{ token: string; endsAt: string }>("/api/loyalty/verify", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ orderId, email }),
+  });
+}
+
+export function fetchOffersStatus() {
+  return apiFetch<{ loyaltyOpen: boolean; loyaltyEndsAt: string | null; firstOrderPercent: number; firstOrderMaxDiscount: number }>("/api/offers/status");
+}
+
+export function checkFirstOrder(phone: string, email: string) {
+  return apiFetch<{ eligible: boolean; percentageOff: number; maxDiscount: number }>("/api/offers/first-order", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phone, email }),
   });
 }
 

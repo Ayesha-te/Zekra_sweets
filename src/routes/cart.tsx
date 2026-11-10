@@ -164,7 +164,7 @@ function CartItemRow({ item }: { item: CartItem }) {
         <div className="mt-4 flex flex-wrap items-center gap-3">
           {item.product.isFreeGift ? (
             <span className="inline-flex h-11 items-center rounded-full border border-gold-soft/60 bg-cream/70 px-4 text-sm font-bold">
-              {item.quantity} x FREE - Diwali offer
+              {item.quantity} x FREE - Welcome Back offer
             </span>
           ) : (
           <div className="inline-flex h-11 items-center overflow-hidden rounded-full border border-gold-soft/60 bg-cream/70">

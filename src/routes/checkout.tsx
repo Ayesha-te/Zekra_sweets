@@ -30,6 +30,7 @@ import {
   loadDeliveryLocations,
   loadPickupLocations,
   validateCoupon,
+  checkFirstOrder,
   type CreateOrderPayload,
   type DeliveryLocation,
   type FulfillmentMode,
@@ -38,7 +39,7 @@ import {
   type StripeCheckoutSessionStatus,
   type ValidatedCoupon,
 } from "@/lib/api";
-import { COD_CHARGE, DELIVERY_UNAVAILABLE_MESSAGE, FREE_DELIVERY_MINIMUM, VAT_RATE, isDeliveryUnavailableLocation, cartItemKey, clearCart, formatMoney, getCartTotals, isFreeDeliveryLocation, useCart } from "@/lib/cart";
+import { COD_CHARGE, DELIVERY_UNAVAILABLE_MESSAGE, FREE_DELIVERY_MINIMUM, VAT_RATE, isDeliveryUnavailableLocation, cartItemKey, clearCart, clearLoyaltyOffer, getLoyaltyOffer, formatMoney, getCartTotals, isFreeDeliveryLocation, useCart } from "@/lib/cart";
 import { loadProducts } from "@/lib/products";
 
 export const Route = createFileRoute("/checkout")({
@@ -117,6 +118,20 @@ function Checkout() {
   const [appliedCoupon, setAppliedCoupon] = useState<ValidatedCoupon | null>(null);
   const [couponBusy, setCouponBusy] = useState(false);
   const [couponMessage, setCouponMessage] = useState<string | null>(null);
+  const [firstOrderInfo, setFirstOrderInfo] = useState<{ eligible: boolean; percentageOff: number; maxDiscount: number } | null>(null);
+
+  // New-customer offer: ask the server whether this phone/email has ordered before.
+  useEffect(() => {
+    const digits = form.phone.replace(/\D/g, "");
+    if (digits.length < 7) { setFirstOrderInfo(null); return; }
+    let active = true;
+    const timer = window.setTimeout(() => {
+      checkFirstOrder(form.phone.trim(), form.email.trim())
+        .then((info) => { if (active) setFirstOrderInfo(info); })
+        .catch(() => { if (active) setFirstOrderInfo(null); });
+    }, 500);
+    return () => { active = false; window.clearTimeout(timer); };
+  }, [form.phone, form.email]);
 
   useEffect(() => {
     let mounted = true;
@@ -162,6 +177,7 @@ function Checkout() {
           paymentStatus: session.paymentStatus,
         });
         clearCart();
+        clearLoyaltyOffer();
         setForm(initialForm);
       })
       .catch((caught) => {
@@ -185,7 +201,9 @@ function Checkout() {
   const totals = getCartTotals(cart.items, deliveryCharge, locationGetsFreeDelivery);
   const deliveryUnavailable = form.mode === "delivery" && isDeliveryUnavailableLocation(selectedLocation);
   const codFee = form.mode === "delivery" && form.paymentMethod === "cash_on_delivery" ? COD_CHARGE : 0;
-  const discount = appliedCoupon ? roundMoney(totals.subtotal * appliedCoupon.percentageOff / 100) : 0;
+  const hasFreeItems = cart.items.some((item) => item.product.isFreeGift);
+  const firstOrderDiscount = !appliedCoupon && !hasFreeItems && firstOrderInfo?.eligible ? firstOrderAmount(totals.subtotal, firstOrderInfo) : 0;
+  const discount = appliedCoupon ? roundMoney(totals.subtotal * appliedCoupon.percentageOff / 100) : firstOrderDiscount;
   const payableTotals = checkoutTotals(totals.subtotal, totals.deliveryEstimate + codFee, discount);
   const payableTotal = payableTotals.total;
   const qualifiesForFreeDelivery = locationGetsFreeDelivery && totals.subtotal >= FREE_DELIVERY_MINIMUM;
@@ -275,7 +293,7 @@ function Checkout() {
       deliveryLocation ? deliveryLocation.charge : 0,
       !deliveryLocation || isFreeDeliveryLocation(deliveryLocation),
     );
-    const orderDiscount = appliedCoupon ? roundMoney(orderTotals.subtotal * appliedCoupon.percentageOff / 100) : 0;
+    const orderDiscount = appliedCoupon ? roundMoney(orderTotals.subtotal * appliedCoupon.percentageOff / 100) : firstOrderDiscount;
     const orderCodFee = deliveryLocation && form.paymentMethod === "cash_on_delivery" ? COD_CHARGE : 0;
     const finalOrderTotals = checkoutTotals(orderTotals.subtotal, orderTotals.deliveryEstimate + orderCodFee, orderDiscount);
 
@@ -295,6 +313,7 @@ function Checkout() {
       },
       ...(form.notes.trim() ? { notes: form.notes.trim() } : {}),
       ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
+      ...(getLoyaltyOffer() ? { loyaltyToken: getLoyaltyOffer()!.token } : {}),
       items: cart.items.map((item) => ({
         productId: item.product.id,
         name: item.product.name,
@@ -325,6 +344,7 @@ function Checkout() {
         if (!reference) throw new Error("The order was created but no reference was returned.");
         setConfirmation({ reference, total: payableTotal, mode: form.mode, paymentStatus: finalPaymentMethod });
         clearCart();
+        clearLoyaltyOffer();
         setForm(initialForm);
       } else {
         const response = await createStripeCheckoutSession(payload);
@@ -567,7 +587,7 @@ function Checkout() {
               </button>
             </form>
 
-            <CheckoutSummary mode={form.mode} selectedLocation={selectedLocation} coupon={appliedCoupon} products={products} codFee={codFee} />
+            <CheckoutSummary mode={form.mode} selectedLocation={selectedLocation} coupon={appliedCoupon} products={products} codFee={codFee} firstOrderDiscount={firstOrderDiscount} firstOrderPercent={firstOrderInfo?.percentageOff ?? 50} firstOrderMax={firstOrderInfo?.maxDiscount ?? 100} />
           </div>
         )}
         {cart.items.length > 0 && (
@@ -649,7 +669,13 @@ function CheckoutSummary({
   coupon,
   products,
   codFee = 0,
+  firstOrderDiscount = 0,
+  firstOrderPercent = 50,
+  firstOrderMax = 100,
 }: {
+  firstOrderDiscount?: number;
+  firstOrderPercent?: number;
+  firstOrderMax?: number;
   codFee?: number;
   mode: FulfillmentMode;
   selectedLocation?: DeliveryLocation;
@@ -661,7 +687,7 @@ function CheckoutSummary({
   const locationGetsFreeDelivery = !selectedLocation || isFreeDeliveryLocation(selectedLocation);
   const totals = getCartTotals(cart.items, deliveryCharge, locationGetsFreeDelivery);
   const qualifiesForFreeDelivery = locationGetsFreeDelivery && totals.subtotal >= FREE_DELIVERY_MINIMUM;
-  const discount = coupon ? roundMoney(totals.subtotal * coupon.percentageOff / 100) : 0;
+  const discount = coupon ? roundMoney(totals.subtotal * coupon.percentageOff / 100) : firstOrderDiscount;
   const finalTotals = checkoutTotals(totals.subtotal, totals.deliveryEstimate + codFee, discount);
 
   return (
@@ -741,6 +767,7 @@ function CheckoutSummary({
         />
         {codFee > 0 && <SummaryRow label="Cash on delivery charge" value={formatMoney(codFee)} />}
         {coupon && <SummaryRow label={`Discount (${coupon.code}, ${coupon.percentageOff}%)`} value={`-${formatMoney(discount)}`} />}
+        {!coupon && firstOrderDiscount > 0 && <SummaryRow label={`New customer offer (${firstOrderPercent}% off, max ${formatMoney(firstOrderMax)})`} value={`-${formatMoney(firstOrderDiscount)}`} />}
         <SummaryRow label="VAT (5%)" value={formatMoney(finalTotals.vat)} />
         <SummaryRow label="Final total" value={formatMoney(finalTotals.total)} strong />
       </div>
@@ -895,6 +922,10 @@ function orderReference(response: StripeCheckoutSessionStatus) {
 
 function normalizeFulfillmentMode(value: string | null | undefined): FulfillmentMode {
   return value === "pickup" ? "pickup" : "delivery";
+}
+
+function firstOrderAmount(subtotal: number, info: { percentageOff: number; maxDiscount: number }) {
+  return roundMoney(Math.min((subtotal * info.percentageOff) / 100, info.maxDiscount));
 }
 
 function roundMoney(value: number) {

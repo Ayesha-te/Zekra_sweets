@@ -202,20 +202,53 @@ function clearCookie(name: string) {
 // localStorage between page loads, which made the cart appear empty after items
 // were added. A first-party cookie backs the cart up so it survives that.
 // ---------------------------------------------------------------------------
-// Diwali offer: Buy 1, Get 1 Free on every product (valid until DIWALI_OFFER_ENDS_AT).
-// Every paid line in the cart automatically gets a matching free line with the same
-// quantity. Free lines are always rebuilt from the paid lines, so they can never be
-// raised, kept after the paid item is removed, or used after the offer has ended.
-// Keep the end time in sync with diwaliOfferEndsAt in the backend (sweets-backend/server.js).
+// Returning-customer offer: Buy 1, Get 1 Free. It is only unlocked after the customer verifies
+// a previous order on /welcome-back (the server hands back a signed token that expires when the
+// offer window ends). While a valid token is saved, every paid line gets a matching free line
+// with the same quantity. Free lines are always rebuilt from the paid lines, so they can never be
+// raised, kept after the paid item is removed, or used without a token. The server re-checks the
+// token on every order, so editing local storage cannot unlock the offer.
 // ---------------------------------------------------------------------------
-export const DIWALI_OFFER_ENDS_AT = Date.parse("2026-11-09T23:59:59+04:00");
-export const DIWALI_OFFER_END_LABEL = "Monday, 9th November";
+const LOYALTY_STORAGE_KEY = "zekra_loyalty_offer";
 const FREE_ITEM_SUFFIX = "-combo-gift";
 // Retired offer: old carts may still hold this line, it is dropped.
 const RETIRED_COOKIE_COMBO_ID = "cookie-combo";
 
-export function isDiwaliOfferActive(now = Date.now()) {
-  return now <= DIWALI_OFFER_ENDS_AT;
+export type LoyaltyOffer = { token: string; endsAt: number };
+
+export function getLoyaltyOffer(now = Date.now()): LoyaltyOffer | null {
+  if (!isBrowser()) return null;
+  try {
+    const raw = window.localStorage.getItem(LOYALTY_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<LoyaltyOffer>;
+    if (typeof parsed.token !== "string" || !parsed.token || typeof parsed.endsAt !== "number") return null;
+    return now <= parsed.endsAt ? { token: parsed.token, endsAt: parsed.endsAt } : null;
+  } catch {
+    return null;
+  }
+}
+
+export function setLoyaltyOffer(token: string, endsAtIso: string) {
+  if (!isBrowser()) return;
+  try {
+    window.localStorage.setItem(LOYALTY_STORAGE_KEY, JSON.stringify({ token, endsAt: Date.parse(endsAtIso) }));
+  } catch {
+    /* ignore */
+  }
+  initializeCart();
+  commit(cartState.items);
+}
+
+export function clearLoyaltyOffer() {
+  if (!isBrowser()) return;
+  try {
+    window.localStorage.removeItem(LOYALTY_STORAGE_KEY);
+  } catch {
+    /* ignore */
+  }
+  initializeCart();
+  commit(cartState.items);
 }
 
 export function freeItemId(productId: string) {
@@ -229,7 +262,7 @@ function applyOfferRules(items: CartItem[]): CartItem[] {
       item.product.id !== RETIRED_COOKIE_COMBO_ID &&
       !item.product.comboSelectionItems?.length,
   );
-  if (!isDiwaliOfferActive()) return paidItems;
+  if (!getLoyaltyOffer()) return paidItems;
 
   const result: CartItem[] = [];
   for (const item of paidItems) {
@@ -238,7 +271,7 @@ function applyOfferRules(items: CartItem[]): CartItem[] {
       product: {
         ...item.product,
         id: freeItemId(item.product.id),
-        name: `${item.product.name} - FREE (Diwali offer)`,
+        name: `${item.product.name} - FREE (Welcome Back offer)`,
         price: 0,
         originalPrice: null,
         isFreeGift: true,
@@ -364,7 +397,7 @@ export function cartKeyForProduct(product: Product) {
   return cartItemKey(normalizeProduct(product));
 }
 
-// Sets (not adds) the paid quantity of one product/size. Used by the Diwali offer page "Save" button.
+// Sets (not adds) the paid quantity of one product/size. Used by the Welcome Back offer page "Save" button.
 export function setCartItemQuantity(product: Product, quantity: number) {
   initializeCart();
 

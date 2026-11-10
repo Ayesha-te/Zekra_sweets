@@ -17,6 +17,7 @@ import { Route as HistoryRouteImport } from './routes/history'
 import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as DiwaliOfferRouteImport } from './routes/diwali-offer'
+import { Route as WelcomeBackRouteImport } from './routes/welcome-back'
 import { Route as DeliveryRouteImport } from './routes/delivery'
 import { Route as CookieComboRouteImport } from './routes/cookie-combo'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -65,6 +66,11 @@ const FaqRoute = FaqRouteImport.update({
 const DiwaliOfferRoute = DiwaliOfferRouteImport.update({
   id: '/diwali-offer',
   path: '/diwali-offer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WelcomeBackRoute = WelcomeBackRouteImport.update({
+  id: '/welcome-back',
+  path: '/welcome-back',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DeliveryRoute = DeliveryRouteImport.update({
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/cookie-combo': typeof CookieComboRoute
   '/delivery': typeof DeliveryRoute
   '/diwali-offer': typeof DiwaliOfferRoute
+  '/welcome-back': typeof WelcomeBackRoute
   '/faq': typeof FaqRoute
   '/gallery': typeof GalleryRoute
   '/history': typeof HistoryRoute
@@ -141,6 +148,7 @@ export interface FileRoutesByTo {
   '/cookie-combo': typeof CookieComboRoute
   '/delivery': typeof DeliveryRoute
   '/diwali-offer': typeof DiwaliOfferRoute
+  '/welcome-back': typeof WelcomeBackRoute
   '/faq': typeof FaqRoute
   '/gallery': typeof GalleryRoute
   '/history': typeof HistoryRoute
@@ -161,6 +169,7 @@ export interface FileRoutesById {
   '/cookie-combo': typeof CookieComboRoute
   '/delivery': typeof DeliveryRoute
   '/diwali-offer': typeof DiwaliOfferRoute
+  '/welcome-back': typeof WelcomeBackRoute
   '/faq': typeof FaqRoute
   '/gallery': typeof GalleryRoute
   '/history': typeof HistoryRoute
@@ -182,6 +191,7 @@ export interface FileRouteTypes {
     | '/cookie-combo'
     | '/delivery'
     | '/diwali-offer'
+    | '/welcome-back'
     | '/faq'
     | '/gallery'
     | '/history'
@@ -201,6 +211,7 @@ export interface FileRouteTypes {
     | '/cookie-combo'
     | '/delivery'
     | '/diwali-offer'
+    | '/welcome-back'
     | '/faq'
     | '/gallery'
     | '/history'
@@ -220,6 +231,7 @@ export interface FileRouteTypes {
     | '/cookie-combo'
     | '/delivery'
     | '/diwali-offer'
+    | '/welcome-back'
     | '/faq'
     | '/gallery'
     | '/history'
@@ -240,6 +252,7 @@ export interface RootRouteChildren {
   CookieComboRoute: typeof CookieComboRoute
   DeliveryRoute: typeof DeliveryRoute
   DiwaliOfferRoute: typeof DiwaliOfferRoute
+  WelcomeBackRoute: typeof WelcomeBackRoute
   FaqRoute: typeof FaqRoute
   GalleryRoute: typeof GalleryRoute
   HistoryRoute: typeof HistoryRoute
@@ -307,6 +320,13 @@ declare module '@tanstack/react-router' {
       path: '/diwali-offer'
       fullPath: '/diwali-offer'
       preLoaderRoute: typeof DiwaliOfferRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/welcome-back': {
+      id: '/welcome-back'
+      path: '/welcome-back'
+      fullPath: '/welcome-back'
+      preLoaderRoute: typeof WelcomeBackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/delivery': {
@@ -384,6 +404,7 @@ const rootRouteChildren: RootRouteChildren = {
   CookieComboRoute: CookieComboRoute,
   DeliveryRoute: DeliveryRoute,
   DiwaliOfferRoute: DiwaliOfferRoute,
+  WelcomeBackRoute: WelcomeBackRoute,
   FaqRoute: FaqRoute,
   GalleryRoute: GalleryRoute,
   HistoryRoute: HistoryRoute,

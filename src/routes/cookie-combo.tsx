@@ -1,8 +1,8 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-// The cookie combo offer has ended. Old links (ads, shared messages) go to the Diwali offer page.
+// The cookie combo offer has ended. Old links go to the products page.
 export const Route = createFileRoute("/cookie-combo")({
-  beforeLoad: ({ location }) => {
-    throw redirect({ href: `/diwali-offer${location.searchStr || ""}`, statusCode: 302 });
+  beforeLoad: () => {
+    throw redirect({ href: "/products", statusCode: 302 });
   },
 });
