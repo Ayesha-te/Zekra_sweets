@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { ProductCard } from "@/components/products/ProductCard";
 import { StructuredData } from "@/components/seo/StructuredData";
+import { FirstOrderOfferStrip } from "@/components/site/FirstOrderOfferStrip";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import type { Product } from "@/lib/api";
 import {
@@ -83,6 +84,7 @@ function Products() {
     <SiteLayout>
       <StructuredData data={itemListJsonLd(products)} />
       <section className="mx-auto max-w-7xl px-4 sm:px-6">
+        <FirstOrderOfferStrip className="mb-4" />
         <div className="glass rounded-[1.75rem] p-5 sm:p-7" data-reveal>
           <span className="text-[11px] uppercase tracking-[0.24em] text-caramel">
             The bakery counter
