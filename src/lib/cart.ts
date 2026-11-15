@@ -371,11 +371,31 @@ function commit(items: CartItem[]) {
   emit();
 }
 
+// Sends a standard event to the Meta Pixel (loaded in __root.tsx). Safe on the server and if the pixel is blocked.
+export function trackMetaEvent(event: string, params?: Record<string, unknown>) {
+  if (typeof window === "undefined") return;
+  const fbq = (window as typeof window & { fbq?: (...args: unknown[]) => void }).fbq;
+  if (!fbq) return;
+  try {
+    fbq("track", event, params);
+  } catch {
+    // never let tracking break the cart
+  }
+}
+
 export function addCartItem(product: Product, quantity = 1) {
   initializeCart();
 
   const amount = normalizeQuantity(quantity);
   const normalized = normalizeProduct(product);
+  trackMetaEvent("AddToCart", {
+    content_ids: [normalized.id],
+    content_name: normalized.name,
+    content_type: "product",
+    value: Number((normalized.price * amount).toFixed(2)),
+    currency: "AED",
+    num_items: amount,
+  });
   const existing = cartState.items.find((item) => cartItemKey(item.product) === cartItemKey(normalized));
 
   if (existing) {

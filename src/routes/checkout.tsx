@@ -39,7 +39,7 @@ import {
   type StripeCheckoutSessionStatus,
   type ValidatedCoupon,
 } from "@/lib/api";
-import { COD_CHARGE, DELIVERY_UNAVAILABLE_MESSAGE, FREE_DELIVERY_MINIMUM, VAT_RATE, isDeliveryUnavailableLocation, cartItemKey, clearCart, clearLoyaltyOffer, getLoyaltyOffer, formatMoney, getCartTotals, isFreeDeliveryLocation, useCart } from "@/lib/cart";
+import { COD_CHARGE, DELIVERY_UNAVAILABLE_MESSAGE, FREE_DELIVERY_MINIMUM, VAT_RATE, isDeliveryUnavailableLocation, cartItemKey, clearCart, clearLoyaltyOffer, getLoyaltyOffer, formatMoney, getCartTotals, isFreeDeliveryLocation, trackMetaEvent, useCart } from "@/lib/cart";
 import { loadProducts } from "@/lib/products";
 
 export const Route = createFileRoute("/checkout")({
@@ -119,6 +119,22 @@ function Checkout() {
   const [couponBusy, setCouponBusy] = useState(false);
   const [couponMessage, setCouponMessage] = useState<string | null>(null);
   const [firstOrderInfo, setFirstOrderInfo] = useState<{ eligible: boolean; percentageOff: number; maxDiscount: number } | null>(null);
+
+  // Meta Pixel: InitiateCheckout once per visit to the checkout page (not when coming back from Stripe).
+  const [checkoutTracked, setCheckoutTracked] = useState(false);
+  useEffect(() => {
+    if (checkoutTracked || cart.items.length === 0) return;
+    if (new URLSearchParams(window.location.search).get("stripe")) return;
+    const paidItems = cart.items.filter((item) => !item.product.isFreeGift);
+    trackMetaEvent("InitiateCheckout", {
+      content_ids: paidItems.map((item) => item.product.id),
+      content_type: "product",
+      num_items: paidItems.reduce((sum, item) => sum + item.quantity, 0),
+      value: Number(paidItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0).toFixed(2)),
+      currency: "AED",
+    });
+    setCheckoutTracked(true);
+  }, [cart.items, checkoutTracked]);
 
   // New-customer offer: ask the server whether this phone/email has ordered before.
   useEffect(() => {
