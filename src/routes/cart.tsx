@@ -8,6 +8,7 @@ import { MakingTimeNotice } from "@/components/products/MakingTimeNotice";
 import { assetUrl, productImageError, type Product } from "@/lib/api";
 import {
   FREE_DELIVERY_MINIMUM,
+  VAT_RATE,
   cartItemKey,
   formatMoney,
   getFreeDeliveryProgress,
@@ -237,7 +238,8 @@ function CartTotals({ products }: { products: Product[] }) {
               : `Free over ${formatMoney(FREE_DELIVERY_MINIMUM)}`
           }
         />
-        <SummaryRow label="Items total" value={formatMoney(cart.subtotal)} strong />
+        <SummaryRow label="VAT (5%)" value={formatMoney(Math.round(cart.subtotal * VAT_RATE * 100) / 100)} />
+        <SummaryRow label="Est. total" value={formatMoney(Math.round(cart.subtotal * (1 + VAT_RATE) * 100) / 100)} strong />
       </div>
 
       <div className="mt-6 grid gap-2">
