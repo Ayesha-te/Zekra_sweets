@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const PROMO_SEEN_KEY = "zekra_promo_seen_welcome";
+const PROMO_SEEN_KEY = "zekra_promo_seen_national_day";
 
 export function PromoPopup() {
   const [open, setOpen] = useState(false);
@@ -41,7 +41,7 @@ export function PromoPopup() {
       aria-modal="true"
       aria-labelledby="welcome-promo-title"
     >
-      <div className="relative w-full max-w-md overflow-hidden rounded-[2rem] bg-cream p-7 text-center shadow-elegant sm:p-9">
+      <div className="relative w-full max-w-md overflow-hidden rounded-[2rem] bg-cream shadow-elegant">
         <button
           type="button"
           onClick={close}
@@ -50,28 +50,32 @@ export function PromoPopup() {
         >
           <X className="h-5 w-5" />
         </button>
-        <span className="text-xs font-bold uppercase tracking-[0.24em] text-caramel">New here? 100% Eggless</span>
-        <h2 id="welcome-promo-title" className="mt-3 font-display text-3xl leading-tight sm:text-4xl">
-          50% off your first order
-        </h2>
-        <p className="mt-4 text-sm leading-relaxed text-foreground/75">
-          Up to AED 100 off. No code needed - the discount is applied automatically at checkout when you order with your mobile number.
-        </p>
-        <div className="mt-6 flex flex-col gap-3">
-          <Link
-            to="/products"
-            onClick={close}
-            className="inline-flex min-h-12 items-center justify-center rounded-full bg-gradient-gold px-6 text-sm font-bold text-primary-foreground shadow-glow"
-          >
-            Shop now
-          </Link>
-          <Link
-            to="/welcome-back"
-            onClick={close}
-            className="inline-flex min-h-12 items-center justify-center rounded-full border border-gold-soft/70 px-6 text-sm font-bold text-foreground hover:bg-secondary"
-          >
-            Ordered before? Unlock your offer
-          </Link>
+        <img
+          src="/national-day-offer.png"
+          alt="UAE National Day Special Offer - Buy 1 Get 1 Free till 6th December"
+          className="w-full rounded-t-[2rem] object-cover"
+        />
+        <div className="p-5 text-center sm:p-6">
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-caramel">🗓 Valid till 6th December 2026</p>
+          <h2 id="welcome-promo-title" className="mt-2 font-display text-2xl leading-tight">
+            No code needed — added automatically
+          </h2>
+          <div className="mt-4 flex flex-col gap-3">
+            <Link
+              to="/welcome-back"
+              onClick={close}
+              className="inline-flex min-h-12 items-center justify-center rounded-full bg-gradient-gold px-6 text-sm font-bold text-primary-foreground shadow-glow"
+            >
+              Shop the offer
+            </Link>
+            <Link
+              to="/products"
+              onClick={close}
+              className="inline-flex min-h-12 items-center justify-center rounded-full border border-gold-soft/70 px-6 text-sm font-bold text-foreground hover:bg-secondary"
+            >
+              View all products
+            </Link>
+          </div>
         </div>
       </div>
     </div>
