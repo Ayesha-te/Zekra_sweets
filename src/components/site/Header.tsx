@@ -6,7 +6,7 @@ import logo from "@/assets/log.png";
 
 const nav = [
   { to: "/", label: "Home" },
-  { to: "/welcome-back", label: "Welcome Back" },
+  { to: "/welcome-back", label: "National Day Offer" },
   { to: "/products", label: "Products" },
   { to: "/reviews", label: "Reviews" },
   { to: "/history", label: "Track Order" },
@@ -75,7 +75,7 @@ export function Header() {
             to="/welcome-back"
             className="hidden items-center gap-2 rounded-full bg-gradient-gold px-6 py-3 text-[15px] font-semibold text-primary-foreground shadow-glow transition-transform hover:scale-105 lg:inline-flex"
           >
-            Welcome Back Offer
+            National Day Offer
           </Link>
           <button
             aria-label="Toggle navigation"
@@ -112,7 +112,7 @@ export function Header() {
               onClick={() => setOpen(false)}
               className="mt-2 flex items-center justify-center gap-2 rounded-2xl bg-gradient-gold px-4 py-3 text-sm font-semibold text-primary-foreground"
             >
-              Welcome Back Offer
+              National Day Offer
             </Link>
           </div>
         </div>
