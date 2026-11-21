@@ -30,7 +30,6 @@ import {
   loadDeliveryLocations,
   loadPickupLocations,
   validateCoupon,
-  checkFirstOrder,
   type CreateOrderPayload,
   type DeliveryLocation,
   type FulfillmentMode,
@@ -118,7 +117,6 @@ function Checkout() {
   const [appliedCoupon, setAppliedCoupon] = useState<ValidatedCoupon | null>(null);
   const [couponBusy, setCouponBusy] = useState(false);
   const [couponMessage, setCouponMessage] = useState<string | null>(null);
-  const [firstOrderInfo, setFirstOrderInfo] = useState<{ eligible: boolean; percentageOff: number; maxDiscount: number } | null>(null);
 
   // Meta Pixel: InitiateCheckout once per visit to the checkout page (not when coming back from Stripe).
   const [checkoutTracked, setCheckoutTracked] = useState(false);
@@ -135,19 +133,6 @@ function Checkout() {
     });
     setCheckoutTracked(true);
   }, [cart.items, checkoutTracked]);
-
-  // New-customer offer: ask the server whether this phone/email has ordered before.
-  useEffect(() => {
-    const digits = form.phone.replace(/\D/g, "");
-    if (digits.length < 7) { setFirstOrderInfo(null); return; }
-    let active = true;
-    const timer = window.setTimeout(() => {
-      checkFirstOrder(form.phone.trim(), form.email.trim())
-        .then((info) => { if (active) setFirstOrderInfo(info); })
-        .catch(() => { if (active) setFirstOrderInfo(null); });
-    }, 500);
-    return () => { active = false; window.clearTimeout(timer); };
-  }, [form.phone, form.email]);
 
   useEffect(() => {
     let mounted = true;
@@ -218,7 +203,8 @@ function Checkout() {
   const deliveryUnavailable = form.mode === "delivery" && isDeliveryUnavailableLocation(selectedLocation);
   const codFee = form.mode === "delivery" && form.paymentMethod === "cash_on_delivery" ? COD_CHARGE : 0;
   const hasFreeItems = cart.items.some((item) => item.product.isFreeGift);
-  const firstOrderDiscount = !appliedCoupon && !hasFreeItems && firstOrderInfo?.eligible ? firstOrderAmount(totals.subtotal, firstOrderInfo) : 0;
+  // First-order 50% discount is disabled for the National Day offer period.
+  const firstOrderDiscount = 0;
   const discount = appliedCoupon ? roundMoney(totals.subtotal * appliedCoupon.percentageOff / 100) : firstOrderDiscount;
   const payableTotals = checkoutTotals(totals.subtotal, totals.deliveryEstimate + codFee, discount);
   const payableTotal = payableTotals.total;
@@ -603,7 +589,7 @@ function Checkout() {
               </button>
             </form>
 
-            <CheckoutSummary mode={form.mode} selectedLocation={selectedLocation} coupon={appliedCoupon} products={products} codFee={codFee} firstOrderDiscount={firstOrderDiscount} firstOrderPercent={firstOrderInfo?.percentageOff ?? 50} firstOrderMax={firstOrderInfo?.maxDiscount ?? 100} />
+            <CheckoutSummary mode={form.mode} selectedLocation={selectedLocation} coupon={appliedCoupon} products={products} codFee={codFee} firstOrderDiscount={0} firstOrderPercent={50} firstOrderMax={100} />
           </div>
         )}
         {cart.items.length > 0 && (

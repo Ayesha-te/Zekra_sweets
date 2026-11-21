@@ -1,17 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Minus, Plus, ShoppingBag, Trash2, Truck } from "lucide-react";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState } from "react";
 
 import { FreeDeliveryProgress } from "@/components/site/FreeDeliveryProgress";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { assetUrl, fetchOffersStatus, productImageError, verifyLoyaltyOrder, type Product, type ProductSizeOption } from "@/lib/api";
+import { assetUrl, productImageError, type Product, type ProductSizeOption } from "@/lib/api";
 import {
   FREE_DELIVERY_MINIMUM,
   cartItemKey,
   cartKeyForProduct,
   formatMoney,
-  getLoyaltyOffer,
-  setLoyaltyOffer,
   useCart,
   type CartItem,
 } from "@/lib/cart";
@@ -24,13 +22,13 @@ export const Route = createFileRoute("/welcome-back")({
   loader: () => loadProducts(),
   head: () =>
     buildSeoHead({
-      title: "Welcome Back - Buy 1 Get 1 Free for Returning Customers | Zekra Sweets",
+      title: "UAE National Day Offer - Buy 1 Get 1 Free | Zekra Sweets",
       description:
-        "Returning Zekra Sweets customers: verify your previous order and get Buy 1, Get 1 Free on every product for a limited time.",
+        "Celebrate UAE National Day with Zekra Sweets! Buy 1, Get 1 Free on every product — for a limited time only.",
       path: "/welcome-back",
       robots: "index, follow",
     }),
-  component: WelcomeBackPage,
+  component: NationalDayPage,
 });
 
 function optionKey(size: ProductSizeOption) {
@@ -54,45 +52,9 @@ function trackMeta(event: string, params: Record<string, unknown>) {
   if (fbq) fbq("track", event, params);
 }
 
-function WelcomeBackPage() {
+function NationalDayPage() {
   const products = Route.useLoaderData();
   const cart = useCart();
-  const [loyalty, setLoyalty] = useState<{ token: string; endsAt: number } | null>(null);
-  const [windowOpen, setWindowOpen] = useState<boolean | null>(null);
-  const [windowEnds, setWindowEnds] = useState<string | null>(null);
-  const [orderId, setOrderId] = useState("");
-  const [email, setEmail] = useState("");
-  const [checking, setChecking] = useState(false);
-  const [verifyError, setVerifyError] = useState<string | null>(null);
-  const offerActive = Boolean(loyalty);
-
-  useEffect(() => {
-    setLoyalty(getLoyaltyOffer());
-    fetchOffersStatus().then((status) => { setWindowOpen(status.loyaltyOpen); setWindowEnds(status.loyaltyEndsAt); }).catch(() => setWindowOpen(null));
-  }, []);
-
-  const endLabel = loyalty
-    ? new Intl.DateTimeFormat("en-GB", { dateStyle: "full", timeZone: "Asia/Dubai" }).format(new Date(loyalty.endsAt))
-    : "";
-
-  const verify = async (event: FormEvent) => {
-    event.preventDefault();
-    setVerifyError(null);
-    if (!orderId.trim() || !email.trim()) {
-      setVerifyError("Enter your previous order number and the email you used.");
-      return;
-    }
-    setChecking(true);
-    try {
-      const result = await verifyLoyaltyOrder(orderId.trim(), email.trim());
-      setLoyaltyOffer(result.token, result.endsAt);
-      setLoyalty(getLoyaltyOffer());
-    } catch (caught) {
-      setVerifyError(caught instanceof Error ? caught.message : "We could not verify your order. Please try again.");
-    } finally {
-      setChecking(false);
-    }
-  };
 
   const available = useMemo(
     () => products.filter((product) => product.isActive !== false && productDisplayPrice(product) > 0),
@@ -105,77 +67,26 @@ function WelcomeBackPage() {
   return (
     <SiteLayout>
       <section className="mx-auto max-w-6xl px-4 sm:px-6">
+        {/* Hero banner */}
         <div className="rounded-[2rem] bg-cocoa px-6 py-7 text-center text-cream shadow-elegant sm:px-10 sm:py-9" data-reveal>
-          <div className="text-xs font-bold uppercase tracking-[0.28em] text-gold-soft">For our returning customers</div>
+          <div className="text-xs font-bold uppercase tracking-[0.28em] text-gold-soft">🇦🇪 UAE National Day Special</div>
           <h1 className="mt-2 font-display text-3xl leading-tight text-gold-soft sm:text-5xl">
-            Welcome Back!
+            Buy 1, Get 1 Free
           </h1>
-          <p className="mt-3 font-display text-2xl sm:text-3xl">Buy 1, Get 1 Free on every product.</p>
+          <p className="mt-3 font-display text-2xl sm:text-3xl">On every product — celebrate with Zekra!</p>
           <p className="mt-2 text-sm font-semibold text-cream/80 sm:text-base">
-            {offerActive
-              ? `Unlocked for you - valid till ${endLabel}.`
-              : windowEnds
-                ? `For 15 days only - valid till ${new Intl.DateTimeFormat("en-GB", { dateStyle: "full", timeZone: "Asia/Dubai" }).format(new Date(windowEnds))}.`
-                : "Our thank-you to the customers who ordered before."}
+            Limited time National Day offer. No code needed — just add to your bag.
           </p>
         </div>
 
-        {!offerActive && (
-          <div className="mx-auto mt-6 max-w-xl rounded-3xl border border-gold-soft/55 bg-cream p-6">
-            {windowOpen === false ? (
-              <div className="text-center">
-                <h2 className="font-display text-2xl">This offer is not running right now</h2>
-                <p className="mt-2 text-sm text-muted-foreground">Keep an eye on your inbox - we email our returning customers whenever it opens.</p>
-                <Link
-                  to="/products"
-                  className="mt-4 inline-flex min-h-11 items-center justify-center rounded-full bg-gradient-gold px-6 text-sm font-bold text-primary-foreground shadow-glow"
-                >
-                  View products
-                </Link>
-              </div>
-            ) : (
-              <form onSubmit={verify} className="space-y-3">
-                <h2 className="font-display text-2xl">Unlock your offer</h2>
-                <p className="text-sm text-muted-foreground">
-                  Enter the order number from your previous order (it is in your order email, for example ZK-...) and the email you ordered with. This offer is for returning customers only.
-                </p>
-                <input
-                  value={orderId}
-                  onChange={(event) => setOrderId(event.target.value)}
-                  placeholder="Previous order number"
-                  aria-label="Previous order number"
-                  className="w-full rounded-2xl border border-border bg-cream/70 px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-                />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  placeholder="Email used for that order"
-                  aria-label="Email used for that order"
-                  className="w-full rounded-2xl border border-border bg-cream/70 px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-                />
-                {verifyError && <p className="text-sm font-semibold text-destructive">{verifyError}</p>}
-                <button
-                  type="submit"
-                  disabled={checking}
-                  className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-gradient-gold px-6 text-sm font-extrabold text-primary-foreground shadow-glow disabled:opacity-60"
-                >
-                  {checking ? "Checking..." : "Unlock Buy 1 Get 1 Free"}
-                </button>
-                <p className="text-center text-xs text-muted-foreground">New to Zekra Sweets? Your first order gets 50% off automatically (up to AED 100) - no code needed.</p>
-              </form>
-            )}
-          </div>
-        )}
-
-        <div className={`mt-6 grid gap-6 ${!offerActive ? "hidden" : ""} ${picks.length > 0 ? "lg:grid-cols-[minmax(0,1fr)_360px]" : ""}`}>
+        <div className={`mt-6 grid gap-6 ${picks.length > 0 ? "lg:grid-cols-[minmax(0,1fr)_360px]" : ""}`}>
           <div>
             {available.length === 0 ? (
               <p className="rounded-2xl bg-secondary p-4 text-sm">Products are loading. Please refresh in a moment.</p>
             ) : (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {available.map((product) => (
-                  <OfferProductCard key={product.id} product={product} cartItems={cart.items} offerActive={offerActive} onSave={cart.setItemQuantity} />
+                  <OfferProductCard key={product.id} product={product} cartItems={cart.items} onSave={cart.setItemQuantity} />
                 ))}
               </div>
             )}
@@ -201,7 +112,7 @@ function WelcomeBackPage() {
                           {item.product.sizeLabel && <div className="text-xs text-muted-foreground">{item.product.sizeLabel}</div>}
                           <div className="mt-1 text-sm font-bold">
                             Qty {item.quantity}
-                            {offerActive ? <span className="ml-2 text-primary">+{item.quantity} FREE</span> : null}
+                            <span className="ml-2 text-primary">+{item.quantity} FREE</span>
                           </div>
                         </div>
                         <div className="text-right">
@@ -258,12 +169,10 @@ function WelcomeBackPage() {
 function OfferProductCard({
   product,
   cartItems,
-  offerActive,
   onSave,
 }: {
   product: Product;
   cartItems: CartItem[];
-  offerActive: boolean;
   onSave: (product: Product, quantity: number) => void;
 }) {
   const sizes = productSizeOptions(product);
@@ -347,7 +256,7 @@ function OfferProductCard({
               <Plus className="h-4 w-4" />
             </button>
           </div>
-          {offerActive && <div className="text-right text-sm font-bold text-primary">+{quantity} FREE</div>}
+          <div className="text-right text-sm font-bold text-primary">+{quantity} FREE</div>
         </div>
 
         <button
