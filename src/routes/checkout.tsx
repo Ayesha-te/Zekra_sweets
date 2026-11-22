@@ -203,9 +203,7 @@ function Checkout() {
   const deliveryUnavailable = form.mode === "delivery" && isDeliveryUnavailableLocation(selectedLocation);
   const codFee = form.mode === "delivery" && form.paymentMethod === "cash_on_delivery" ? COD_CHARGE : 0;
   const hasFreeItems = cart.items.some((item) => item.product.isFreeGift);
-  // First-order 50% discount is disabled for the National Day offer period.
-  const firstOrderDiscount = 0;
-  const discount = appliedCoupon ? roundMoney(totals.subtotal * appliedCoupon.percentageOff / 100) : firstOrderDiscount;
+  const discount = appliedCoupon ? roundMoney(totals.subtotal * appliedCoupon.percentageOff / 100) : 0;
   const payableTotals = checkoutTotals(totals.subtotal, totals.deliveryEstimate + codFee, discount);
   const payableTotal = payableTotals.total;
   const qualifiesForFreeDelivery = locationGetsFreeDelivery && totals.subtotal >= FREE_DELIVERY_MINIMUM;
@@ -295,7 +293,7 @@ function Checkout() {
       deliveryLocation ? deliveryLocation.charge : 0,
       !deliveryLocation || isFreeDeliveryLocation(deliveryLocation),
     );
-    const orderDiscount = appliedCoupon ? roundMoney(orderTotals.subtotal * appliedCoupon.percentageOff / 100) : firstOrderDiscount;
+    const orderDiscount = appliedCoupon ? roundMoney(orderTotals.subtotal * appliedCoupon.percentageOff / 100) : 0;
     const orderCodFee = deliveryLocation && form.paymentMethod === "cash_on_delivery" ? COD_CHARGE : 0;
     const finalOrderTotals = checkoutTotals(orderTotals.subtotal, orderTotals.deliveryEstimate + orderCodFee, orderDiscount);
 
@@ -589,7 +587,7 @@ function Checkout() {
               </button>
             </form>
 
-            <CheckoutSummary mode={form.mode} selectedLocation={selectedLocation} coupon={appliedCoupon} products={products} codFee={codFee} firstOrderDiscount={0} firstOrderPercent={50} firstOrderMax={100} />
+            <CheckoutSummary mode={form.mode} selectedLocation={selectedLocation} coupon={appliedCoupon} products={products} codFee={codFee} />
           </div>
         )}
         {cart.items.length > 0 && (
@@ -671,13 +669,7 @@ function CheckoutSummary({
   coupon,
   products,
   codFee = 0,
-  firstOrderDiscount = 0,
-  firstOrderPercent = 50,
-  firstOrderMax = 100,
 }: {
-  firstOrderDiscount?: number;
-  firstOrderPercent?: number;
-  firstOrderMax?: number;
   codFee?: number;
   mode: FulfillmentMode;
   selectedLocation?: DeliveryLocation;
@@ -689,7 +681,7 @@ function CheckoutSummary({
   const locationGetsFreeDelivery = !selectedLocation || isFreeDeliveryLocation(selectedLocation);
   const totals = getCartTotals(cart.items, deliveryCharge, locationGetsFreeDelivery);
   const qualifiesForFreeDelivery = locationGetsFreeDelivery && totals.subtotal >= FREE_DELIVERY_MINIMUM;
-  const discount = coupon ? roundMoney(totals.subtotal * coupon.percentageOff / 100) : firstOrderDiscount;
+  const discount = coupon ? roundMoney(totals.subtotal * coupon.percentageOff / 100) : 0;
   const finalTotals = checkoutTotals(totals.subtotal, totals.deliveryEstimate + codFee, discount);
 
   return (
@@ -769,7 +761,6 @@ function CheckoutSummary({
         />
         {codFee > 0 && <SummaryRow label="Cash on delivery charge" value={formatMoney(codFee)} />}
         {coupon && <SummaryRow label={`Discount (${coupon.code}, ${coupon.percentageOff}%)`} value={`-${formatMoney(discount)}`} />}
-        {!coupon && firstOrderDiscount > 0 && <SummaryRow label={`New customer offer (${firstOrderPercent}% off, max ${formatMoney(firstOrderMax)})`} value={`-${formatMoney(firstOrderDiscount)}`} />}
         <SummaryRow label="VAT (5%)" value={formatMoney(finalTotals.vat)} />
         <SummaryRow label="Final total" value={formatMoney(finalTotals.total)} strong />
       </div>
@@ -924,10 +915,6 @@ function orderReference(response: StripeCheckoutSessionStatus) {
 
 function normalizeFulfillmentMode(value: string | null | undefined): FulfillmentMode {
   return value === "pickup" ? "pickup" : "delivery";
-}
-
-function firstOrderAmount(subtotal: number, info: { percentageOff: number; maxDiscount: number }) {
-  return roundMoney(Math.min((subtotal * info.percentageOff) / 100, info.maxDiscount));
 }
 
 function roundMoney(value: number) {

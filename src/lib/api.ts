@@ -326,14 +326,6 @@ export function fetchOffersStatus() {
   return apiFetch<{ loyaltyOpen: boolean; loyaltyEndsAt: string | null; firstOrderPercent: number; firstOrderMaxDiscount: number }>("/api/offers/status");
 }
 
-export function checkFirstOrder(phone: string, email: string) {
-  return apiFetch<{ eligible: boolean; percentageOff: number; maxDiscount: number }>("/api/offers/first-order", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ phone, email }),
-  });
-}
-
 export function fetchStripeCheckoutSession(sessionId: string) {
   return apiFetch<StripeCheckoutSessionStatus>(
     `/api/stripe/checkout-session/${encodeURIComponent(sessionId)}`,

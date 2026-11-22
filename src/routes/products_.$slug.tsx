@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 
 import { StructuredData } from "@/components/seo/StructuredData";
 import { ProductCard } from "@/components/products/ProductCard";
-import { FirstOrderOfferStrip } from "@/components/site/FirstOrderOfferStrip";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { assetUrl, productImageError, type Product } from "@/lib/api";
 import { formatMoney, useCart } from "@/lib/cart";
@@ -138,7 +137,6 @@ function ProductPage() {
       />
 
       <section className="mx-auto max-w-[1380px] px-4 sm:px-6">
-        <FirstOrderOfferStrip className="mb-4" />
         <nav
           className="mb-2 flex flex-wrap items-center gap-2 text-sm text-muted-foreground"
           aria-label="Breadcrumb"
