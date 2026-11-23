@@ -81,11 +81,16 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
             Out of stock
           </span>
         ) : (
-          product.tag && (
-            <span className="absolute left-3 top-3 rounded-full bg-cocoa px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.16em] text-gold-soft">
-              {product.tag}
+          <>
+            {product.tag && (
+              <span className="absolute left-3 top-3 rounded-full bg-cocoa px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.16em] text-gold-soft">
+                {product.tag}
+              </span>
+            )}
+            <span className="absolute right-3 top-3 rounded-full bg-[#1a5c2a] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.16em] text-gold-soft shadow-glow">
+              +1 Free 🎁
             </span>
-          )
+          </>
         )}
       </Link>
       <div className="p-3.5 sm:p-4">
