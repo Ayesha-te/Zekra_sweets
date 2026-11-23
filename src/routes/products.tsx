@@ -83,6 +83,16 @@ function Products() {
     <SiteLayout>
       <StructuredData data={itemListJsonLd(products)} />
       <section className="mx-auto max-w-7xl px-4 sm:px-6">
+        {/* National Day offer banner */}
+        <div className="mb-4 flex items-center justify-center gap-3 rounded-[1.4rem] bg-gradient-to-r from-[#1a5c2a] to-[#0f3d1c] px-5 py-4 text-center shadow-glow" data-reveal>
+          <span className="text-2xl">🇦🇪</span>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-gold-soft">UAE National Day Special · Till 6th December</p>
+            <p className="mt-0.5 font-display text-xl font-bold text-cream">Buy 1, Get 1 <span className="text-gold-soft">Free</span> — on every order!</p>
+          </div>
+          <span className="text-2xl">🎊</span>
+        </div>
+
         <div className="glass rounded-[1.75rem] p-5 sm:p-7" data-reveal>
           <span className="text-[11px] uppercase tracking-[0.24em] text-caramel">
             The bakery counter

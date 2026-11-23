@@ -62,18 +62,11 @@ export function PromoPopup() {
           </h2>
           <div className="mt-4 flex flex-col gap-3">
             <Link
-              to="/welcome-back"
+              to="/products"
               onClick={close}
               className="inline-flex min-h-12 items-center justify-center rounded-full bg-gradient-gold px-6 text-sm font-bold text-primary-foreground shadow-glow"
             >
               Shop the offer
-            </Link>
-            <Link
-              to="/products"
-              onClick={close}
-              className="inline-flex min-h-12 items-center justify-center rounded-full border border-gold-soft/70 px-6 text-sm font-bold text-foreground hover:bg-secondary"
-            >
-              View all products
             </Link>
           </div>
         </div>
