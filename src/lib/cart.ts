@@ -271,7 +271,7 @@ function applyOfferRules(items: CartItem[]): CartItem[] {
       product: {
         ...item.product,
         id: freeItemId(item.product.id),
-        name: `${item.product.name} - FREE (Welcome Back offer)`,
+        name: `${item.product.name} - FREE (National Day Gift)`,
         price: 0,
         originalPrice: null,
         isFreeGift: true,
