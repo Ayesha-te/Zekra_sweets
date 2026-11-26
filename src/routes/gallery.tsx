@@ -21,8 +21,8 @@ export const Route = createFileRoute("/gallery")({
     meta: [
       { name: "robots", content: "index, follow" },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://zekrasweets.com/gallery" },
-      { property: "og:image", content: "https://zekrasweets.com/favicon.png" },
+      { property: "og:url", content: "https://www.zekrasweets.com/gallery" },
+      { property: "og:image", content: "https://www.zekrasweets.com/favicon.png" },
       { property: "og:site_name", content: "Zekra Sweets" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Gallery - Zekra Sweets" },
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/gallery")({
         name: "twitter:description",
         content: "View Zekra Sweets products and behind-the-scenes bakery moments.",
       },
-      { name: "twitter:image", content: "https://zekrasweets.com/favicon.png" },
+      { name: "twitter:image", content: "https://www.zekrasweets.com/favicon.png" },
       { title: "Gallery — Zekra Sweets | Behind the Scenes" },
       {
         name: "description",
@@ -43,7 +43,7 @@ export const Route = createFileRoute("/gallery")({
         content: "Handmade cookies, sweets and behind-the-scenes moments.",
       },
     ],
-    links: [{ rel: "canonical", href: "https://zekrasweets.com/gallery" }],
+    links: [{ rel: "canonical", href: "https://www.zekrasweets.com/gallery" }],
   }),
   component: Gallery,
 });

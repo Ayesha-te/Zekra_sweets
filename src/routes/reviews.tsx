@@ -20,10 +20,10 @@ export const Route = createFileRoute("/reviews")({
       },
       { property: "og:title", content: "Customer Reviews - Zekra Sweets" },
       { property: "og:description", content: "Customer feedback and reviews for Zekra Sweets." },
-      { property: "og:url", content: "https://zekrasweets.com/reviews" },
-      { property: "og:image", content: "https://zekrasweets.com/favicon.png" },
+      { property: "og:url", content: "https://www.zekrasweets.com/reviews" },
+      { property: "og:image", content: "https://www.zekrasweets.com/favicon.png" },
     ],
-    links: [{ rel: "canonical", href: "https://zekrasweets.com/reviews" }],
+    links: [{ rel: "canonical", href: "https://www.zekrasweets.com/reviews" }],
   }),
   component: Reviews,
 });

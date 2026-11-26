@@ -15,8 +15,8 @@ export const Route = createFileRoute("/contact")({
     meta: [
       { name: "robots", content: "index, follow" },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://zekrasweets.com/contact" },
-      { property: "og:image", content: "https://zekrasweets.com/favicon.png" },
+      { property: "og:url", content: "https://www.zekrasweets.com/contact" },
+      { property: "og:image", content: "https://www.zekrasweets.com/favicon.png" },
       { property: "og:site_name", content: "Zekra Sweets" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Contact Zekra Sweets" },
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/contact")({
         name: "twitter:description",
         content: "Contact Zekra Sweets by phone, email, WhatsApp, or by visiting our Ajman bakery.",
       },
-      { name: "twitter:image", content: "https://zekrasweets.com/favicon.png" },
+      { name: "twitter:image", content: "https://www.zekrasweets.com/favicon.png" },
       { title: "Contact - Zekra Sweets | Ajman Bakery" },
       {
         name: "description",
@@ -34,7 +34,7 @@ export const Route = createFileRoute("/contact")({
       { property: "og:title", content: "Contact Zekra Sweets" },
       { property: "og:description", content: "Reach us by phone, email, WhatsApp, or in Ajman." },
     ],
-    links: [{ rel: "canonical", href: "https://zekrasweets.com/contact" }],
+    links: [{ rel: "canonical", href: "https://www.zekrasweets.com/contact" }],
   }),
   component: Contact,
 });

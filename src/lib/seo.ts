@@ -3,7 +3,7 @@ import { productDisplayPrice } from "@/lib/products";
 import { BUSINESS_PHONE_TEL } from "@/lib/contact";
 
 export const SITE_NAME = "Zekra Sweets";
-export const DEFAULT_SITE_URL = "https://zekrasweets.com";
+export const DEFAULT_SITE_URL = "https://www.zekrasweets.com";
 export const SITE_URL = (import.meta.env.VITE_SITE_URL || DEFAULT_SITE_URL).replace(/\/+$/, "");
 export const DEFAULT_OG_IMAGE = absoluteUrl("/seed-products/almond-cookies.jpg");
 

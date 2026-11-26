@@ -32,8 +32,8 @@ export const Route = createFileRoute("/history")({
     meta: [
       { name: "robots", content: "noindex, follow" },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://zekrasweets.com/history" },
-      { property: "og:image", content: "https://zekrasweets.com/favicon.png" },
+      { property: "og:url", content: "https://www.zekrasweets.com/history" },
+      { property: "og:image", content: "https://www.zekrasweets.com/favicon.png" },
       { property: "og:site_name", content: "Zekra Sweets" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Track Order - Zekra Sweets" },
@@ -41,14 +41,14 @@ export const Route = createFileRoute("/history")({
         name: "twitter:description",
         content: "Track recent Zekra Sweets orders by phone number or email.",
       },
-      { name: "twitter:image", content: "https://zekrasweets.com/favicon.png" },
+      { name: "twitter:image", content: "https://www.zekrasweets.com/favicon.png" },
       { title: "Track Order - Zekra Sweets" },
       {
         name: "description",
         content: "Track recent Zekra Sweets orders by phone number or email.",
       },
     ],
-    links: [{ rel: "canonical", href: "https://zekrasweets.com/history" }],
+    links: [{ rel: "canonical", href: "https://www.zekrasweets.com/history" }],
   }),
   component: OrderHistory,
 });

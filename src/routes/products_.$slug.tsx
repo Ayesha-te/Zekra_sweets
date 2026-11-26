@@ -122,7 +122,7 @@ function ProductPage() {
   };
 
   const whatsappMessage = encodeURIComponent(
-    `Hello Zekra Sweets, I would like to order ${quantity} × ${product.name}${selectedSize?.label ? ` (${selectedSize.label})` : ""} at ${formatMoney(selectedSize.price)} each. ${typeof window !== "undefined" ? window.location.href : `https://zekrasweets.com${productPath(product)}`}`,
+    `Hello Zekra Sweets, I would like to order ${quantity} × ${product.name}${selectedSize?.label ? ` (${selectedSize.label})` : ""} at ${formatMoney(selectedSize.price)} each. ${typeof window !== "undefined" ? window.location.href : `https://www.zekrasweets.com${productPath(product)}`}`,
   );
 
   return (

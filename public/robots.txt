@@ -7,4 +7,4 @@ Disallow: /checkout
 Disallow: /history
 Disallow: /products?*
 
-Sitemap: https://zekrasweets.com/sitemap.xml
+Sitemap: https://www.zekrasweets.com/sitemap.xml
