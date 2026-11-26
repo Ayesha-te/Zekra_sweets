@@ -262,8 +262,8 @@ function applyOfferRules(items: CartItem[]): CartItem[] {
       item.product.id !== RETIRED_COOKIE_COMBO_ID &&
       !item.product.comboSelectionItems?.length,
   );
-  if (!getLoyaltyOffer()) return paidItems;
 
+  // National Day offer: Buy 1 Get 1 Free for every customer — no token required.
   const result: CartItem[] = [];
   for (const item of paidItems) {
     result.push(item);
@@ -271,7 +271,7 @@ function applyOfferRules(items: CartItem[]): CartItem[] {
       product: {
         ...item.product,
         id: freeItemId(item.product.id),
-        name: `${item.product.name} - FREE (National Day Gift)`,
+        name: `${item.product.name} - FREE (National Day Gift 🇦🇪)`,
         price: 0,
         originalPrice: null,
         isFreeGift: true,
