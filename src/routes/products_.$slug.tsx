@@ -34,7 +34,11 @@ export const Route = createFileRoute("/products_/$slug")({
     const requestedSlug = slugify(params.slug);
     const product = products.find((candidate) => productMatchesSlug(candidate, requestedSlug));
 
-    if (!product) throw notFound();
+    if (!product) {
+      const legacyTarget = LEGACY_PRODUCT_REDIRECTS[requestedSlug];
+      if (legacyTarget) throw redirect({ href: legacyTarget, statusCode: 301 });
+      throw notFound();
+    }
 
     const canonicalSlug = productSlug(product);
     if (requestedSlug !== canonicalSlug) {
@@ -407,6 +411,11 @@ function ProductPage() {
     </SiteLayout>
   );
 }
+
+// Old product URLs that no longer exist, mapped to the best current page.
+const LEGACY_PRODUCT_REDIRECTS: Record<string, string> = {
+  "tea-time-combos": "/products",
+};
 
 function productMatchesSlug(product: Product, requestedSlug: string) {
   const redirects = Array.isArray(product.redirectSlugs) ? product.redirectSlugs : [];

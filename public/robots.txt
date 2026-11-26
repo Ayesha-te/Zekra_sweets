@@ -5,6 +5,5 @@ Disallow: /api/
 Disallow: /cart
 Disallow: /checkout
 Disallow: /history
-Disallow: /products?*
 
 Sitemap: https://www.zekrasweets.com/sitemap.xml

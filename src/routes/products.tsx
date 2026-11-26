@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -16,12 +16,23 @@ import { buildSeoHead, itemListJsonLd } from "@/lib/seo";
 
 type ProductSearch = { q?: string; category?: string };
 
+const CATEGORY_PAGE_SLUGS = ["cookies", "rusk", "puff", "sweets"];
+
 export const Route = createFileRoute("/products")({
   validateSearch: (search: Record<string, unknown>): ProductSearch => ({
     q: typeof search.q === "string" && search.q.trim() ? search.q : undefined,
     category:
       typeof search.category === "string" && search.category.trim() ? search.category : undefined,
   }),
+  // Direct visits to /products?category=X (old links, Google) go to the real category page.
+  // Server-only so the in-page filter chips keep working client-side.
+  beforeLoad: ({ search }) => {
+    if (typeof window !== "undefined" || search.q || !search.category) return;
+    const slug = search.category.trim().toLowerCase();
+    if (CATEGORY_PAGE_SLUGS.includes(slug)) {
+      throw redirect({ href: `/categories/${slug}`, statusCode: 301 });
+    }
+  },
   loader: () => loadProducts(),
   head: ({ match }) =>
     buildSeoHead({
